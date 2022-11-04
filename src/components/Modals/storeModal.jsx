@@ -11,8 +11,10 @@ import axios from "axios";
 export const StoreModal = ({ handleReload }) => {
     const { openModal, setOpenModal, brandList, storeModal, storeCategoryList, buildingList, setStoreModal } = useContext(AppContext);
     const [storeName, setStoreName] = useState("");
+    const [storeNameState, setStoreNameState] = useState("");
     const [phone, setPhone] = useState("");
     const [building, setBuilding] = useState("");
+    const [buildingState, setBuildingState] = useState("");
     const [account, setAccount] = useState("");
     const [status, setStatus] = useState(0);
     const [brand, setBrand] = useState("");
@@ -24,8 +26,10 @@ export const StoreModal = ({ handleReload }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const [imgUpdate, setImgUpdate] = useState(false);
+    const [brandState, setBrandState] = useState("");
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
+    const [storeCategoryState, setStoreCategoryState] = useState("");
     // const [brand, setBrand] = useState("");
     const maxNumber = 69;
     const onChange = (imageList, addUpdateIndex) => {
@@ -37,6 +41,47 @@ export const StoreModal = ({ handleReload }) => {
             setimageState("invalid");
         }
         setImages(imageList);
+    };
+    const validateCustomStylesForm = () => {
+        let valid = true;
+        if (storeName === "") {
+            valid = false;
+            setStoreNameState("invalid");
+        } else {
+            // valid = true;
+            setStoreNameState("valid");
+        }
+
+        if (images.length === 0) {
+            valid = false;
+            setimageState("invalid");
+        } else {
+            // valid = true;
+            setimageState("valid");
+        }
+        if (brand === "") {
+            valid = false;
+            setBrandState("invalid");
+        } else {
+            // valid = true;
+            setBrandState("valid");
+        }
+        if (storeCategory === "") {
+            valid = false;
+            setStoreCategoryState("invalid");
+        } else {
+            // valid = true;
+            setStoreCategoryState("valid");
+        }
+        if (building === "") {
+            valid = false;
+            setBuildingState("invalid");
+        } else {
+            // valid = true;
+            setBuildingState("valid");
+        }
+
+        return valid;
     };
     const [storeCategory, setStoreCategory] = useState("");
     useEffect(() => {
@@ -75,41 +120,43 @@ export const StoreModal = ({ handleReload }) => {
         }
     }, [storeModal]);
     const hanldeUpdate = () => {
-        setIsLoadingCircle(true);
+        if (validateCustomStylesForm()) {
+            setIsLoadingCircle(true);
 
-        let store = {
-            id: storeModal.id,
-            name: storeName,
-            buildingId: building.value,
-            brandId: brand.value,
-            rate: "",
-            closeTime: closeTime,
-            openTime: openTime,
-            image: getBase64Image(images[0].data_url || "", images[0]?.file?.type) || "",
-            storeCategoryId: storeCategory.value,
-            slogan: slogan,
-            phone: phone,
-            status: status.value,
-            password: password,
-        };
-        console.log({ store, imgUpdate });
-        putStore(store, storeModal.id, imgUpdate)
-            .then((res) => {
-                if (res.data) {
+            let store = {
+                id: storeModal.id,
+                name: storeName,
+                buildingId: building.value,
+                brandId: brand.value,
+                rate: "",
+                closeTime: closeTime,
+                openTime: openTime,
+                image: getBase64Image(images[0].data_url || "", images[0]?.file?.type) || "",
+                storeCategoryId: storeCategory.value,
+                slogan: slogan,
+                phone: phone,
+                status: status.value,
+                password: password,
+            };
+            console.log({ store, imgUpdate });
+            putStore(store, storeModal.id, imgUpdate)
+                .then((res) => {
+                    if (res.data) {
+                        setIsLoadingCircle(false);
+                        handleReload();
+                        notify("Cập nhật thành công", "Success");
+                        setOpenModal(false);
+                        setStoreModal({});
+                        setImages([]);
+                        setImgUpdate(false);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
                     setIsLoadingCircle(false);
-                    handleReload();
-                    notify("Cập nhật thành công", "Success");
-                    setOpenModal(false);
-                    setStoreModal({});
-                    setImages([]);
-                    setImgUpdate(false);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                setIsLoadingCircle(false);
-                notify("Đã xảy ra lỗi gì đó!!", "Error");
-            });
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
+                });
+        }
     };
     const customStylesPayment = {
         control: (provided, state) => ({
@@ -264,6 +311,8 @@ export const StoreModal = ({ handleReload }) => {
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Tên cửa hàng </label>
                                                                         <Input
+                                                                            valid={storeNameState === "valid"}
+                                                                            invalid={storeNameState === "invalid"}
                                                                             className="form-control"
                                                                             type="search"
                                                                             id="example-search-input"
@@ -272,6 +321,7 @@ export const StoreModal = ({ handleReload }) => {
                                                                                 setStoreName(e.target.value);
                                                                             }}
                                                                         />
+                                                                        <div className="invalid-feedback">Tên cửa hàng không được để trống</div>
                                                                     </div>
                                                                 </div>
                                                                 <div className="col-md-6">
@@ -301,6 +351,11 @@ export const StoreModal = ({ handleReload }) => {
                                                                             }}
                                                                         />
                                                                     </div>
+                                                                    {buildingState === "invalid" && (
+                                                                        <div className="invalid" style={{ fontSize: "80%", color: "#fb6340", marginTop: "0.25rem" }}>
+                                                                            Địa chỉ không được để trống
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                                 <div className="col-md-6">
                                                                     <div className="form-group">
@@ -315,6 +370,11 @@ export const StoreModal = ({ handleReload }) => {
                                                                             }}
                                                                         />
                                                                     </div>
+                                                                    {brandState === "invalid" && (
+                                                                        <div className="invalid" style={{ fontSize: "80%", color: "#fb6340", marginTop: "0.25rem" }}>
+                                                                            Thương hiệu không được để trống
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                                 <div className="col-md-6">
                                                                     <div className="form-group">
@@ -329,6 +389,11 @@ export const StoreModal = ({ handleReload }) => {
                                                                             }}
                                                                         />
                                                                     </div>
+                                                                    {storeCategoryState === "invalid" && (
+                                                                        <div className="invalid" style={{ fontSize: "80%", color: "#fb6340", marginTop: "0.25rem" }}>
+                                                                            Loại cửa hàng không được để trống
+                                                                        </div>
+                                                                    )}
                                                                 </div>
 
                                                                 <div className="col-md-6">

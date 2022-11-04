@@ -294,7 +294,7 @@ export const Menus = () => {
                                                         );
                                                     }
                                                 })} */}
-                                            <Table className="align-items-center table-flush" responsive>
+                                            <Table className="align-items-center table-flush" responsive hover={true}>
                                                 <thead className="thead-light">
                                                     <tr>
                                                         <th className="sort table-title" scope="col">

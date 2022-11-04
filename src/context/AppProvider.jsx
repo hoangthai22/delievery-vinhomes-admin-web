@@ -15,6 +15,7 @@ export default function AppProvider({ children }) {
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState({});
     const [storeCategoryModal, setStoreCategoryModal] = useState({});
+    const [shipperModal, setShipperModal] = useState({});
     const [categoryList, setCategoryList] = useState([]);
     const [brandList, setBrandList] = useState([]);
     const [menu, setMenu] = useState(1);
@@ -97,6 +98,8 @@ export default function AppProvider({ children }) {
                 setOpenDeleteModal,
                 mode,
                 setMode,
+                shipperModal,
+                setShipperModal,
             }}
         >
             {children}

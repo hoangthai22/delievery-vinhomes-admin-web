@@ -14,6 +14,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+import BrandManage from "./views/pages/brands/BrandManage.jsx";
 import CategoryManage from "./views/pages/categories/CategoryManage.jsx";
 import Dashboard from "./views/pages/dashboards/Dashboard.js";
 import DriverManage from "./views/pages/drivers/DriverManage.jsx";
@@ -31,6 +32,7 @@ const routes = [
         state: "dashboardsCollapse",
         component: Dashboard,
         layout: "/admin",
+        type: 1,
     },
     {
         collapse: false,
@@ -41,21 +43,6 @@ const routes = [
         state: "tablesCollapse",
         layout: "/admin",
         miniName: "T",
-    },
-
-    {
-        path: "/categories",
-        name: "Danh Mục",
-        icon: "fa-solid fa-grip",
-        component: CategoryManage,
-        layout: "/admin",
-    },
-    {
-        path: "/categorieStore",
-        name: "Loại Cửa Hàng",
-        icon: "fa-solid fa-tags",
-        component: StoreCategoryManage,
-        layout: "/admin",
     },
     {
         path: "/stores",
@@ -70,12 +57,42 @@ const routes = [
         icon: "fa-solid fa-box",
         component: Order,
         layout: "/admin",
+        type: 2,
     },
     {
         path: "/drivers",
         name: "Tài Xế",
         icon: "fa-solid fa-user-tie",
         component: DriverManage,
+        layout: "/admin",
+    },
+    {
+        path: "/categories",
+        name: "Danh Mục",
+        icon: "fa-solid fa-grip",
+        component: CategoryManage,
+        layout: "/admin",
+        type: 3,
+    },
+    {
+        path: "/categorieStore",
+        name: "Loại Cửa Hàng",
+        icon: "fa-solid fa-tags",
+        component: StoreCategoryManage,
+        layout: "/admin",
+    },
+    {
+        path: "/brands",
+        name: "Thương hiệu",
+        icon: "fa-solid fa-copyright",
+        component: BrandManage,
+        layout: "/admin",
+    },
+    {
+        path: "/buildings",
+        name: "Khu vực",
+        icon: "fa-solid fa-city",
+        // component: StoreCategoryManage,
         layout: "/admin",
     },
 ];

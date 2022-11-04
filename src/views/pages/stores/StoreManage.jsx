@@ -144,7 +144,7 @@ export const StoreManage = () => {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive>
+                            <Table className="align-items-center table-flush" responsive hover={true}>
                                 <thead className="thead-light">
                                     <tr>
                                         <th className="sort table-title" scope="col">
@@ -171,6 +171,9 @@ export const StoreManage = () => {
 
                                         <th className="sort table-title" scope="col">
                                             Trạng Thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hành động
                                         </th>
                                         {/* <th scope="col">Users</th>
                                         <th className="sort" data-sort="completion" scope="col">

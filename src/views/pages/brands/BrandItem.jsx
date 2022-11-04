@@ -1,17 +1,16 @@
 import React, { useContext } from "react";
+import { NOT_FOUND_IMG } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
 
-export const DriverItem = ({ data, index }) => {
-    const { setShipperModal, setOpenModal } = useContext(AppContext);
+export const BrandItem = ({ data, index }) => {
+    const { setOpenModal, setStoreCategoryModal, setDeleteModal } = useContext(AppContext);
     return (
         <>
             <tr>
-                <td className="budget table-text bold">{index + 1}</td>
-                <td className="budget table-text bold">{data.email}</td>
-                <td className="budget table-text bold">{data.fullName}</td>
-                <td className="budget table-text ">{data.phone}</td>
-                <td className="budget table-text ">{data.deliveryTeam}</td>
-                <td className="budget table-text ">{data.vehicleType}</td>
+                <td className="budget table-text-product bold">{index + 1}</td>
+
+                <td className="budget table-text-product bold">{data.id}</td>
+                <td className="budget table-text-product bold">{data.name}</td>
 
                 {/* <td>
         <span className="badge badge-lg badge-primary " style={{ color: "var(--secondary)", fontSize: 11, padding: "1em 1.4em" }}>
@@ -19,7 +18,7 @@ export const DriverItem = ({ data, index }) => {
         </span>
     </td> */}
                 <td>
-                    {data.status ? (
+                    {!data.isActive ? (
                         <span className={`badge  status-success`} style={{ padding: "0.8em 1.2em", fontSize: 12 }}>
                             Hoạt Động
                         </span>
@@ -30,16 +29,24 @@ export const DriverItem = ({ data, index }) => {
                     )}
                 </td>
 
-                <td className="text-right">
+                <td className="">
                     <i
                         className="fa-solid fa-pen-to-square mr-3 cusor"
                         style={{ fontSize: 22 }}
                         onClick={() => {
-                            setShipperModal(data);
+                            console.log({ data });
+                            setStoreCategoryModal(data);
                             setOpenModal(true);
                         }}
                     ></i>
-                    <i className="fa-regular fa-trash-can mr-3 cusor" style={{ fontSize: 22 }}></i>
+                    <i
+                        className="fa-regular fa-trash-can mr-3 cusor"
+                        style={{ fontSize: 22, color: "red" }}
+                        onClick={() => {
+                            setDeleteModal(true);
+                            setStoreCategoryModal(data);
+                        }}
+                    ></i>
                 </td>
             </tr>
         </>

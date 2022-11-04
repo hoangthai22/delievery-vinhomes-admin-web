@@ -19,7 +19,8 @@ export const Order = () => {
 
     const optionsStatus = [
         { label: "Tất cả", value: "Tất cả" },
-        { label: "Đang chuẩn bị", value: "ShopAccept" },
+        { label: "Đợi tài xế xác nhận", value: "CreateOrder" },
+        { label: "Đang chuẩn bị", value: "ShipAccept" },
         { label: "Đang Giao", value: "Shipping" },
         { label: "Hoàn Thành", value: "Done" },
         { label: "Đã Hủy", value: "Cancel" },
@@ -175,11 +176,14 @@ export const Order = () => {
                                     </Button>
                                 </Col> */}
                             </div>
-                            <Table className="align-items-center table-flush" responsive>
+                            <Table className="align-items-center table-flush" responsive hover={true}>
                                 <thead className="thead-light">
                                     <tr>
                                         <th className="sort table-title" scope="col">
                                             Mã Đơn Hàng
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Cửa hàng
                                         </th>
                                         <th className="sort table-title" scope="col">
                                             Điểm Giao Hàng
@@ -204,7 +208,13 @@ export const Order = () => {
                                             Shipper
                                         </th>
                                         <th className="sort table-title" scope="col">
+                                            Mode
+                                        </th>
+                                        <th className="sort table-title" scope="col">
                                             Trạng Thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hành động
                                         </th>
                                         {/* <th scope="col">Users</th>
                                         <th className="sort table-title" data-sort="completion" scope="col">

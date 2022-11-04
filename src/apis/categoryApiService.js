@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL, CATEGORY } from "./constants";
+import { BASE_URL, BASE_URL_V2, CATEGORY } from "./constants";
 
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/category-management/categories?pageIndex=1&pageSize=10
 export const getListCategorys = (page, size) => {
@@ -11,6 +11,13 @@ export const getListCategorys = (page, size) => {
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/storeCategory-management/storeCategories?pageIndex=1&pageSize=100
 export const getListStoreCategorys = (page, size) => {
     return axios.get(`${BASE_URL}${"storeCategory-management"}/storeCategories?pageIndex=${page}&pageSize=${size}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/storeCategory-management/storeCategories?pageIndex=1&pageSize=100
+export const getListBrand = (page, size) => {
+    return axios.get(`${BASE_URL_V2}brand-management/brands?pageIndex=${page}&pageSize=${size}`, {
         Accept: "application/json",
         "Content-Type": "application/json",
     });
@@ -39,4 +46,21 @@ export const putStoreCategory = (storeCategory) => {
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/storeCategory-management/storeCategories/10
 export const postStoreCategory = (storeCategory) => {
     return axios.post(`${BASE_URL}${"storeCategory-management"}/storeCategories`, storeCategory);
+};
+
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v2/brand-management/brands
+export const postBrand = (brand) => {
+    return axios.post(`${BASE_URL_V2}${"brand-management"}/brands`, brand);
+};
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v2/brand-management/brands
+export const putBrand = (brand) => {
+    return axios.put(`${BASE_URL_V2}${"brand-management"}/brands/${brand.id}`, brand);
+};
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v2/brand-management/brands/string
+export const deleteBrand = (id) => {
+    return axios.delete(`${BASE_URL_V2}${"brand-management"}/brands/${id}`);
+};
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v2/brand-management/brands/string
+export const deleteStoreCate = (id) => {
+    return axios.delete(`${BASE_URL}${"storeCategory-management"}/storeCategories/${id}`);
 };

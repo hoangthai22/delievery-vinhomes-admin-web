@@ -15,55 +15,30 @@
 
 */
 // reactstrap components
-import { debounce } from "lodash";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { Button, Card, CardBody, CardHeader, Col, Container, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Row, Spinner, Table } from "reactstrap";
-import { getListCategorys, getListStoreCategorysByKey } from "../../../apis/categoryApiService";
-import { getListStoreByKey } from "../../../apis/storeApiService";
+import { Button, Card, CardBody, CardHeader, Col, Container, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, Row, Spinner, Table } from "reactstrap";
+import { deleteBrand, getListBrand, getListCategorys, getListStoreCategorys } from "../../../apis/categoryApiService";
 
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { CategoryModal } from "../../../components/Modals/categoryModal";
+import { BrandModal, StorestoreCategoryModal } from "../../../components/Modals/brandModal";
 import { AppContext } from "../../../context/AppProvider";
-import { CategoryItem } from "./CategoryItem";
+import { BrandItem } from "./BrandItem";
+import { NewBrand } from "./NewBrand";
+import { notify } from "../../../components/Toast/ToastCustom";
+
 // core components
-function CategoryManage() {
-    const { openModal } = useContext(AppContext);
+function BrandManage() {
+    const { setOpenModalNewCateStore, storeCategoryModal, deleteModal, setDeleteModal } = useContext(AppContext);
     let history = useHistory();
 
     const [categoryList, setCategoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [keyword, setKeyword] = useState("");
-    function fetchDropdownOptions(key) {
-        setIsLoading(true);
-        setCategoryList([]);
-        console.log(key);
-        if (key !== "") {
-            getListStoreCategorysByKey(key, 1, 100)
-                .then((res) => {
-                    const cate = res.data;
-                    console.log(cate);
-                    setTimeout(() => {
-                        setCategoryList(cate);
-                        setIsLoading(false);
-                    }, 1);
-                })
-                .catch((error) => console.log(error));
-        } else {
-            hanldeGetListCategorys();
-        }
-    }
-    const debounceDropDown = useCallback(
-        debounce((nextValue) => fetchDropdownOptions(nextValue), 1000),
-        []
-    );
-    function handleInputOnchange(e) {
-        const { value } = e.target;
-        setKeyword(value);
-        debounceDropDown(value);
-    }
+    const [isLoadingCircle, setIsLoadingCircle] = useState(false);
+
     const hanldeGetListCategorys = () => {
-        getListCategorys(1, 100).then((res) => {
+        getListBrand(1, 100).then((res) => {
             const categorys = res.data;
             setCategoryList(categorys);
             setIsLoading(false);
@@ -80,12 +55,117 @@ function CategoryManage() {
         setIsLoading(true);
         hanldeGetListCategorys();
     };
+    const customStylesPayment = {
+        control: (provided, state) => ({
+            ...provided,
+            background: "#fff",
+            borderColor: "#9e9e9e",
+            minHeight: "30px",
+            height: "46px",
+            width: "200px",
+            boxShadow: state.isFocused ? null : null,
+            borderRadius: "0.5rem",
+        }),
 
+        input: (provided, state) => ({
+            ...provided,
+            margin: "5px",
+        }),
+    };
+    const hanldeDeleteBrand = (id) => {
+        setIsLoadingCircle(true);
+        deleteBrand(id)
+            .then((res) => {
+                if (res.data) {
+                    setIsLoading(false);
+                    notify("Xóa thương hiệu thành công", "Success");
+                    history.push("/admin/brands");
+                    handleReload();
+                    setDeleteModal(false);
+                    setIsLoadingCircle(false);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingCircle(false);
+                setIsLoading(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+    };
     return (
         <>
-            <CategoryModal handleReload={handleReload} />
+            <BrandModal handleReload={handleReload} />
+            <NewBrand handleReload={handleReload} />
             {/* <ProductModal openModal={openModal} handleReload={handleReload} /> */}
-            <SimpleHeader name="Danh Sách Danh Mục" parentName="Quản Lý" />
+            <Modal
+                className="modal-dialog-centered"
+                size="sm"
+                isOpen={deleteModal}
+                toggle={() => {
+                    setDeleteModal(false);
+                }}
+            >
+                <div className="modal-body p-0">
+                    <Card className="bg-secondary border-0 mb-0">
+                        <div className="" style={{ paddingTop: 0 }}>
+                            <Container className="" fluid style={{ padding: "1.5rem 1.5rem 1rem 1.5rem " }}>
+                                <Row>
+                                    <div className="col-lg-12 ">
+                                        <h3>Bạn có chắc</h3>
+                                        <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0px 0px 30px 0px" }} className="">
+                                            <span className="mb-0">
+                                                Thương hiệu: <span style={{ fontWeight: 700 }}>{storeCategoryModal.name}</span> sẽ bị xóa!!!{" "}
+                                            </span>
+                                            <span className="mb-0">Bạn sẽ không thể hoàn nguyên hành động này </span>
+                                        </div>
+                                        <div className="col-md-12"></div>
+                                    </div>
+                                </Row>
+                                <Col className="text-md-right mb-3" lg="12" xs="5">
+                                    <Row style={{ justifyContent: "flex-end" }}>
+                                        {" "}
+                                        <Button
+                                            onClick={() => {
+                                                setDeleteModal(false);
+                                            }}
+                                            className="btn-neutral"
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                <span>Đóng</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                // setIsLoadingCircle(true);
+                                                hanldeDeleteBrand(storeCategoryModal.id);
+                                            }}
+                                            className="btn-neutral"
+                                            disabled={isLoadingCircle}
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                {isLoadingCircle ? (
+                                                    <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                ) : (
+                                                    <>
+                                                        <span>Chắc chắn</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </Row>
+                                </Col>
+                            </Container>
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
+            <SimpleHeader name="Danh Sách Thương Hiệu" parentName="Quản Lý" />
             <Container className="mt--6" fluid>
                 <Row>
                     <div className="col">
@@ -100,7 +180,7 @@ function CategoryManage() {
                                                         <span className="fas fa-search" />
                                                     </InputGroupText>
                                                 </InputGroupAddon>
-                                                <Input placeholder="Tìm kiếm bằng tên danh mục" type="search" onChange={handleInputOnchange} className="btn-lg" style={{ height: 46, width: 250 }} />
+                                                <Input placeholder="Tìm kiếm bằng tên danh mục" type="search" className="btn-lg" style={{ height: 46, width: 250 }} />
                                             </InputGroup>
                                         </FormGroup>
                                     </Form>
@@ -109,14 +189,14 @@ function CategoryManage() {
                                 <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">
                                     <Button
                                         onClick={() => {
-                                            history.push("/admin/category");
+                                            setOpenModalNewCateStore(true);
                                         }}
                                         className="btn-neutral"
                                         color="default"
                                         size="lg"
                                         style={{ background: "var(--primary)", color: "#00003B", fontWeight: 700 }}
                                     >
-                                        Thêm Danh Mục Mới
+                                        Thêm Thương Hiệu Mới
                                     </Button>
                                 </Col>
                             </div>
@@ -127,14 +207,10 @@ function CategoryManage() {
                                             STT
                                         </th>
                                         <th className="sort table-title" scope="col">
-                                            Hình ảnh
-                                        </th>
-
-                                        <th className="sort table-title" scope="col">
-                                            Tên danh mục
+                                            Mã thương hiệu
                                         </th>
                                         <th className="sort table-title" scope="col">
-                                            Mã danh mục
+                                            Tên thương hiệu
                                         </th>
                                         <th className="sort table-title" scope="col">
                                             Trạng thái
@@ -146,7 +222,7 @@ function CategoryManage() {
                                 </thead>
                                 <tbody className="list">
                                     {categoryList.map((item, index) => {
-                                        return <CategoryItem data={item} key={index} index={index} />;
+                                        return <BrandItem data={item} key={index} index={index} />;
                                     })}
                                 </tbody>
                             </Table>
@@ -210,4 +286,4 @@ function CategoryManage() {
     );
 }
 
-export default CategoryManage;
+export default BrandManage;

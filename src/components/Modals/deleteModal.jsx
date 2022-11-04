@@ -31,7 +31,11 @@ export const DeleteModal = ({ handleReload }) => {
         setIsLoadingCircle(true);
         deleteStore(deleteModal.data.id)
             .then((res) => {
-                if (res) {
+                console.log(res.data.message);
+                if (res.data.message) {
+                    setIsLoadingCircle(false);
+                    notify(res.data.message, "Error");
+                } else {
                     signInWithEmailAndPassword(authentication, email, pass)
                         .then((response) => {
                             if (response) {
@@ -47,8 +51,6 @@ export const DeleteModal = ({ handleReload }) => {
                         .catch((error) => {
                             console.log(error);
                         });
-                } else {
-                    setIsLoadingCircle(false);
                 }
             })
             .catch((error) => {

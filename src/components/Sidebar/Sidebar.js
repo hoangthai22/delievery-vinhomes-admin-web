@@ -30,7 +30,7 @@ function Sidebar({ toggleSidenav, sidenavOpen, routes, logo, rtlActive }) {
     const [state, setState] = React.useState({});
     const location = useLocation();
     React.useEffect(() => {
-        document.body.classList.add("g-sidenav-show");
+        document.body.classList.add("g-sidenav-hidden");
         // document.body.classList.add("g-sidenav-pinned");
         setState(getCollapseStates(routes));
         // eslint-disable-next-line
@@ -129,23 +129,41 @@ function Sidebar({ toggleSidenav, sidenavOpen, routes, logo, rtlActive }) {
                 );
             }
             return (
-                <NavItem className={activeRoute(prop.layout + prop.path)} key={key}>
-                    <NavLink to={prop.layout + prop.path} activeClassName="sidebar-name" style={{ padding: prop.icon === "fa-solid fa-store" && "1.3rem" }} onClick={closeSidenav} tag={NavLinkRRD}>
-                        {prop.icon !== undefined ? (
-                            <>
-                                <i className={prop.icon} style={{ fontSize: 22 }} />
-                                <span className="">{prop.name}</span>
-                            </>
-                        ) : prop.miniName !== undefined ? (
-                            <>
-                                <span className="sidenav-mini-icon"> {prop.miniName} </span>
-                                <span className="sidenav-normal"> {prop.name} </span>
-                            </>
-                        ) : (
-                            prop.name
-                        )}
-                    </NavLink>
-                </NavItem>
+                <>
+                    {/* {prop.type === 1 && <span className="">Giao hàng</span>} */}
+                    {prop.type === 1 && (
+                        <span className="side-bar-type" style={{ padding: "0.675rem 1.5rem  0.675rem 1.5rem", color: "rgb(33, 43, 54)", visibility: "hidden", fontSize: "1px", fontWeight: 700 }}>
+                            Tổng quan
+                        </span>
+                    )}
+                    {prop.type === 2 && (
+                        <span className="side-bar-type" style={{ color: "rgb(33, 43, 54)", visibility: "hidden", fontSize: "1px", fontWeight: 700 }}>
+                            Giao hàng
+                        </span>
+                    )}
+                    {prop.type === 3 && (
+                        <span className="side-bar-type" style={{ color: "rgb(33, 43, 54)", visibility: "hidden", fontSize: "1px", fontWeight: 700 }}>
+                            Hệ thống
+                        </span>
+                    )}
+                    <NavItem className={activeRoute(prop.layout + prop.path)} key={key}>
+                        <NavLink to={prop.layout + prop.path} activeClassName="sidebar-name" style={{ padding: prop.icon === "fa-solid fa-store" && "1.3rem" }} onClick={closeSidenav} tag={NavLinkRRD}>
+                            {prop.icon !== undefined ? (
+                                <>
+                                    <i className={prop.icon} style={{ fontSize: 22 }} />
+                                    <span className="">{prop.name}</span>
+                                </>
+                            ) : prop.miniName !== undefined ? (
+                                <>
+                                    <span className="sidenav-mini-icon"> {prop.miniName} </span>
+                                    <span className="sidenav-normal"> {prop.name} </span>
+                                </>
+                            ) : (
+                                prop.name
+                            )}
+                        </NavLink>
+                    </NavItem>
+                </>
             );
         });
     };

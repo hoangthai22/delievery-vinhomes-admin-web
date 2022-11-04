@@ -303,6 +303,10 @@ body {
     background-color: rgba(24, 144, 255, 0.16);
     color: rgb(12, 83, 183);
 }
+.status-create {
+    background-color: rgb(230, 230, 230);
+    color: rgb(100, 100, 100);
+}
 .status-shiper {
     background-color: rgba(255, 193, 7, 0.16);
     color: rgb(183, 129, 3);
@@ -407,4 +411,16 @@ input[type="checkbox"]:checked ~ .indicator::after {
 }
 .sidenav-header {
     height: 90px !important;
+}
+.g-sidenav-hidden .side-bar-type {
+    visibility: hidden !important;
+    font-size: 1px !important;
+    transition: 0.4s all;
+    padding: 0px 1.5rem !important;
+}
+.g-sidenav-show .side-bar-type {
+    visibility: visible !important;
+    font-size: 0.9rem !important;
+    transition: 0.4s all;
+    padding: 1rem 1.5rem 0.675rem 1.5rem !important;
 }

@@ -1,10 +1,13 @@
-import { getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import React, { useContext, useState } from "react";
 import ImageUploading from "react-images-uploading";
 import { useHistory } from "react-router";
 import Select from "react-select";
 import { Button, Card, CardHeader, Col, Container, Input, Row, Spinner } from "reactstrap";
+import { postShipper } from "../../../apis/shiperApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
+import { notify } from "../../../components/Toast/ToastCustom";
+import { getBase64Image } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
 
 export const NewDriver = () => {
@@ -12,6 +15,7 @@ export const NewDriver = () => {
     const [driverName, setDriverName] = useState("");
     const [driverNameState, setDriverNameState] = useState("");
     const [phone, setPhone] = useState("");
+    const [phoneState, setPhoneState] = useState("");
     const [vehicleType, setVehicleType] = useState("");
     const [vehicleTypeState, setVehicleTypeState] = useState("");
     const [vehicleColor, setVehicleColor] = useState("");
@@ -30,8 +34,6 @@ export const NewDriver = () => {
     const maxNumber = 69;
     let history = useHistory();
     const onChange = (imageList, addUpdateIndex) => {
-        // data for submit
-        console.log(imageList, addUpdateIndex);
         setImages(imageList);
     };
     const customStylesPayment = {
@@ -88,6 +90,13 @@ export const NewDriver = () => {
             // valid = true;
             setDriverNameState("valid");
         }
+        if (phone === "") {
+            valid = false;
+            setPhoneState("invalid");
+        } else {
+            // valid = true;
+            setPhoneState("valid");
+        }
         if (userName === "") {
             valid = false;
             setUserNameState("invalid");
@@ -102,13 +111,13 @@ export const NewDriver = () => {
             // valid = true;
             setPasswordState("valid");
         }
-        if (images.length === 0) {
-            valid = false;
-            setImageState("invalid");
-        } else {
-            // valid = true;
-            setImageState("valid");
-        }
+        // if (images.length === 0) {
+        //     valid = false;
+        //     setImageState("invalid");
+        // } else {
+        //     // valid = true;
+        //     setImageState("valid");
+        // }
 
         if (vehicleType === "") {
             valid = false;
@@ -144,62 +153,59 @@ export const NewDriver = () => {
     const handleSubmit = () => {
         if (validateCustomStylesForm()) {
             setIsLoadingCircle(true);
+            // const authentication = getAuth();
+            let shipper = {
+                id: userName,
+                fullName: driverName,
+                phone: phone,
+                email: userName,
+                vehicleType: vehicleType.label,
+                image: images[0] ? getBase64Image(images[0].data_url || "", images[0]?.file?.type) || "" : "",
+                deliveryTeam: deliveryTeam.label,
+                password: password,
+                licensePlates: numberVehicle,
+                colour: vehicleColor,
+            };
+            console.log({ shipper });
+
             const authentication = getAuth();
-
-            // let store = {
-            //     id: userName,
-            //     password: password,
-            //     name: driverName,
-            //     buildingId: deliveryTeam.label,
-            //     brandId: brand.value,
-            //     rate: "",
-            //     closeTime: closeTime,
-            //     openTime: openTime,
-            //     image: images[0] ? getBase64Image(images[0].data_url || "", images[0]?.file?.type) || "" : "",
-            //     storeCategoryId: storeCategory.value,
-            //     slogan: slogan,
-            //     phone: phone,
-            //     status: true,
-            // };
-            // console.log({ store });
-
-            // createUserWithEmailAndPassword(authentication, userName, password)
-            //     .then((response) => {
-            //         if (response) {
-            //             postStore(store)
-            //                 .then((res) => {
-            //                     if (res.data) {
-            //                         setIsLoadingCircle(false);
-            //                         notify("Cập nhật thành công", "Success");
-            //                         history.push("/admin/stores");
-            //                     }
-            //                 })
-            //                 .catch((error) => {
-            //                     const authentication = getAuth().currentUser;
-            //                     authentication
-            //                         .delete()
-            //                         .then(function () {
-            //                             console.log(error);
-            //                             setIsLoadingCircle(false);
-            //                             notify("Đã xảy ra lỗi gì đó!!", "Error");
-            //                         })
-            //                         .catch(function (error) {
-            //                             // An error happened.
-            //                             console.log(error);
-            //                             setIsLoadingCircle(false);
-            //                             notify("Đã xảy ra lỗi gì đó!!", "Error");
-            //                         });
-            //                 });
-            //         } else {
-            //             notify("Tên đăng nhập đã được sử dụng", "Error");
-            //             setIsLoadingCircle(false);
-            //         }
-            //     })
-            //     .catch((error) => {
-            //         notify("Tên đăng nhập đã được sử dụng", "Error");
-            //         console.log(error);
-            //         setIsLoadingCircle(false);
-            //     });
+            createUserWithEmailAndPassword(authentication, userName, password)
+                .then((response) => {
+                    if (response) {
+                        postShipper(shipper)
+                            .then((res) => {
+                                if (res.data) {
+                                    setIsLoadingCircle(false);
+                                    notify("Thêm mới thành công", "Success");
+                                    history.push("/admin/drivers");
+                                }
+                            })
+                            .catch((error) => {
+                                const authentication = getAuth().currentUser;
+                                authentication
+                                    .delete()
+                                    .then(function () {
+                                        console.log(error);
+                                        setIsLoadingCircle(false);
+                                        notify("Đã xảy ra lỗi gì đó!!", "Error");
+                                    })
+                                    .catch(function (error) {
+                                        // An error happened.
+                                        console.log(error);
+                                        setIsLoadingCircle(false);
+                                        notify("Đã xảy ra lỗi gì đó!!", "Error");
+                                    });
+                            });
+                    } else {
+                        notify("Tên đăng nhập đã được sử dụng", "Error");
+                        setIsLoadingCircle(false);
+                    }
+                })
+                .catch((error) => {
+                    notify("Tên đăng nhập đã được sử dụng", "Error");
+                    console.log(error);
+                    setIsLoadingCircle(false);
+                });
         }
     };
     return (
@@ -229,9 +235,7 @@ export const NewDriver = () => {
                         <Card>
                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "10px 0px" }} className="align-items-center">
                                 <CardHeader className="border-0" style={{ padding: "1rem" }}>
-                                    <h2 className="mb-0">
-                                        Hình ảnh <span style={{ color: "red" }}>*</span>
-                                    </h2>
+                                    <h2 className="mb-0">Hình ảnh</h2>
                                 </CardHeader>
                             </div>
                             <div className="col-md-12">
@@ -256,11 +260,11 @@ export const NewDriver = () => {
                                                         </div>
                                                     )}
                                                 </ImageUploading>
-                                                {imageState === "invalid" && (
+                                                {/* {imageState === "invalid" && (
                                                     <div className="invalid" style={{ textAlign: "center", fontSize: "80%", color: "#fb6340", marginTop: "0.25rem" }}>
                                                         Hình ảnh không được để trống
                                                     </div>
-                                                )}
+                                                )} */}
                                             </div>
                                         </div>
                                     </div>
@@ -299,8 +303,12 @@ export const NewDriver = () => {
                                         </div>
                                         <div className="col-md-6">
                                             <div className="form-group">
-                                                <label className="form-control-label">Số điện thoại </label>
-                                                <input
+                                                <label className="form-control-label">
+                                                    Số điện thoại <span style={{ color: "red" }}>*</span>
+                                                </label>
+                                                <Input
+                                                    valid={phoneState === "valid"}
+                                                    invalid={phoneState === "invalid"}
                                                     className="form-control"
                                                     type="number"
                                                     id="example-search-input"
@@ -309,6 +317,7 @@ export const NewDriver = () => {
                                                         setPhone(e.target.value);
                                                     }}
                                                 />
+                                                <div className="invalid-feedback">Số điện thoại không được để trống</div>
                                             </div>
                                         </div>
                                         <div className="col-md-6">
@@ -433,9 +442,9 @@ export const NewDriver = () => {
                                                     className="form-control"
                                                     type="search"
                                                     id="example-search-input"
-                                                    value={`${vehicleColor}`}
+                                                    value={vehicleColor}
                                                     onChange={(e) => {
-                                                        setPassword(e.target.value);
+                                                        setVehicleColor(e.target.value);
                                                     }}
                                                 />
                                                 <div className="invalid-feedback">Màu sắc không được để trống</div>

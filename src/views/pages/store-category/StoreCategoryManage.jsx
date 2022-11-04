@@ -17,23 +17,24 @@
 // reactstrap components
 import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { Button, Card, CardBody, CardHeader, Col, Container, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Row, Spinner, Table } from "reactstrap";
-import { getListCategorys, getListStoreCategorys } from "../../../apis/categoryApiService";
+import { Button, Card, CardBody, CardHeader, Col, Container, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, Row, Spinner, Table } from "reactstrap";
+import { deleteStoreCate, getListCategorys, getListStoreCategorys } from "../../../apis/categoryApiService";
 
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { CategoryModal } from "../../../components/Modals/categoryModal";
 import { StorestoreCategoryModal } from "../../../components/Modals/storeCategoryModal";
+import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 import { NewStorestoreCategory } from "./NewStoreCategory";
 import { StoreCategoryItem } from "./StoreCategoryItem";
 // core components
 function StoreCategoryManage() {
-    const { openModal, openModalNewCateStore, setOpenModalNewCateStore } = useContext(AppContext);
+    const { setDeleteModal, setOpenModalNewCateStore, deleteModal, storeCategoryModal } = useContext(AppContext);
     let history = useHistory();
 
     const [categoryList, setCategoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-
+    const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const hanldeGetListCategorys = () => {
         getListStoreCategorys(1, 100).then((res) => {
             const categorys = res.data;
@@ -69,13 +70,100 @@ function StoreCategoryManage() {
             margin: "5px",
         }),
     };
-
+    const hanldeDeleteStoreCate = (id) => {
+        setIsLoadingCircle(true);
+        deleteStoreCate(id)
+            .then((res) => {
+                if (res.data) {
+                    setIsLoading(false);
+                    notify("Xóa loại cửa hàng thành công", "Success");
+                    history.push("/admin/categorieStore");
+                    handleReload();
+                    setDeleteModal(false);
+                    setIsLoadingCircle(false);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingCircle(false);
+                setIsLoading(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+    };
     return (
         <>
             <StorestoreCategoryModal handleReload={handleReload} />
             <NewStorestoreCategory handleReload={handleReload} />
             {/* <ProductModal openModal={openModal} handleReload={handleReload} /> */}
             <SimpleHeader name="Danh Sách Loại Cửa Hàng" parentName="Quản Lý" />
+            <Modal
+                className="modal-dialog-centered"
+                size="sm"
+                isOpen={deleteModal}
+                toggle={() => {
+                    setDeleteModal(false);
+                }}
+            >
+                <div className="modal-body p-0">
+                    <Card className="bg-secondary border-0 mb-0">
+                        <div className="" style={{ paddingTop: 0 }}>
+                            <Container className="" fluid style={{ padding: "1.5rem 1.5rem 1rem 1.5rem " }}>
+                                <Row>
+                                    <div className="col-lg-12 ">
+                                        <h3>Bạn có chắc</h3>
+                                        <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0px 0px 30px 0px" }} className="">
+                                            <span className="mb-0">
+                                                Loại cửa hàng: <span style={{ fontWeight: 700 }}>{storeCategoryModal.name}</span> sẽ bị xóa!!!{" "}
+                                            </span>
+                                            <span className="mb-0">Bạn sẽ không thể hoàn nguyên hành động này </span>
+                                        </div>
+                                        <div className="col-md-12"></div>
+                                    </div>
+                                </Row>
+                                <Col className="text-md-right mb-3" lg="12" xs="5">
+                                    <Row style={{ justifyContent: "flex-end" }}>
+                                        {" "}
+                                        <Button
+                                            onClick={() => {
+                                                setDeleteModal(false);
+                                            }}
+                                            className="btn-neutral"
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                <span>Đóng</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                // setIsLoadingCircle(true);
+                                                hanldeDeleteStoreCate(storeCategoryModal.id);
+                                            }}
+                                            className="btn-neutral"
+                                            disabled={isLoadingCircle}
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                {isLoadingCircle ? (
+                                                    <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                ) : (
+                                                    <>
+                                                        <span>Chắc chắn</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </Row>
+                                </Col>
+                            </Container>
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
             <Container className="mt--6" fluid>
                 <Row>
                     <div className="col">
@@ -110,7 +198,7 @@ function StoreCategoryManage() {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive>
+                            <Table className="align-items-center table-flush" responsive hover={true}>
                                 <thead className="thead-light">
                                     <tr>
                                         <th className="sort table-title" scope="col">
@@ -124,6 +212,9 @@ function StoreCategoryManage() {
                                         </th>
                                         <th className="sort table-title" scope="col">
                                             Trạng thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hành động
                                         </th>
                                     </tr>
                                 </thead>

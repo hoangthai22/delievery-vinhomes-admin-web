@@ -41,6 +41,7 @@ import {
 import { getListShipper } from "../../../apis/shiperApiService";
 
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
+import { ShipperModal } from "../../../components/Modals/shipperModal";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 import { DriverItem } from "./DriverItem";
@@ -57,10 +58,10 @@ function DriverManage() {
         getListShipper(1, 100)
             .then((res) => {
                 if (res.data) {
-                    setDriverList(res.data);
-                    setIsLoading(false);
-
-                    setTimeout(() => {}, 1);
+                    setTimeout(() => {
+                        setDriverList(res.data);
+                        setIsLoading(false);
+                    }, 300);
                 }
             })
             .catch((error) => {
@@ -96,7 +97,7 @@ function DriverManage() {
 
     return (
         <>
-            {/* <ProductModal openModal={openModal} handleReload={handleReload} /> */}
+            <ShipperModal openModal={openModal} handleReload={handleReload} />
             <SimpleHeader name="Danh Sách Tài Xế" parentName="Quản Lý" />
             <Container className="mt--6" fluid>
                 <Row>
@@ -154,7 +155,7 @@ function DriverManage() {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive>
+                            <Table className="align-items-center table-flush" responsive hover={true}>
                                 <thead className="thead-light">
                                     <tr>
                                         <th className="sort table-title" scope="col">
@@ -177,6 +178,9 @@ function DriverManage() {
                                         </th>
                                         <th className="sort table-title" scope="col">
                                             Trạng thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hành động
                                         </th>
                                     </tr>
                                 </thead>
