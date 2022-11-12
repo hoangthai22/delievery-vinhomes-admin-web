@@ -29,7 +29,7 @@ import { NewStorestoreCategory } from "./NewStoreCategory";
 import { StoreCategoryItem } from "./StoreCategoryItem";
 // core components
 function StoreCategoryManage() {
-    const { setDeleteModal, setOpenModalNewCateStore, deleteModal, storeCategoryModal } = useContext(AppContext);
+    const { setOpenModalNewCateStore, storeCategoryModal, setOpenDeleteModal, openDeleteModal } = useContext(AppContext);
     let history = useHistory();
 
     const [categoryList, setCategoryList] = useState([]);
@@ -79,7 +79,7 @@ function StoreCategoryManage() {
                     notify("Xóa loại cửa hàng thành công", "Success");
                     history.push("/admin/categorieStore");
                     handleReload();
-                    setDeleteModal(false);
+                    setOpenDeleteModal(false);
                     setIsLoadingCircle(false);
                 }
             })
@@ -99,9 +99,9 @@ function StoreCategoryManage() {
             <Modal
                 className="modal-dialog-centered"
                 size="sm"
-                isOpen={deleteModal}
+                isOpen={openDeleteModal}
                 toggle={() => {
-                    setDeleteModal(false);
+                    setOpenDeleteModal(false);
                 }}
             >
                 <div className="modal-body p-0">
@@ -125,7 +125,7 @@ function StoreCategoryManage() {
                                         {" "}
                                         <Button
                                             onClick={() => {
-                                                setDeleteModal(false);
+                                                setOpenDeleteModal(false);
                                             }}
                                             className="btn-neutral"
                                             color="default"
@@ -170,8 +170,8 @@ function StoreCategoryManage() {
                         <Card>
                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "20px 0px" }} className="align-items-center">
                                 <CardHeader className="" style={{ padding: "0 0 0 20px" }}>
-                                    <Form className="flex" style={{ alignItems: "center", gap: 20 }}>
-                                        <FormGroup className="mb-0">
+                                    <div className="flex" style={{ alignItems: "center", gap: 20 }}>
+                                        <div className="mb-0">
                                             <InputGroup className="input-group-lg input-group-flush" style={{ border: "1px solid #9e9e9e" }}>
                                                 <InputGroupAddon addonType="prepend">
                                                     <InputGroupText style={{ padding: "0 15px" }}>
@@ -180,8 +180,8 @@ function StoreCategoryManage() {
                                                 </InputGroupAddon>
                                                 <Input placeholder="Tìm kiếm bằng tên danh mục" type="search" className="btn-lg" style={{ height: 46, width: 250 }} />
                                             </InputGroup>
-                                        </FormGroup>
-                                    </Form>
+                                        </div>
+                                    </div>
                                 </CardHeader>
 
                                 <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">

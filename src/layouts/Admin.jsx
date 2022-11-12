@@ -8,6 +8,7 @@ import Sidebar from "../components/Sidebar/Sidebar.js";
 import { NewCategory } from "../views/pages/categories/NewCategory.jsx";
 import { NewDriver } from "../views/pages/drivers/NewDriver.jsx";
 import { NewMenu } from "../views/pages/menus/NewMenu.jsx";
+import OrderDetail from "../views/pages/orders/OrderDetail.jsx";
 import { NewStore } from "../views/pages/stores/NewStore.jsx";
 // import AdminNavbar from "../components/Navbars/AdminNavbar";
 import routes from "./../routes.js";
@@ -77,6 +78,7 @@ function Admin() {
                     <Route path="/admin/category" render={() => <NewCategory />} />
                     <Route path="/admin/menu" render={() => <NewMenu />} />
                     <Route path="/admin/driver" render={() => <NewDriver />} />
+                    <Route path="/admin/order/:id" render={() => <OrderDetail />} />
                     <Redirect from="*" to="/admin/dashboard" />
                 </Switch>
                 {/* <AdminFooter /> */}

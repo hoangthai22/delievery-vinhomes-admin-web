@@ -30,6 +30,13 @@ export const getListProductMenu = (menuId, storeId, page, size) => {
         "Content-Type": "application/json",
     });
 };
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/menus/1/products/byCategoryId?categoryId=11&page=1&pageSize=20
+export const getListProductMenuByCate = (menuId, categoryId, page, size) => {
+    return axios.get(`${BASE_URL}${MENU}/${menuId}/products/byCategoryId?categoryId=${categoryId}&page=${page}&pageSize=${size}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/menu-management/menus
 export const postMenu = (menu) => {
     return axios.post(`${BASE_URL}menu-management/${MENU}`, menu, {

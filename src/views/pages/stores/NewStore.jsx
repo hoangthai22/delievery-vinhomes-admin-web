@@ -29,6 +29,7 @@ export const NewStore = () => {
     const [passwordState, setPasswordState] = useState("");
     const [status, setStatus] = useState(0);
     const [brand, setBrand] = useState("");
+    const [description, setDescription] = useState("");
     const [brandState, setBrandState] = useState("");
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const [storeCategory, setStoreCategory] = useState("");
@@ -149,6 +150,7 @@ export const NewStore = () => {
                 image: images[0] ? getBase64Image(images[0].data_url || "", images[0]?.file?.type) || "" : "",
                 storeCategoryId: storeCategory.value,
                 slogan: slogan,
+                description: description,
                 phone: phone,
                 status: true,
             };
@@ -449,6 +451,22 @@ export const NewStore = () => {
                                                         Loại cửa hàng không được để trống
                                                     </div>
                                                 )}
+                                            </div>
+                                        </div>
+                                        <div className="col-md-12">
+                                            <div className="form-group">
+                                                <label className="form-control-label">Miêu tả cửa hàng</label>
+                                                <div>
+                                                    <textarea
+                                                        className="form-control"
+                                                        type="search"
+                                                        id="example-search-input"
+                                                        value={`${description}`}
+                                                        onChange={(e) => {
+                                                            setDescription(e.target.value);
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -105,8 +105,8 @@ function DriverManage() {
                         <Card>
                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "20px 0px" }} className="align-items-center">
                                 <CardHeader className="" style={{ padding: "0 0 0 20px" }}>
-                                    <Form className="flex" style={{ alignItems: "center", gap: 20 }}>
-                                        <FormGroup className="mb-0">
+                                    <div className="flex" style={{ alignItems: "center", gap: 20 }}>
+                                        <div className="mb-0">
                                             <InputGroup className="input-group-lg input-group-flush" style={{ border: "1px solid #9e9e9e" }}>
                                                 <InputGroupAddon addonType="prepend">
                                                     <InputGroupText style={{ padding: "0 15px" }}>
@@ -115,7 +115,7 @@ function DriverManage() {
                                                 </InputGroupAddon>
                                                 <Input placeholder="Tìm kiếm bằng tên tài xế" type="search" className="btn-lg" style={{ height: 46, width: 250 }} />
                                             </InputGroup>
-                                        </FormGroup>
+                                        </div>
                                         {/* <Dropdown isOpen={dropdownOpen} toggle={toggle}>
                                             <DropdownToggle
                                                 className="dropdown"
@@ -138,7 +138,7 @@ function DriverManage() {
                                                 <DropdownItem>Action</DropdownItem>
                                             </DropdownMenu>
                                         </Dropdown> */}
-                                    </Form>
+                                    </div>
                                 </CardHeader>
 
                                 <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">

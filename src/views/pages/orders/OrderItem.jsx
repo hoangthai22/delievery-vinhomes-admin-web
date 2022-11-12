@@ -1,68 +1,42 @@
-import React from "react";
+import React, { useContext, useState } from "react";
+import { useHistory } from "react-router";
+import { Tooltip } from "reactstrap";
+import { getModeName, statusType } from "../../../constants";
+import { AppContext } from "../../../context/AppProvider";
 
-export const OrderItem = ({ data, handleCallback }) => {
-    const statusType = [
-        {
-            id: 1,
-            value: "Chưa có tài xế",
-            class: "status-create",
-            statusName: "CreateOrder",
-        },
-        {
-            id: 2,
-            value: "Đang chuẩn bị",
-            class: "status-shiper",
-            statusName: "ShipAccept",
-        },
-        {
-            id: 3,
-            value: "Đang Giao",
-            class: "status-processing",
-            statusName: "Shipping",
-        },
-        {
-            id: 4,
-            value: "Hoàn Thành",
-            class: "status-success",
-            statusName: "Done",
-        },
-        {
-            id: 5,
-            value: "Đã Hủy",
-            class: "status-cancel",
-            statusName: "Cancel",
-        },
-    ];
-
+export const OrderItem = ({ data, index }) => {
+    const [tooltipOpenEdit, setTooltipOpenEdit] = useState(false);
+    const toggleEdit = () => setTooltipOpenEdit(!tooltipOpenEdit);
+    const { setOpenModal, setorderModal } = useContext(AppContext);
+    let history = useHistory();
     const getStatus = (status) => {
-        switch (status) {
-            case "CreateOrder":
-                return statusType[0];
-            case "ShipAccept":
-                return statusType[1];
-            case "Shipping":
-                return statusType[2];
-            case "Done":
-                return statusType[3];
-            case "Cancel":
-                return statusType[4];
-            default:
-                return statusType[0];
-        }
-    };
-
-    const getModeName = (mode) => {
-        switch (mode) {
-            case "1":
-                return "Gọi món";
-            case "2":
-                return "Giao Hàng";
-            case "3":
-                return "Đặt Hàng";
-
-            default:
-                return "Gọi món";
-        }
+        return statusType[status];
+        // switch (status) {
+        //     case 0:
+        //         return statusType[0];
+        //     case 1:
+        //         return statusType[1];
+        //     case 2:
+        //         return statusType[2];
+        //     case 3:
+        //         return statusType[3];
+        //     case 4:
+        //         return statusType[4];
+        //     case 4:
+        //         return statusType[4];
+        //     case 4:
+        //         return statusType[4];
+        //     case 4:
+        //         return statusType[4];
+        //     case 4:
+        //         return statusType[4];
+        //     case 4:
+        //         return statusType[4];
+        //     case 4:
+        //         return statusType[4];
+        //     default:
+        //         return statusType[0];
+        // }
     };
 
     return (
@@ -86,8 +60,8 @@ export const OrderItem = ({ data, handleCallback }) => {
             <td className="budget table-text">{getModeName(data.modeId)}</td>
             <td className="budget table-text">
                 {
-                    <span className={`badge  ${getStatus(data.statusName).class}`} style={{ padding: "0.8em 1.2em", fontSize: 11 }}>
-                        {getStatus(data.statusName).value}
+                    <span className={`badge  ${getStatus(data.status).class}`} style={{ padding: "0.8em 1.2em", fontSize: 11 }}>
+                        {getStatus(data.status).value}
                     </span>
                 }
             </td>
@@ -109,23 +83,21 @@ export const OrderItem = ({ data, handleCallback }) => {
             </td> */}
 
             <td className="budget table-text" style={{ textAlign: "center" }}>
-                {/* <UncontrolledDropdown>
-                    <DropdownToggle className="btn-icon-only text-light" color="" role="button" size="sm">
-                        <i className="fas fa-ellipsis-v" />
-                    </DropdownToggle>
-                    <DropdownMenu className="dropdown-menu-arrow" right>
-                        <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
-                            Action
-                        </DropdownItem>
-                        <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
-                            Another action
-                        </DropdownItem>
-                        <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
-                            Something else here
-                        </DropdownItem>
-                    </DropdownMenu>
-                </UncontrolledDropdown> */}
-                <i className="fa-solid fa-pen-to-square  cusor" style={{ fontSize: 22 }} onClick={() => handleCallback(data)}></i>
+                <i
+                    id={"Edit-" + index}
+                    className="fa-solid fa-pen-to-square  cusor"
+                    style={{ fontSize: 22 }}
+                    onClick={() => {
+                        // handleCallback(data);
+                        // setOpenModal(true);
+                        setorderModal(data);
+
+                        history.push(`/admin/order/${data.id}`);
+                    }}
+                ></i>
+                <Tooltip placement="bottom" isOpen={tooltipOpenEdit} autohide={false} target={"Edit-" + index} toggle={toggleEdit}>
+                    Xem chi tiết
+                </Tooltip>
                 {/* <i className="fa-regular fa-trash-can mr-3 cusor" style={{ fontSize: 22, color: "red" }}></i> */}
             </td>
         </tr>

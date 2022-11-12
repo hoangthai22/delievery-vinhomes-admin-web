@@ -26,6 +26,7 @@ export const StoreModal = ({ handleReload }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const [imgUpdate, setImgUpdate] = useState(false);
+    const [description, setDescription] = useState("");
     const [brandState, setBrandState] = useState("");
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
@@ -103,6 +104,7 @@ export const StoreModal = ({ handleReload }) => {
                         setSlogan(store.slogan);
                         setPassword(store.account.password);
                         setImages(store.image);
+                        setDescription(store.description !== null ? store.description : "");
                         setStatus({ label: store.status ? "Hoạt động" : "Ngừng hoạt động", value: store.status ? true : false });
                         setIsLoading(false);
                         if (store.image) {
@@ -136,6 +138,7 @@ export const StoreModal = ({ handleReload }) => {
                 slogan: slogan,
                 phone: phone,
                 status: status.value,
+                description: description,
                 password: password,
             };
             console.log({ store, imgUpdate });
@@ -398,34 +401,6 @@ export const StoreModal = ({ handleReload }) => {
 
                                                                 <div className="col-md-6">
                                                                     <div className="form-group">
-                                                                        <label className="form-control-label">Giờ mở cửa </label>
-                                                                        <Input
-                                                                            className="form-control"
-                                                                            type="text"
-                                                                            id="example-search-input"
-                                                                            value={`${openTime}`}
-                                                                            onChange={(e) => {
-                                                                                setOpenTime(e.target.value);
-                                                                            }}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                                <div className="col-md-6">
-                                                                    <div className="form-group">
-                                                                        <label className="form-control-label">Giờ đóng cửa </label>
-                                                                        <Input
-                                                                            className="form-control"
-                                                                            type="text"
-                                                                            id="example-search-input"
-                                                                            value={`${closeTime}`}
-                                                                            onChange={(e) => {
-                                                                                setCloseTime(e.target.value);
-                                                                            }}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                                <div className="col-md-6">
-                                                                    <div className="form-group">
                                                                         <label className="form-control-label">Số tài khoản </label>
                                                                         <Input
                                                                             className="form-control"
@@ -438,7 +413,36 @@ export const StoreModal = ({ handleReload }) => {
                                                                         />
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-6">
+                                                                <div className="col-md-4">
+                                                                    {" "}
+                                                                    <label className="form-control-label">Giờ mở cửa </label>
+                                                                    <Input
+                                                                        className="form-control"
+                                                                        type="text"
+                                                                        id="example-search-input"
+                                                                        value={`${openTime}`}
+                                                                        onChange={(e) => {
+                                                                            setOpenTime(e.target.value);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="col-md-4">
+                                                                    <div className="form-group">
+                                                                        <div className="form-group">
+                                                                            <label className="form-control-label">Giờ đóng cửa </label>
+                                                                            <Input
+                                                                                className="form-control"
+                                                                                type="text"
+                                                                                id="example-search-input"
+                                                                                value={`${closeTime}`}
+                                                                                onChange={(e) => {
+                                                                                    setCloseTime(e.target.value);
+                                                                                }}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-md-4">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Trạng Thái</label>
                                                                         <Select
@@ -452,6 +456,22 @@ export const StoreModal = ({ handleReload }) => {
                                                                                 setStatus(e);
                                                                             }}
                                                                         />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-md-12">
+                                                                    <div className="form-group">
+                                                                        <label className="form-control-label">Miêu tả cửa hàng</label>
+                                                                        <div>
+                                                                            <textarea
+                                                                                className="form-control"
+                                                                                type="search"
+                                                                                id="example-search-input"
+                                                                                value={`${description}`}
+                                                                                onChange={(e) => {
+                                                                                    setDescription(e.target.value);
+                                                                                }}
+                                                                            />
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 {/* <div className="col-md-12">

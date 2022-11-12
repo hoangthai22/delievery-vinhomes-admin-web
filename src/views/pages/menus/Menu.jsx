@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
+import Select from "react-select";
 import { Button, Card, CardBody, CardTitle, Col, Container, Nav, NavItem, NavLink, Row, Spinner, TabContent, Table, TabPane } from "reactstrap";
 import { getListMenuByMenuId, getListMenuByMode } from "../../../apis/menuApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
@@ -14,10 +15,16 @@ export const Menus = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     const [menuList, setMenuList] = useState([]);
+    const [menuActive, setMenuActive] = useState("");
     const [productMenuList, setProductMenuList] = useState([]);
     let history = useHistory();
+    const optionsCategory = menuList.map((item) => {
+        return {
+            label: item.name,
+            value: item.id,
+        };
+    });
     useEffect(() => {
-        console.log({ menu });
         getListMenuByMode(mode)
             .then((res) => {
                 const menus = res.data;
@@ -39,6 +46,24 @@ export const Menus = () => {
             });
         return () => {};
     }, []);
+    const customStylesPayment = {
+        control: (provided, state) => ({
+            ...provided,
+            background: "#fff",
+            borderColor: "#dee2e6",
+            minHeight: "30px",
+            height: "46px",
+            width: "300px",
+            boxShadow: state.isFocused ? null : null,
+            borderRadius: "0.5rem",
+        }),
+
+        input: (provided, state) => ({
+            ...provided,
+            margin: "5px",
+        }),
+    };
+
     const hanldeChangeMode = (mode) => {
         setMenuList([]);
         setMode(mode);
@@ -46,7 +71,10 @@ export const Menus = () => {
         getListMenuByMode(mode)
             .then((res) => {
                 const menus = res.data;
-
+                setMenuActive({
+                    label: menus[0].name,
+                    value: menus[0].id,
+                });
                 setMenuList(menus);
                 if (menus && menus.length > 0) {
                     setHTabsIcons(menus[0].id);
@@ -130,13 +158,13 @@ export const Menus = () => {
                                 <Row>
                                     <div className="col">
                                         <CardTitle tag="h5" className="text-uppercase text-muted mb-0">
-                                            30 - 60 phút
+                                            Giao hàng trong ngày
                                         </CardTitle>
                                         <span className="h2 font-weight-bold mb-0">Đi Chợ</span>
                                     </div>
                                     <Col className="col-auto">
-                                        <div className="  text-white rounded-circle center_flex" style={{ width: 70, height: 70, border: "5px solid #fff", backgroundColor: "#fff" }}>
-                                            <img style={{ width: 65, height: 64 }} src="/images/dicho-active.png" alt="" />
+                                        <div className="  text-white rounded-circle center_flex" style={{ width: 70, height: 70, border: "5px solid #fff" }}>
+                                            <img style={{ width: 60, height: 60 }} src="/images/dicho-active.png" alt="" />
                                         </div>
                                     </Col>
                                 </Row>
@@ -177,66 +205,92 @@ export const Menus = () => {
                     <Col md="6" xl="12">
                         <Card className="card-stats">
                             <CardBody style={{}}>
-                                <div className="nav-wrapper" style={{ display: "flex" }}>
-                                    <Nav className="nav-fill flex-column flex-md-row" pills role="tablist" style={{ flex: 1 }}>
-                                        {menuList.length > 0 &&
-                                            menuList.map((item) => (
-                                                <NavItem style={{ flex: "none" }} key={item.id}>
-                                                    <NavLink
-                                                        className={"mb-sm-3 mb-md-0 " + (hTabsIcons === item.id ? "active" : "")}
-                                                        href="#pablo"
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            hanldeChangeMenu(item.id);
-                                                            convertTime(item.endTime);
-                                                        }}
-                                                        style={{ padding: "0px" }}
-                                                    >
-                                                        <div style={{ display: "flex", flexDirection: "column", position: "relative" }}>
-                                                            <span>{item.name}</span>
-                                                            <span style={{ fontSize: 14, fontWeight: 500 }}>{"(" + convertTime(item.startTime) + " - " + convertTime(item.endTime) + ")"}</span>
-                                                        </div>
-                                                    </NavLink>
-                                                </NavItem>
-                                            ))}
-                                    </Nav>
-                                    <Button
-                                        onClick={() => {
-                                            // setOpenModal(true);
-                                            // setModeModal(mode);
-                                            setOpenModal(true);
-                                        }}
-                                        className=""
-                                        color=""
-                                        size="lg"
-                                        style={{
-                                            border: "1px solid var(--primary)",
-                                            marginRight: 10,
-                                            borderRadius: "0.5rem",
-                                            background: "#fff",
-                                            color: "var(--primary)",
-                                            fontWeight: 700,
-                                            width: 200,
-                                            fontSize: 16,
-                                        }}
-                                    >
-                                        <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa
-                                    </Button>
-                                    <Button
-                                        onClick={() => {
-                                            // setOpenModal(true);
-                                            // setModeModal(mode);
-                                            history.push("/admin/menu");
-                                        }}
-                                        className="btn-neutral"
-                                        color="default"
-                                        size="lg"
-                                        style={{ background: "var(--primary)", color: "#000", fontWeight: 700, width: 200, fontSize: 16 }}
-                                    >
-                                        + Thêm thực đơn
-                                    </Button>
-                                </div>
+                                <div className="nav-wrapper" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    {mode !== 3 ? (
+                                        <Nav className="nav-fill flex-column flex-md-row" pills role="tablist" style={{ flex: 1, gap: 15 }}>
+                                            {menuList.length > 0 &&
+                                                menuList.map((item) => (
+                                                    <NavItem style={{ flex: "none", padding: 0 }} key={item.id}>
+                                                        <NavLink
+                                                            className={"mb-sm-3 mb-md-0 " + (hTabsIcons === item.id ? "active" : "")}
+                                                            href="#pablo"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                hanldeChangeMenu(item.id);
+                                                                convertTime(item.endTime);
+                                                            }}
+                                                            style={{ padding: "0px" }}
+                                                        >
+                                                            <div style={{ display: "flex", flexDirection: "column", position: "relative" }}>
+                                                                <span>{item.name}</span>
+                                                                <span style={{ fontSize: 14, fontWeight: 500 }}>{"(" + convertTime(item.startTime) + " - " + convertTime(item.endTime) + ")"}</span>
+                                                            </div>
+                                                        </NavLink>
+                                                    </NavItem>
+                                                ))}
+                                        </Nav>
+                                    ) : (
+                                        <Select
+                                            options={optionsCategory}
+                                            placeholder="Ngày"
+                                            styles={customStylesPayment}
+                                            value={menuActive}
+                                            onChange={(e) => {
+                                                setMenuActive(e);
+                                                hanldeChangeMenu(e.value);
+                                            }}
+                                        />
+                                    )}
 
+                                    <div>
+                                        <Button
+                                            onClick={() => {
+                                                // setOpenModal(true);
+                                                // setModeModal(mode);
+                                                setOpenModal(true);
+                                            }}
+                                            className=""
+                                            color=""
+                                            size="lg"
+                                            style={{
+                                                border: "1px solid var(--primary)",
+                                                marginRight: 10,
+                                                borderRadius: "0.5rem",
+                                                background: "#fff",
+                                                color: "var(--primary)",
+                                                fontWeight: 700,
+                                                width: 200,
+                                                fontSize: 16,
+                                                height: 49,
+                                            }}
+                                        >
+                                            <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                // setOpenModal(true);
+                                                // setModeModal(mode);
+                                                history.push("/admin/menu");
+                                            }}
+                                            className="btn-neutral"
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "var(--primary)", color: "#000", fontWeight: 700, width: 200, fontSize: 16, height: 49 }}
+                                        >
+                                            + Thêm thực đơn
+                                        </Button>
+                                    </div>
+                                </div>
+                                {/* <div style={{ display: "flex", margin: "15px 0" }}>
+                                    <Select
+                                        options={optionsCategory}
+                                        placeholder="Tòa nhà"
+                                        styles={customStylesPayment}
+                                        onChange={(e) => {
+                                            // setBuilding(e);
+                                        }}
+                                    />
+                                </div> */}
                                 <div>
                                     <TabContent id="myTabContent" activeTab={hTabsIcons}>
                                         <div style={{}}>
@@ -294,6 +348,7 @@ export const Menus = () => {
                                                         );
                                                     }
                                                 })} */}
+
                                             <Table className="align-items-center table-flush" responsive hover={true}>
                                                 <thead className="thead-light">
                                                     <tr>
@@ -321,6 +376,9 @@ export const Menus = () => {
                                                         </th>
                                                         <th className="sort table-title" scope="col">
                                                             Trạng thái
+                                                        </th>
+                                                        <th className="sort table-title" scope="col">
+                                                            Hành động
                                                         </th>
                                                     </tr>
                                                 </thead>

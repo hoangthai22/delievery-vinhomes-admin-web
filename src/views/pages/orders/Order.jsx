@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import Select from "react-select";
-import { Card, CardBody, CardFooter, CardHeader, Container, Form, Pagination, PaginationItem, PaginationLink, Row, Spinner, Table } from "reactstrap";
+import { Card, CardBody, CardHeader, Container, Form, Input, Row, Spinner, Table } from "reactstrap";
 import { getListOrder, getListOrderByPayment, getListOrderByStatus } from "../../../apis/orderApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
+import { OrderModal } from "../../../components/Modals/orderModal";
+import { statusType } from "../../../constants";
 import Odata from "./OData";
 import { OrderItem } from "./OrderItem";
 export const Order = () => {
@@ -11,31 +13,30 @@ export const Order = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [payment, setPayment] = useState("");
     const [status, setStatus] = useState("");
+    const [dateOrder, setDateOrder] = useState("text");
     const options = [
         { label: "Tất cả", value: "Tất cả" },
         { label: "Tiền Mặt(COD)", value: "Tiền Mặt" },
         { label: "Đã Thanh Toán", value: "Đã Thanh Toán" },
     ];
 
-    const optionsStatus = [
-        { label: "Tất cả", value: "Tất cả" },
-        { label: "Đợi tài xế xác nhận", value: "CreateOrder" },
-        { label: "Đang chuẩn bị", value: "ShipAccept" },
-        { label: "Đang Giao", value: "Shipping" },
-        { label: "Hoàn Thành", value: "Done" },
-        { label: "Đã Hủy", value: "Cancel" },
-    ];
+    const optionsStatus = statusType.map((item) => {
+        return { label: item.value, value: item.id };
+    });
 
+    const { orderItem } = Odata;
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return () => {};
     }, []);
 
-    const { orderItem } = Odata;
-
     useEffect(() => {
         setIsLoading(true);
-
+        const date = new Date();
+        const futureDate = date.getDate();
+        date.setDate(futureDate);
+        const defaultValue = date.toLocaleDateString("en-CA");
+        setDateOrder(defaultValue);
         getListOrder(1, 100)
             .then((res) => {
                 const orders = res.data;
@@ -45,7 +46,7 @@ export const Order = () => {
             .catch((error) => console.log(error));
 
         return () => {};
-    }, [orderItem]);
+    }, []);
 
     let history = useHistory();
     const customStylesPayment = {
@@ -85,6 +86,7 @@ export const Order = () => {
     return (
         <>
             <SimpleHeader name="Danh Sách Đơn Hàng" parentName="Quản Lý" />
+            <OrderModal />
             <Container className="mt--6" fluid>
                 <Row>
                     <div className="col">
@@ -107,6 +109,17 @@ export const Order = () => {
                                                 />
                                             </InputGroup>
                                         </FormGroup> */}
+                                        <Input
+                                            id="exampleDate"
+                                            name="date"
+                                            placeholder="Chọn ngày"
+                                            value={dateOrder}
+                                            onChange={(e) => {
+                                                setDateOrder(e.target.vlue);
+                                            }}
+                                            type="date"
+                                            style={{ width: 200, border: "1px solid #9e9e9e", fontSize: 15 }}
+                                        />
                                         <Select
                                             options={options}
                                             placeholder="Thanh Toán"
@@ -227,7 +240,7 @@ export const Order = () => {
                                 <tbody className="list">
                                     {orders.length > 0 &&
                                         orders.map((item, index) => {
-                                            return <OrderItem data={item} key={index} />;
+                                            return <OrderItem data={item} index={index} key={index} />;
                                         })}
                                 </tbody>
                             </Table>

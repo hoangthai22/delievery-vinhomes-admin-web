@@ -3,7 +3,7 @@ import { NOT_FOUND_IMG } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
 
 export const StoreCategoryItem = ({ data, index }) => {
-    const { setOpenModal, setStoreCategoryModal, setDeleteModal } = useContext(AppContext);
+    const { setOpenModal, setStoreCategoryModal, setDeleteModal, openDeleteModal, setOpenDeleteModal } = useContext(AppContext);
     return (
         <>
             <tr>
@@ -43,7 +43,7 @@ export const StoreCategoryItem = ({ data, index }) => {
                         className="fa-regular fa-trash-can mr-3 cusor"
                         style={{ fontSize: 22, color: "red" }}
                         onClick={() => {
-                            setDeleteModal(true);
+                            setOpenDeleteModal(true);
                             setStoreCategoryModal(data);
                         }}
                     ></i>

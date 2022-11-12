@@ -56,3 +56,88 @@ export const getBase64Ima = (imgUrl) => {
         };
     });
 };
+export const statusType = [
+    {
+        id: 0,
+        value: "Mới",
+        class: "status-create",
+    },
+    {
+        id: 1,
+        value: "Cửa hàng xác nhận",
+        class: "status-create",
+    },
+    {
+        id: 2,
+        value: "Chưa có tài xế",
+        class: "status-shiper",
+    },
+    {
+        id: 3,
+        value: "Tài xế đã nhận",
+        class: "status-processing",
+    },
+    {
+        id: 4,
+        value: "Đang Giao",
+        class: "status-processing",
+    },
+    {
+        id: 5,
+        value: "Hoàn Thành",
+        class: "status-success",
+    },
+    {
+        id: 6,
+        value: "Đã Hủy",
+        class: "status-cancel",
+    },
+    {
+        id: 7,
+        value: "Đang lấy hàng",
+        class: "status-processing",
+    },
+    {
+        id: 8,
+        value: "Ở Hub",
+        class: "status-processing",
+    },
+    {
+        id: 9,
+        value: "Đang giao",
+        class: "status-cancel",
+    },
+    {
+        id: 10,
+        value: "Hủy do hết thời gian đợi",
+        class: "status-cancel",
+    },
+    {
+        id: 11,
+        value: "Tài xế hủy",
+        class: "status-cancel",
+    },
+    {
+        id: 12,
+        value: "Cửa hàng hủy",
+        class: "status-cancel",
+    },
+    {
+        id: 13,
+        value: "Khách hàng hủy",
+        class: "status-cancel",
+    },
+];
+export const getModeName = (mode) => {
+    switch (mode) {
+        case "1":
+            return "Gọi món";
+        case "2":
+            return "Giao Hàng";
+        case "3":
+            return "Đặt Hàng";
+
+        default:
+            return "Gọi món";
+    }
+};

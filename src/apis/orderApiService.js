@@ -10,8 +10,16 @@ export const getListOrder = (page, size) => {
 };
 
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/order-management/orders/search-status?statusName=ShopAccept&pageIndex=1&pageSize=20
-export const getListOrderByStatus = (statusName, page, size) => {
-    return axios.get(`${BASE_URL}${ORDER}/orders/search-status?statusName=${statusName}&pageIndex=${page}&pageSize=${size}`, {
+export const getListOrderByStatus = (status, page, size) => {
+    return axios.get(`${BASE_URL}${ORDER}/orders/search-status?status=${status}&pageIndex=${page}&pageSize=${size}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};
+
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/order-management/orders/search-status?statusName=ShopAccept&pageIndex=1&pageSize=20
+export const getOrderDetail = (orderId) => {
+    return axios.get(`${BASE_URL}${ORDER}/orders/${orderId}`, {
         Accept: "application/json",
         "Content-Type": "application/json",
     });

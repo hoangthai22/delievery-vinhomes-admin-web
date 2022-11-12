@@ -96,7 +96,13 @@ export const StoreManage = () => {
                         <Card>
                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "20px 0px" }} className="align-items-center">
                                 <CardHeader className="" style={{ padding: "0 0 0 20px" }}>
-                                    <Form className="flex" style={{ alignItems: "center", gap: 20 }}>
+                                    <div
+                                        className="flex"
+                                        style={{ alignItems: "center", gap: 20 }}
+                                        onSubmit={(e) => {
+                                            e.preventdefault();
+                                        }}
+                                    >
                                         <FormGroup className="mb-0">
                                             <InputGroup className="input-group-lg input-group-flush" style={{ border: "1px solid #9e9e9e" }}>
                                                 <InputGroupAddon addonType="prepend">
@@ -129,7 +135,7 @@ export const StoreManage = () => {
                                                 <DropdownItem>Action</DropdownItem>
                                             </DropdownMenu>
                                         </Dropdown> */}
-                                    </Form>
+                                    </div>
                                 </CardHeader>
 
                                 <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">

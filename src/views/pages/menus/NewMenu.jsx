@@ -140,7 +140,7 @@ export const NewMenu = () => {
     };
     const handleSubmit = () => {
         if (validateCustomStylesForm()) {
-            // setIsLoadingCircle(true);
+            setIsLoadingCircle(true);
             let categorys = Category.map((item) => {
                 return item.value;
             });
@@ -156,7 +156,6 @@ export const NewMenu = () => {
                 modeId: Mode.value,
                 listCategory: categorys,
             };
-            console.log({ menu });
             postMenu(menu)
                 .then((res) => {
                     if (res.data) {

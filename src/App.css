@@ -398,6 +398,9 @@ input[type="checkbox"]:checked ~ .indicator::after {
     left: 3px;
     top: 3px;
 }
+.card-header h2 {
+    font-size: 18px !important;
+}
 .stardust-checkbox {
     /* position: relative; */
     margin-right: 10px;
@@ -411,6 +414,21 @@ input[type="checkbox"]:checked ~ .indicator::after {
 }
 .sidenav-header {
     height: 90px !important;
+}
+input[type="date"]::before {
+    color: #999999;
+    content: attr(placeholder);
+}
+input[type="date"] {
+    color: #ffffff;
+}
+input[type="date"]:focus,
+input[type="date"]:valid {
+    color: #666666;
+}
+input[type="date"]:focus::before,
+input[type="date"]:valid::before {
+    content: "" !important;
 }
 .g-sidenav-hidden .side-bar-type {
     visibility: hidden !important;
