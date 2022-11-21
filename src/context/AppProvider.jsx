@@ -13,7 +13,21 @@ export default function AppProvider({ children }) {
     const [storeModal, setStoreModal] = useState({});
     const [orderModal, setorderModal] = useState({});
     const [categoryModal, setCategoryModal] = useState({});
+
+    const [areaModal, setAreaModal] = useState({});
+    const [openAreaModal, setOpenAreaModal] = useState(false);
+    const [openNewAreaModal, setOpenNewAreaModal] = useState(false);
+
+    const [clusterModal, setClusterModal] = useState({});
+    const [openNewClusterModal, setOpenNewClusterModal] = useState(false);
+    const [openClusterModal, setOpenClusterModal] = useState(false);
+    const [openDeleteClusterModal, setOpenDeleteClusterModal] = useState(false);
+
+    const [buildingModal, setBuildingModal] = useState({});
+    const [openNewBuildingModal, setOpenNewBuildingModal] = useState(false);
+    const [openBuildingModal, setOpenBuildingModal] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
     const [deleteModal, setDeleteModal] = useState({});
     const [storeCategoryModal, setStoreCategoryModal] = useState({});
     const [shipperModal, setShipperModal] = useState({});
@@ -103,6 +117,26 @@ export default function AppProvider({ children }) {
                 setShipperModal,
                 orderModal,
                 setorderModal,
+                areaModal,
+                setAreaModal,
+                openAreaModal,
+                setOpenAreaModal,
+                openNewAreaModal,
+                setOpenNewAreaModal,
+                openNewBuildingModal,
+                setOpenNewBuildingModal,
+                buildingModal,
+                setBuildingModal,
+                openBuildingModal,
+                setOpenBuildingModal,
+                openDeleteClusterModal,
+                setOpenDeleteClusterModal,
+                openClusterModal,
+                setOpenClusterModal,
+                clusterModal,
+                setClusterModal,
+                openNewClusterModal,
+                setOpenNewClusterModal,
             }}
         >
             {children}

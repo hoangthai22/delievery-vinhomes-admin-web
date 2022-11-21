@@ -5,6 +5,7 @@ import AdminNavbar from "../components/Navbars/AdminNavbar.js";
 // core components
 // import AdminFooter from "../components/Footers/AdminFooter.js";
 import Sidebar from "../components/Sidebar/Sidebar.js";
+import BuildingManage from "../views/pages/areas/BuildingManage.jsx";
 import { NewCategory } from "../views/pages/categories/NewCategory.jsx";
 import { NewDriver } from "../views/pages/drivers/NewDriver.jsx";
 import { NewMenu } from "../views/pages/menus/NewMenu.jsx";
@@ -78,6 +79,7 @@ function Admin() {
                     <Route path="/admin/category" render={() => <NewCategory />} />
                     <Route path="/admin/menu" render={() => <NewMenu />} />
                     <Route path="/admin/driver" render={() => <NewDriver />} />
+                    <Route path="/admin/area/:id/clusters/:id" render={() => <BuildingManage />} />
                     <Route path="/admin/order/:id" render={() => <OrderDetail />} />
                     <Redirect from="*" to="/admin/dashboard" />
                 </Switch>

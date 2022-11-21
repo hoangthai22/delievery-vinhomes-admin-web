@@ -9,7 +9,7 @@ export const CategoryItem = ({ data, index }) => {
             <tr>
                 <td className="budget table-text-product bold">{index + 1}</td>
                 <td className="budget table-text-product bold">
-                    <div style={{ width: 60, height: 60, borderRadius: "5%", overflow: "hidden", margin: "20px 0" }}>
+                    <div style={{ width: 50, height: 50, borderRadius: "5%", overflow: "hidden", margin: "20px 0" }}>
                         <img src={data.image || NOT_FOUND_IMG} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                     </div>
                 </td>
@@ -24,11 +24,11 @@ export const CategoryItem = ({ data, index }) => {
     </td> */}
                 <td>
                     {!data.isActive ? (
-                        <span className={`badge  status-success`} style={{ padding: "0.8em 1.2em", fontSize: 12 }}>
+                        <span className={`badge  status-success`} style={{ padding: "0.8em 1em", fontSize: 11 }}>
                             Hoạt Động
                         </span>
                     ) : (
-                        <span className={`badge  status-cancel`} style={{ padding: "0.8em 1.2em", fontSize: 12 }}>
+                        <span className={`badge  status-cancel`} style={{ padding: "0.8em 1em", fontSize: 11 }}>
                             Ngưng Hoạt Động
                         </span>
                     )}

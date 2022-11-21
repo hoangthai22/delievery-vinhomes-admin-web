@@ -222,7 +222,7 @@ export const Menus = () => {
                                                             style={{ padding: "0px" }}
                                                         >
                                                             <div style={{ display: "flex", flexDirection: "column", position: "relative" }}>
-                                                                <span>{item.name}</span>
+                                                                <span style={{}}>{item.name}</span>
                                                                 <span style={{ fontSize: 14, fontWeight: 500 }}>{"(" + convertTime(item.startTime) + " - " + convertTime(item.endTime) + ")"}</span>
                                                             </div>
                                                         </NavLink>
@@ -275,7 +275,7 @@ export const Menus = () => {
                                             className="btn-neutral"
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#000", fontWeight: 700, width: 200, fontSize: 16, height: 49 }}
+                                            style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, width: 200, fontSize: 16, height: 49 }}
                                         >
                                             + Thêm thực đơn
                                         </Button>

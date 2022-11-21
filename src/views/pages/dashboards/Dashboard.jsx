@@ -14,33 +14,158 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useEffect } from "react";
 // node.js library that concatenates classes (strings)
 // javascipt plugin for creating charts
 import { Chart } from "chart.js";
 // react plugin used to create charts
 // reactstrap components
-import { Container } from "reactstrap";
+import { Card, Container, Row } from "reactstrap";
 
 // core components
 // import CardsHeader from "../../../components/Headers/CardsHeader.js";
 
 import CardsHeader from "../../../components/Headers/CardsHeader.js";
+import { getOrderReport } from "../../../apis/orderApiService.js";
+import { notify } from "../../../components/Toast/ToastCustom.js";
 
 function Dashboard() {
     const [activeNav, setActiveNav] = React.useState(1);
+    const [dayFilter, setDayFilter] = React.useState("");
+    const [countStore, setCountStore] = React.useState(0);
+    const [countOrder, setCountOrder] = React.useState(0);
+    const [countShipper, setCountShipper] = React.useState(0);
+    const [countOrderDone, setCountOrderDone] = React.useState(0);
+    const [countOrderFail, setCountOrderFail] = React.useState(0);
+    const [countOrderNew, setCountOrderNew] = React.useState(0);
+    const [countOrderPaymentFail, setCountOrderPaymentFail] = React.useState(0);
     const [chartExample1Data, setChartExample1Data] = React.useState("data1");
     const toggleNavs = (e, index) => {
         e.preventDefault();
         setActiveNav(index);
         setChartExample1Data(chartExample1Data === "data1" ? "data2" : "data1");
     };
+    useEffect(() => {
+        getOrderReport(dayFilter)
+            .then((res) => {
+                if (res.data) {
+                    let report = res.data;
+                    setCountStore(report.totalStore);
+                    setCountOrder(report.totalOrder);
+                    setCountShipper(report.totalShipper);
+                    setCountOrderDone(report.totalOrderCompleted);
+                    setCountOrderFail(report.totalOrderCancel);
+                    setCountOrderNew(report.totalOrderNew);
+                    setCountOrderPaymentFail(report.totalOrderUnpaidVNpay);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+
+        return () => {};
+    }, []);
 
     return (
         <>
-        
-            <CardsHeader name="" parentName="Dashboards" />
-            <Container className="mt--6" fluid>
+            <CardsHeader name="" parentName="Dashboards" countOrder={countOrder} countShipper={countShipper} countStore={countStore} />
+            <Container className="mt--12" fluid>
+                <div>
+                    <h1>Báo cáo tổng quan</h1>
+                </div>
+                <Row>
+                    <div className="col-lg-6">
+                        <Card style={{ background: "rgba(255, 170, 76, 0.9)", height: 430 }}>
+                            <div className="col-md-12">
+                                <form>
+                                    <div className="row">
+                                        <div className="" id="dropzone-single" style={{ width: "100%", padding: "0 15px 30px 15px" }}>
+                                            <div className="center_flex" style={{ paddingTop: 15, paddingBottom: 30, flexDirection: "column" }}>
+                                                <span style={{ color: "#fff", fontSize: 24, fontWeight: 700 }}>Tổng số hóa đơn bán hàng</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Đơn vị (Hóa đơn)</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng thành công</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderDone}</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng mới</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderNew}</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng thanh toán thất bại</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderPaymentFail}</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng giao thất bại</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderFail}</span>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                    background: "rgba(250, 250, 250, 0.22)",
+                                                    borderRadius: 10,
+                                                    padding: "5px 10px",
+                                                }}
+                                            >
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Tổng số đơn hàng</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrder}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </Card>
+                    </div>
+                    <div className="col-lg-6">
+                        <Card style={{ background: "rgb(76, 175, 80)", height: 430 }}>
+                            <div className="col-md-12">
+                                <form>
+                                    <div className="row">
+                                        <div className="" id="dropzone-single" style={{ width: "100%", padding: "0 15px 30px 15px" }}>
+                                            <div className="center_flex" style={{ paddingTop: 15, paddingBottom: 30, flexDirection: "column" }}>
+                                                <span style={{ color: "#fff", fontSize: 24, fontWeight: 700 }}>Tổng doanh thu bán hàng</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Đơn vị (VND)</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Phí ship</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Tổng thu hộ</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Phụ phí</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>---</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>---</span>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                    background: "rgba(250, 250, 250, 0.22)",
+                                                    borderRadius: 10,
+                                                    padding: "5px 10px",
+                                                }}
+                                            >
+                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Tổng doanh thu</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </Card>
+                    </div>
+                </Row>
                 {/* <Row>
           <Col xl="8">
             <Card className="bg-default">

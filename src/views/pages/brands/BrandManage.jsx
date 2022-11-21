@@ -30,7 +30,7 @@ import { notify } from "../../../components/Toast/ToastCustom";
 
 // core components
 function BrandManage() {
-    const { setOpenModalNewCateStore, storeCategoryModal, setOpenDeleteModal, openDeleteModal } = useContext(AppContext);
+    const { setOpenModalNewCateStore, storeCategoryModal, setOpenDeleteModal, openDeleteModal, setBrandList, brandList } = useContext(AppContext);
     let history = useHistory();
 
     const [categoryList, setCategoryList] = useState([]);
@@ -81,6 +81,8 @@ function BrandManage() {
                     notify("Xóa thương hiệu thành công", "Success");
                     history.push("/admin/brands");
                     handleReload();
+                    let newBrand = brandList.filter((item) => item.id !== id);
+                    setBrandList([...newBrand]);
                     setOpenDeleteModal(false);
                     setIsLoadingCircle(false);
                 }
@@ -128,10 +130,10 @@ function BrandManage() {
                                             onClick={() => {
                                                 setOpenDeleteModal(false);
                                             }}
-                                            className="btn-neutral"
+                                            // className="btn-neutral"
                                             color="default"
                                             size="lg"
-                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem" }}
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem", border: "none" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 <span>Đóng</span>
@@ -194,9 +196,9 @@ function BrandManage() {
                                         className="btn-neutral"
                                         color="default"
                                         size="lg"
-                                        style={{ background: "var(--primary)", color: "#00003B", fontWeight: 700 }}
+                                        style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, border: "1px solid var(--primary)" }}
                                     >
-                                        Thêm Thương Hiệu Mới
+                                        + Thêm Thương Hiệu Mới
                                     </Button>
                                 </Col>
                             </div>

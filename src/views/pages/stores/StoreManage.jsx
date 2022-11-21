@@ -1,41 +1,21 @@
-import React, { useCallback, useEffect, useState } from "react";
-import SimpleHeader from "../../../components/Headers/SimpleHeader";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardFooter,
-    CardHeader,
-    Col,
-    Container,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownToggle,
-    Form,
-    FormGroup,
-    Input,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    Pagination,
-    PaginationItem,
-    PaginationLink,
-    Row,
-    Spinner,
-    Table,
-} from "reactstrap";
-import { useHistory } from "react-router";
-import { StoreItem } from "./StoreItem";
-import { getListStoreByKey, getListStores } from "../../../apis/storeApiService";
-import { StoreModal } from "../../../components/Modals/storeModal";
-import { DeleteModal } from "../../../components/Modals/deleteModal";
 import { debounce } from "lodash";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router";
+import Select from "react-select";
+import { Button, Card, CardBody, CardHeader, Col, Container, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Row, Spinner, Table } from "reactstrap";
+import { getListStoreByKey, getListStores } from "../../../apis/storeApiService";
+import SimpleHeader from "../../../components/Headers/SimpleHeader";
+import { DeleteModal } from "../../../components/Modals/deleteModal";
+import { StoreModal } from "../../../components/Modals/storeModal";
+import { AppContext } from "../../../context/AppProvider";
+import { StoreItem } from "./StoreItem";
 
 export const StoreManage = () => {
+    const { buildingList, storeCategoryList } = useContext(AppContext);
+    const [storeCategory, setStoreCategory] = useState("");
     const [storeLists, setStoreLists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-
+    const [building, setBuilding] = useState("");
     const [keyword, setKeyword] = useState("");
     function fetchDropdownOptions(key) {
         setIsLoading(true);
@@ -78,6 +58,23 @@ export const StoreManage = () => {
             })
             .catch((error) => console.log(error));
     };
+    const customStylesPayment = {
+        control: (provided, state) => ({
+            ...provided,
+            background: "#fff",
+            borderColor: "rgb(158, 158, 158)",
+            minHeight: "30px",
+            height: "46px",
+            width: "200px",
+            boxShadow: state.isFocused ? null : null,
+            borderRadius: "0.5rem",
+        }),
+
+        input: (provided, state) => ({
+            ...provided,
+            margin: "5px",
+        }),
+    };
     useEffect(() => {
         hanldeGetListStore();
     }, []);
@@ -85,6 +82,18 @@ export const StoreManage = () => {
     const handleReload = () => {
         hanldeGetListStore();
     };
+    const optionsBuilding = buildingList.map((item) => {
+        return {
+            label: item.name,
+            value: item.id,
+        };
+    });
+    const optionsCategoryStore = storeCategoryList.map((item) => {
+        return {
+            label: item.name,
+            value: item.id,
+        };
+    });
     return (
         <>
             <StoreModal handleReload={handleReload} />
@@ -113,6 +122,24 @@ export const StoreManage = () => {
                                                 <Input placeholder="Tìm kiếm bằng tên cửa hàng" type="search" onChange={handleInputOnchange} className="btn-lg" style={{ height: 46, width: 250 }} />
                                             </InputGroup>
                                         </FormGroup>
+                                        <Select
+                                            options={optionsBuilding}
+                                            placeholder="Tòa nhà"
+                                            styles={customStylesPayment}
+                                            value={building}
+                                            onChange={(e) => {
+                                                setBuilding(e);
+                                            }}
+                                        />
+                                        <Select
+                                            options={optionsCategoryStore}
+                                            placeholder="Loại cửa hàng"
+                                            styles={customStylesPayment}
+                                            value={storeCategory}
+                                            onChange={(e) => {
+                                                setStoreCategory(e);
+                                            }}
+                                        />
                                         {/* <Dropdown isOpen={dropdownOpen} toggle={toggle}>
                                             <DropdownToggle
                                                 className="dropdown"
@@ -138,15 +165,15 @@ export const StoreManage = () => {
                                     </div>
                                 </CardHeader>
 
-                                <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">
+                                <Col className="mt-3 mt-md-0 text-md-right" lg="3" xs="5">
                                     <Button
                                         onClick={() => history.push("/admin/store")}
                                         className="btn-neutral"
                                         color="default"
                                         size="lg"
-                                        style={{ background: "var(--primary)", color: "#000", fontWeight: 700 }}
+                                        style={{ background: "var(--primary)", color: "#fff", fontWeight: 700 }}
                                     >
-                                        Thêm Cửa Hàng Mới
+                                        + Thêm Cửa Hàng Mới
                                     </Button>
                                 </Col>
                             </div>

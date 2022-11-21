@@ -2,58 +2,35 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import Select from "react-select";
 import { Button, Card, CardBody, CardHeader, Col, Container, Modal, Row, Spinner } from "reactstrap";
-import { putCategory, putStoreCategory } from "../../apis/categoryApiService";
+import { putArea } from "../../apis/areaApiService";
 import { AppContext } from "../../context/AppProvider";
-import ImageUploading from "react-images-uploading";
 import { notify } from "../Toast/ToastCustom";
-import { getBase64Image } from "../../constants";
-export const StorestoreCategoryModal = ({ handleReload }) => {
-    const { openModal, setOpenModal, storeCategoryModal } = useContext(AppContext);
-    const [categoryName, setcategoryName] = useState("");
-    const [categoryId, setcategoryId] = useState("");
-    const [imageState, setimageState] = useState("");
+export const AreaModal = ({ handleReload }) => {
+    const { openAreaModal, setOpenAreaModal, areaModal, setAreaModal } = useContext(AppContext);
+    const [areaName, setAreaName] = useState("");
     const [status, setStatus] = useState(0);
-    const [images, setImages] = React.useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
-    let history = useHistory();
-    const maxNumber = 69;
-    const onChange = (imageList, addUpdateIndex) => {
-        // data for submit
-        if (imageList.length > 0) {
-            setimageState("valid");
-        } else {
-            setimageState("invalid");
-        }
-        console.log(imageList);
-        setImages(imageList);
-    };
+
     useEffect(() => {
-        console.log(storeCategoryModal);
-        setcategoryName(storeCategoryModal.name);
-        setcategoryId(storeCategoryModal.id);
+        setAreaName(areaModal.label);
 
         setStatus({ label: "Hoạt động", value: 0 });
-    }, [storeCategoryModal]);
+    }, [areaModal]);
 
     const hanldeUpdate = () => {
         setIsLoadingCircle(true);
-        let categoryUpdate = { id: categoryId, name: categoryName, status: status.label, storeName: "", storeId: "", storeImage: "" };
-        console.log({ categoryUpdate });
-        putStoreCategory(categoryUpdate)
+        let area = { id: areaModal.value, name: areaName };
+        putArea(area)
             .then((res) => {
                 if (res.data) {
-                    setIsLoading(false);
                     notify("Cập nhật thành công", "Success");
-                    history.push("/admin/categorieStore");
-                    handleReload();
-                    setOpenModal(false);
+                    handleReload({ value: res.data.id, label: res.data.name });
+                    setOpenAreaModal(false);
                     setIsLoadingCircle(false);
                 }
             })
             .catch((error) => {
                 console.log(error);
-                setIsLoading(false);
                 setIsLoadingCircle(false);
                 notify("Đã xảy ra lỗi gì đó!!", "Error");
             });
@@ -87,9 +64,9 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                     <Modal
                         className="modal-dialog-centered"
                         size="lg"
-                        isOpen={openModal}
+                        isOpen={openAreaModal}
                         toggle={() => {
-                            setOpenModal(false);
+                            setOpenAreaModal(false);
                         }}
                     >
                         <div className="modal-body p-0">
@@ -104,7 +81,7 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                                                 <Card>
                                                     <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "10px 0px" }} className="align-items-center">
                                                         <CardHeader className="border-0" style={{ padding: "15px" }}>
-                                                            <h2 className="mb-0">Thông tin loại cửa hàng </h2>
+                                                            <h2 className="mb-0">Thông tin khu vực </h2>
                                                         </CardHeader>
                                                     </div>
                                                     <div className="col-md-12">
@@ -112,27 +89,20 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                                                             <div className="row">
                                                                 <div className="col-md-4">
                                                                     <div className="form-group">
-                                                                        <label className="form-control-label">Mã loại cửa hàng </label>
-                                                                        <input
-                                                                            className="form-control"
-                                                                            type="search"
-                                                                            id="example-search-input"
-                                                                            value={storeCategoryModal.id}
-                                                                            readOnly
-                                                                            onChange={() => {}}
-                                                                        />
+                                                                        <label className="form-control-label">Mã khu vực </label>
+                                                                        <input className="form-control" type="search" id="example-search-input" value={areaModal.value} readOnly onChange={() => {}} />
                                                                     </div>
                                                                 </div>
                                                                 <div className="col-md-4">
                                                                     <div className="form-group">
-                                                                        <label className="form-control-label">Tên loại cửa hàng </label>
+                                                                        <label className="form-control-label">Tên khu vực </label>
                                                                         <input
                                                                             className="form-control"
                                                                             type="search"
                                                                             id="example-search-input"
-                                                                            value={`${categoryName}`}
+                                                                            value={`${areaName}`}
                                                                             onChange={(e) => {
-                                                                                setcategoryName(e.target.value);
+                                                                                setAreaName(e.target.value);
                                                                             }}
                                                                         />
                                                                     </div>
@@ -163,7 +133,7 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                                         <Col className="text-md-right mb-3" lg="12" xs="5">
                                             <Button
                                                 onClick={() => {
-                                                    setOpenModal(false);
+                                                    setOpenAreaModal(false);
                                                 }}
                                                 // className="btn-neutral"
                                                 color="default"
@@ -183,7 +153,7 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                                                 disabled={isLoadingCircle}
                                                 color="default"
                                                 size="lg"
-                                                style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 2rem", border: "1px solid var(--primary)" }}
+                                                style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 2rem" }}
                                             >
                                                 <div className="flex" style={{ alignItems: "center", width: 99, justifyContent: "center" }}>
                                                     {isLoadingCircle ? (

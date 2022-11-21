@@ -14,9 +14,10 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+import AreaManage from "./views/pages/areas/AreaManage.jsx";
 import BrandManage from "./views/pages/brands/BrandManage.jsx";
 import CategoryManage from "./views/pages/categories/CategoryManage.jsx";
-import Dashboard from "./views/pages/dashboards/Dashboard.js";
+import Dashboard from "./views/pages/dashboards/Dashboard.jsx";
 import DriverManage from "./views/pages/drivers/DriverManage.jsx";
 import { Menus } from "./views/pages/menus/Menu.jsx";
 import { Order } from "./views/pages/orders/Order.jsx";
@@ -59,6 +60,14 @@ const routes = [
         layout: "/admin",
         type: 2,
     },
+    // {
+    //     path: "/orderstest",
+    //     name: "Đơn Hàng test",
+    //     icon: "fa-solid fa-box",
+    //     component: OrderTest,
+    //     layout: "/admin",
+    //     type: 2,
+    // },
     {
         path: "/drivers",
         name: "Tài Xế",
@@ -89,10 +98,10 @@ const routes = [
         layout: "/admin",
     },
     {
-        path: "/buildings",
+        path: "/areas",
         name: "Khu vực",
         icon: "fa-solid fa-city",
-        // component: StoreCategoryManage,
+        component: AreaManage,
         layout: "/admin",
     },
 ];

@@ -15,7 +15,9 @@ export const StoreItem = ({ data, index }) => {
             <tr>
                 <td className="budget table-text bold">{index + 1}</td>
                 <td className="budget table-text bold">{data.brandStoreName}</td>
-                <td className="budget table-text bold">{data.name}</td>
+                <td className="budget table-text bold" style={{ whiteSpace: "unset" }}>
+                    {data.name}
+                </td>
                 <td className="budget table-text ">{data.phone}</td>
                 <td className="budget table-text ">{"Không có"}</td>
                 <td className="budget table-text bold">{data.buildingStore}</td>
@@ -27,11 +29,11 @@ export const StoreItem = ({ data, index }) => {
                 </td> */}
                 <td>
                     {data.status ? (
-                        <span className={`badge  status-success`} style={{ padding: "0.8em 1.2em", fontSize: 12 }}>
+                        <span className={`badge  status-success`} style={{ padding: "0.8em 1em", fontSize: 11 }}>
                             Hoạt Động
                         </span>
                     ) : (
-                        <span className={`badge  status-cancel`} style={{ padding: "0.8em 1.2em", fontSize: 12 }}>
+                        <span className={`badge  status-cancel`} style={{ padding: "0.8em 1em", fontSize: 11 }}>
                             Ngưng Hoạt Động
                         </span>
                     )}

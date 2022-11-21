@@ -1,23 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router";
 import Select from "react-select";
-import { Card, CardBody, CardHeader, Container, Form, Input, Row, Spinner, Table } from "reactstrap";
+import { Card, CardBody, CardFooter, CardHeader, Container, Form, Input, Pagination, PaginationItem, PaginationLink, Row, Spinner, Table } from "reactstrap";
 import { getListOrder, getListOrderByPayment, getListOrderByStatus } from "../../../apis/orderApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { OrderModal } from "../../../components/Modals/orderModal";
 import { statusType } from "../../../constants";
+import ReactDatetime from "react-datetime";
 import Odata from "./OData";
 import { OrderItem } from "./OrderItem";
+import moment from "moment";
+// import "moment/locale/en";
+
 export const Order = () => {
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [payment, setPayment] = useState("");
     const [status, setStatus] = useState("");
-    const [dateOrder, setDateOrder] = useState("text");
+    const [dateType, setDateType] = useState("text");
+    const [dateOrder, setDateOrder] = useState("");
+    const interviewDateRef = useRef();
     const options = [
-        { label: "Tất cả", value: "Tất cả" },
-        { label: "Tiền Mặt(COD)", value: "Tiền Mặt" },
-        { label: "Đã Thanh Toán", value: "Đã Thanh Toán" },
+        { label: "Tất cả", value: -1 },
+        { label: "Tiền Mặt(COD)", value: 0 },
+        { label: "VN Pay", value: 1 },
+    ];
+    const optionsMode = [
+        { label: "Tất cả", value: "0" },
+        { label: "Gọi Món", value: "1" },
+        { label: "Đi Chợ", value: "2" },
+        { label: "Đặt Hàng", value: "3" },
     ];
 
     const optionsStatus = statusType.map((item) => {
@@ -29,21 +41,26 @@ export const Order = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return () => {};
     }, []);
-
-    useEffect(() => {
+    const handleGetOrder = (date) => {
         setIsLoading(true);
-        const date = new Date();
-        const futureDate = date.getDate();
-        date.setDate(futureDate);
-        const defaultValue = date.toLocaleDateString("en-CA");
-        setDateOrder(defaultValue);
-        getListOrder(1, 100)
+        if (date === "") {
+            date = "";
+        }
+        getListOrder(date.replace("-", "/").replace("-", "/"), 1, 100)
             .then((res) => {
                 const orders = res.data;
                 setOrders(orders);
                 setIsLoading(false);
             })
             .catch((error) => console.log(error));
+    };
+    useEffect(() => {
+        // const date = new Date();
+        // const futureDate = date.getDate();
+        // date.setDate(futureDate);
+        // const defaultValue = date.toLocaleDateString("en-CA");
+        // setDateOrder("");
+        handleGetOrder("");
 
         return () => {};
     }, []);
@@ -83,6 +100,9 @@ export const Order = () => {
             margin: "5px",
         }),
     };
+    const handleInterviewDateClick = () => {
+        interviewDateRef.current.focus();
+    };
     return (
         <>
             <SimpleHeader name="Danh Sách Đơn Hàng" parentName="Quản Lý" />
@@ -109,17 +129,22 @@ export const Order = () => {
                                                 />
                                             </InputGroup>
                                         </FormGroup> */}
-                                        <Input
-                                            id="exampleDate"
-                                            name="date"
-                                            placeholder="Chọn ngày"
-                                            value={dateOrder}
-                                            onChange={(e) => {
-                                                setDateOrder(e.target.vlue);
+                                        <ReactDatetime
+                                            inputProps={{
+                                                placeholder: "Lọc theo ngày",
                                             }}
-                                            type="date"
-                                            style={{ width: 200, border: "1px solid #9e9e9e", fontSize: 15 }}
+                                            className="ReactDatetime"
+                                            style={{ border: "none" }}
+                                            timeFormat={false}
+                                            onChange={(e) => {
+                                                let date = new Date(e._d + "");
+                                                moment.locale("en");
+                                                let dateConvert = moment(date).format("ll");
+                                                date = dateConvert.split(",")[0] + dateConvert.split(",")[1];
+                                                handleGetOrder(date);
+                                            }}
                                         />
+
                                         <Select
                                             options={options}
                                             placeholder="Thanh Toán"
@@ -130,7 +155,7 @@ export const Order = () => {
                                                 setIsLoading(true);
                                                 setOrders([]);
                                                 setPayment(e);
-                                                if (e.value !== "Tất cả") {
+                                                if (e.value !== -1) {
                                                     getListOrderByPayment(e.value, 1, 100)
                                                         .then((res) => {
                                                             const orders = res.data;
@@ -139,7 +164,7 @@ export const Order = () => {
                                                         })
                                                         .catch((error) => console.log(error));
                                                 } else {
-                                                    getListOrder(1, 100)
+                                                    getListOrder("", 1, 100)
                                                         .then((res) => {
                                                             const orders = res.data;
                                                             setOrders(orders);
@@ -181,6 +206,37 @@ export const Order = () => {
                                                 setPayment("");
                                             }}
                                         />
+                                        <Select
+                                            options={optionsMode}
+                                            placeholder="Hình thức đặt hàng"
+                                            styles={customStylesStatus}
+                                            value={status}
+                                            onChange={(e) => {
+                                                console.log(e);
+                                                // setIsLoading(true);
+                                                // setOrders([]);
+                                                // setStatus(e);
+                                                // // if (e.value !== "Tất cả") {
+                                                //     getListOrderByStatus(e.value, 1, 100)
+                                                //         .then((res) => {
+                                                //             const orders = res.data;
+                                                //             setOrders(orders);
+                                                //             setIsLoading(false);
+                                                //         })
+                                                //         .catch((error) => console.log(error));
+                                                // } else {
+                                                //     getListOrder(1, 100)
+                                                //         .then((res) => {
+                                                //             const orders = res.data;
+                                                //             setOrders(orders);
+                                                //             setIsLoading(false);
+                                                //         })
+                                                //         .catch((error) => console.log(error));
+                                                // }
+
+                                                setPayment("");
+                                            }}
+                                        />
                                     </Form>
                                 </CardHeader>
                                 {/* <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">
@@ -218,16 +274,17 @@ export const Order = () => {
                                             Thanh Toán
                                         </th>
                                         <th className="sort table-title" scope="col">
+                                            Trạng Thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
                                             Shipper
                                         </th>
                                         <th className="sort table-title" scope="col">
                                             Mode
                                         </th>
+
                                         <th className="sort table-title" scope="col">
-                                            Trạng Thái
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Hành động
+                                            {/* Hành động */}
                                         </th>
                                         {/* <th scope="col">Users</th>
                                         <th className="sort table-title" data-sort="completion" scope="col">
@@ -267,17 +324,17 @@ export const Order = () => {
                                     <nav aria-label="...">
                                         <Pagination className="pagination justify-content-end mb-0" listClassName="justify-content-end mb-0">
                                             <PaginationItem className="disabled">
-                                                <PaginationLink href="#pablo" onClick={(e) => e.preventDefault()} tabIndex="-1">
+                                                <PaginationLink href="#pablo" onClick={(e) => e.preventDefault()} tabIndex="1">
                                                     <i className="fas fa-angle-left" />
                                                     <span className="sr-only">Previous</span>
                                                 </PaginationLink>
                                             </PaginationItem>
-                                            <PaginationItem className="active">
+                                            <PaginationItem>
                                                 <PaginationLink href="#pablo" onClick={(e) => e.preventDefault()}>
                                                     1
                                                 </PaginationLink>
                                             </PaginationItem>
-                                            <PaginationItem>
+                                            <PaginationItem className="active">
                                                 <PaginationLink href="#pablo" onClick={(e) => e.preventDefault()}>
                                                     2 <span className="sr-only">(current)</span>
                                                 </PaginationLink>

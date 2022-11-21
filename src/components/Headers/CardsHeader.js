@@ -19,7 +19,7 @@ import PropTypes from "prop-types";
 // reactstrap components
 import { Breadcrumb, BreadcrumbItem, Button, Card, CardBody, CardTitle, Container, Row, Col } from "reactstrap";
 
-function CardsHeader({ name, parentName }) {
+function CardsHeader({ name, parentName, countOrder, countShipper, countStore }) {
     return (
         <>
             <div className="header backround-primary">
@@ -27,15 +27,13 @@ function CardsHeader({ name, parentName }) {
                     <div className="header-body">
                         <Row className="align-items-center py-4">
                             <Col lg="6" xs="7">
-                                <h1 className="" >
-                                    {"Chào mừng bạn đến với VinhomesGP Delivery "}
-                                </h1>
+                                <h1 className="">{"Chào mừng bạn đến với Cộng Đồng Chung Cư "}</h1>
                             </Col>
                         </Row>
 
                         <Row>
                             <Col md="6" xl="4">
-                                <Card className="card-stats" style={{ padding: "2rem 0.5rem",height:180 }}>
+                                <Card className="card-stats" style={{ padding: "2rem 0.5rem", height: 180 }}>
                                     <CardBody>
                                         <Row>
                                             <div className="col">
@@ -43,7 +41,7 @@ function CardsHeader({ name, parentName }) {
                                                     Tổng cửa hàng
                                                 </CardTitle>
                                                 <span className="h2 font-weight-bold mb-0" style={{ fontSize: "2rem" }}>
-                                                    10
+                                                    {countStore}
                                                 </span>
                                             </div>
                                             <Col className="col-auto">
@@ -56,7 +54,7 @@ function CardsHeader({ name, parentName }) {
                                 </Card>
                             </Col>
                             <Col md="6" xl="4">
-                                <Card className="card-stats" style={{ padding: "2rem 0.5rem",height:180  }}>
+                                <Card className="card-stats" style={{ padding: "2rem 0.5rem", height: 180 }}>
                                     <CardBody>
                                         <Row>
                                             <div className="col">
@@ -64,7 +62,7 @@ function CardsHeader({ name, parentName }) {
                                                     Tổng đơn hàng
                                                 </CardTitle>
                                                 <span className="h2 font-weight-bold mb-0" style={{ fontSize: "2rem" }}>
-                                                    2,356
+                                                    {countOrder}
                                                 </span>
                                             </div>
                                             <Col className="col-auto">
@@ -77,7 +75,7 @@ function CardsHeader({ name, parentName }) {
                                 </Card>
                             </Col>
                             <Col md="6" xl="4">
-                                <Card className="card-stats" style={{ padding: "2rem 0.5rem",height:180  }}>
+                                <Card className="card-stats" style={{ padding: "2rem 0.5rem", height: 180 }}>
                                     <CardBody>
                                         <Row>
                                             <div className="col">
@@ -85,7 +83,7 @@ function CardsHeader({ name, parentName }) {
                                                     Tổng tài xế
                                                 </CardTitle>
                                                 <span className="h2 font-weight-bold mb-0" style={{ fontSize: "2rem" }}>
-                                                    15
+                                                    {countShipper}
                                                 </span>
                                             </div>
                                             <Col className="col-auto">

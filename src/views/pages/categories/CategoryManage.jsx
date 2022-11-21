@@ -114,9 +114,9 @@ function CategoryManage() {
                                         className="btn-neutral"
                                         color="default"
                                         size="lg"
-                                        style={{ background: "var(--primary)", color: "#00003B", fontWeight: 700 }}
+                                        style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, border: "1px solid var(--primary)" }}
                                     >
-                                        Thêm Danh Mục Mới
+                                        + Thêm Danh Mục Mới
                                     </Button>
                                 </Col>
                             </div>

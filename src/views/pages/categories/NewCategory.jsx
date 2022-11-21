@@ -12,7 +12,7 @@ import { AppContext } from "../../../context/AppProvider";
 const unitData = ["Gam", "Kg", "Chai", "Hủ", "Hộp", "Cái"];
 
 export const NewCategory = () => {
-    const { brandList, storeCategoryList } = useContext(AppContext);
+    const { categoryList, setCategoryList } = useContext(AppContext);
     const [categoryName, setcategoryName] = useState("");
     const [categoryNameState, setcategoryNameState] = useState("");
     const [imageState, setimageState] = useState("");
@@ -59,7 +59,9 @@ export const NewCategory = () => {
                     if (res.data) {
                         console.log(res.data);
                         setIsLoading(false);
+                        setCategoryList([...categoryList, cate]);
                         notify("Thêm danh mục thành công", "Success");
+
                         history.push("/admin/categories");
                     }
                 })
@@ -165,10 +167,10 @@ export const NewCategory = () => {
                                             onClick={() => {
                                                 history.push("/admin/categories");
                                             }}
-                                            className="btn-neutral"
+                                            // className="btn-neutral"
                                             color="default"
                                             size="lg"
-                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem" }}
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem", border: "none" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center" }}>
                                                 <i className="fa-solid fa-backward" style={{ fontSize: 18 }}></i>
@@ -187,11 +189,11 @@ export const NewCategory = () => {
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 99, justifyContent: "center" }}>
                                                 {isLoading ? (
-                                                    <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                    <Spinner style={{ color: "#fff", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
                                                 ) : (
                                                     <>
-                                                        <i className="fa-solid fa-square-plus" style={{ fontSize: 18 }}></i>
-                                                        <span>Thêm mới</span>
+                                                        <i className="fa-solid fa-square-plus" style={{ fontSize: 18, color: "#fff" }}></i>
+                                                        <span style={{ color: "#fff" }}>Thêm mới</span>
                                                     </>
                                                 )}
                                             </div>

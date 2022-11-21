@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router";
 import { Tooltip } from "reactstrap";
@@ -11,60 +12,70 @@ export const OrderItem = ({ data, index }) => {
     let history = useHistory();
     const getStatus = (status) => {
         return statusType[status];
-        // switch (status) {
-        //     case 0:
-        //         return statusType[0];
-        //     case 1:
-        //         return statusType[1];
-        //     case 2:
-        //         return statusType[2];
-        //     case 3:
-        //         return statusType[3];
-        //     case 4:
-        //         return statusType[4];
-        //     case 4:
-        //         return statusType[4];
-        //     case 4:
-        //         return statusType[4];
-        //     case 4:
-        //         return statusType[4];
-        //     case 4:
-        //         return statusType[4];
-        //     case 4:
-        //         return statusType[4];
-        //     case 4:
-        //         return statusType[4];
-        //     default:
-        //         return statusType[0];
-        // }
     };
+    const getTimeConvert = (time) => {
+        moment.locale("vi");
+        let date = moment(time).format("l");
+        let hour = moment(time).format("LT");
+        return `${date}, ${hour}`;
+    };
+    const getPaymentStatusName = (payment) => {
+        switch (payment) {
+            case 0:
+                return "Chưa thanh toán VN Pay";
+            case 1:
+                return "VN Pay";
+            case 2:
+                return "Thanh toán thất bại VN Pay";
 
+            default:
+                return "---";
+        }
+    };
     return (
         <tr>
-            <td className="budget table-text">{data.id}</td>
-            <td className="budget table-text bold" style={{ whiteSpace: "unset" }}>
+            <td className="budget table-text" style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {data.id}
+            </td>
+            <td className="budget table-text " style={{ whiteSpace: "unset", padding: "1.7rem 0rem 1.7rem 1.5rem", minWidth: 200 }}>
                 {data.storeName}
             </td>
-            <td className="budget table-text bold">{data.buildingName}</td>
-            <td className="budget table-text bold">{data.customerName}</td>
-            <td className="budget table-text bold">{data.phone}</td>
-            <td className="budget table-text bold">{data.total.toLocaleString()}</td>
-            <td className="budget table-text" style={{ whiteSpace: "unset" }}>
-                {data.time}
+            <td className="budget table-text " style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {data.buildingName}
             </td>
-            <td className="budget table-text">{data.paymentName}</td>
-
-            <td className="budget table-text bold" style={{ color: "var(--secondary)" }}>
-                {data.shipper}
+            <td className="budget table-text " style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {data.customerName}
             </td>
-            <td className="budget table-text">{getModeName(data.modeId)}</td>
-            <td className="budget table-text">
+            <td className="budget table-text bold" style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {data.phone}
+            </td>
+            <td className="budget table-text " style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {data.total.toLocaleString()}
+            </td>
+            <td className="budget table-text" style={{ whiteSpace: "unset", padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {getTimeConvert(data.time)}
+            </td>
+            <td
+                className="budget table-text bold"
+                style={{ padding: "1.7rem 0rem 1.7rem 1.5rem", whiteSpace: "unset", color: data.paymentName !== 0 ? (data.paymentStatus === 0 || data.paymentStatus === 2 ? "red" : null) : null }}
+            >
+                {data.paymentName === 0 ? "Tiền mặt" : getPaymentStatusName(data.paymentStatus)}
+            </td>
+            <td className="budget table-text" style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
                 {
                     <span className={`badge  ${getStatus(data.status).class}`} style={{ padding: "0.8em 1.2em", fontSize: 11 }}>
                         {getStatus(data.status).value}
                     </span>
                 }
             </td>
+            <td className="budget table-text bold" style={{ color: "var(--secondary)", padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {data.shipper}
+            </td>
+            <td className="budget table-text" style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+                {getModeName(data.modeId)}
+            </td>
+
+            <td className="budget table-text" style={{ padding: "1.7rem 0rem 1.7rem 1.5rem", minWidth: 84 }}></td>
 
             {/* <Badge color="" className="badge-dot mr-4">
                     <i className="bg-warning" />
@@ -82,7 +93,7 @@ export const OrderItem = ({ data, index }) => {
                 )}
             </td> */}
 
-            <td className="budget table-text" style={{ textAlign: "center" }}>
+            <td className="budget table-text" style={{ textAlign: "center", position: "absolute", right: 0, background: "#fff", padding: "36px 1.7rem 36px 1.7rem" }}>
                 <i
                     id={"Edit-" + index}
                     className="fa-solid fa-pen-to-square  cusor"

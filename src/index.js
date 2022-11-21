@@ -6,7 +6,7 @@ import "./assets/scss/argon-dashboard-pro-react.scss";
 // import "./assets/vendor/nucleo/css/nucleo.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "react-toastify/dist/ReactToastify.css";
-
+import "react-datetime/css/react-datetime.css";
 import { BrowserRouter } from "react-router-dom";
 import AppProvider from "./context/AppProvider";
 import { ToastContainer } from "react-toastify";

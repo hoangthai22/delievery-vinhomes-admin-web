@@ -29,7 +29,7 @@ import { NewStorestoreCategory } from "./NewStoreCategory";
 import { StoreCategoryItem } from "./StoreCategoryItem";
 // core components
 function StoreCategoryManage() {
-    const { setOpenModalNewCateStore, storeCategoryModal, setOpenDeleteModal, openDeleteModal } = useContext(AppContext);
+    const { setOpenModalNewCateStore, storeCategoryModal, setOpenDeleteModal, openDeleteModal, setStoreCategoryList, storeCategoryList } = useContext(AppContext);
     let history = useHistory();
 
     const [categoryList, setCategoryList] = useState([]);
@@ -70,7 +70,7 @@ function StoreCategoryManage() {
             margin: "5px",
         }),
     };
-    const hanldeDeleteStoreCate = (id) => {
+    const hanldeDeleteStoreCate = (id, name) => {
         setIsLoadingCircle(true);
         deleteStoreCate(id)
             .then((res) => {
@@ -78,6 +78,8 @@ function StoreCategoryManage() {
                     setIsLoading(false);
                     notify("Xóa loại cửa hàng thành công", "Success");
                     history.push("/admin/categorieStore");
+                    let NewStoreCategory = storeCategoryList.filter((item) => item.name !== name);
+                    setStoreCategoryList([...NewStoreCategory]);
                     handleReload();
                     setOpenDeleteModal(false);
                     setIsLoadingCircle(false);
@@ -127,10 +129,10 @@ function StoreCategoryManage() {
                                             onClick={() => {
                                                 setOpenDeleteModal(false);
                                             }}
-                                            className="btn-neutral"
+                                            // className="btn-neutral"
                                             color="default"
                                             size="lg"
-                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem" }}
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem", border: "none" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 <span>Đóng</span>
@@ -139,7 +141,7 @@ function StoreCategoryManage() {
                                         <Button
                                             onClick={() => {
                                                 // setIsLoadingCircle(true);
-                                                hanldeDeleteStoreCate(storeCategoryModal.id);
+                                                hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.name);
                                             }}
                                             className="btn-neutral"
                                             disabled={isLoadingCircle}
@@ -192,9 +194,9 @@ function StoreCategoryManage() {
                                         className="btn-neutral"
                                         color="default"
                                         size="lg"
-                                        style={{ background: "var(--primary)", color: "#00003B", fontWeight: 700 }}
+                                        style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, border: "1px solid var(--primary)" }}
                                     >
-                                        Thêm Danh Mục Mới
+                                        + Thêm Danh Mục Mới
                                     </Button>
                                 </Col>
                             </div>

@@ -1,9 +1,11 @@
 import React, { useContext } from "react";
+import { useHistory } from "react-router";
 import { NOT_FOUND_IMG } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
 
-export const BrandItem = ({ data, index }) => {
-    const { setOpenModal, setStoreCategoryModal, setOpenDeleteModal } = useContext(AppContext);
+export const AreaItem = ({ data, index, areaId }) => {
+    const { setStoreCategoryModal, setOpenBuildingModal, setOpenDeleteModal, setBuildingModal, setOpenClusterModal, setClusterModal } = useContext(AppContext);
+    let history = useHistory();
     return (
         <>
             <tr>
@@ -31,12 +33,22 @@ export const BrandItem = ({ data, index }) => {
 
                 <td className="">
                     <i
+                        className="fa-regular fa-eye mr-3 cusor"
+                        style={{ fontSize: 22 }}
+                        onClick={() => {
+                            console.log({ data });
+                            setBuildingModal(data);
+                            history.push(`/admin/area/${areaId}/clusters/${data.id}`);
+                            // setOpenBuildingModal(true);
+                        }}
+                    ></i>
+                    <i
                         className="fa-solid fa-pen-to-square mr-3 cusor"
                         style={{ fontSize: 22 }}
                         onClick={() => {
                             console.log({ data });
-                            setStoreCategoryModal(data);
-                            setOpenModal(true);
+                            setClusterModal(data);
+                            setOpenClusterModal(true);
                         }}
                     ></i>
                     <i

@@ -2,8 +2,23 @@ import axios from "axios";
 import { BASE_URL, ORDER } from "./constants";
 
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/order-management/orders?pageIndex=1&pageSize=200
-export const getListOrder = (page, size) => {
-    return axios.get(`${BASE_URL}${ORDER}/orders?pageIndex=${page}&pageSize=${size}`, {
+export const getListOrder = (dateFilter, page, size) => {
+    let url = "";
+    if (dateFilter !== "") {
+        url = `&DateFilter=${dateFilter}`;
+    }
+    return axios.get(`${BASE_URL}${ORDER}/orders?pageIndex=${page}&pageSize=${size}${url}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/order-management/orders/report?DateFilter=Nov%2010%202022
+export const getOrderReport = (dateFilter) => {
+    let url = "";
+    if (dateFilter !== "") {
+        url = `?DateFilter=${dateFilter}`;
+    }
+    return axios.get(`${BASE_URL}${ORDER}/orders/report${url}`, {
         Accept: "application/json",
         "Content-Type": "application/json",
     });

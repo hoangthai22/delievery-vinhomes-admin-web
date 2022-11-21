@@ -149,9 +149,9 @@ function DriverManage() {
                                         className="btn-neutral"
                                         color="default"
                                         size="lg"
-                                        style={{ background: "var(--primary)", color: "#00003B", fontWeight: 700 }}
+                                        style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, border: "1px solid var(--primary)" }}
                                     >
-                                        Thêm Tài Xế Mới
+                                        + Thêm Tài Xế Mới
                                     </Button>
                                 </Col>
                             </div>

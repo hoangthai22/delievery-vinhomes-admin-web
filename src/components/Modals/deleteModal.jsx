@@ -94,10 +94,10 @@ export const DeleteModal = ({ handleReload }) => {
                                                     onClick={() => {
                                                         setOpenDeleteModal(false);
                                                     }}
-                                                    className="btn-neutral"
+                                                    // className="btn-neutral"
                                                     color="default"
                                                     size="lg"
-                                                    style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem" }}
+                                                    style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem", border: "none" }}
                                                 >
                                                     <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                         <span>Đóng</span>

@@ -27,11 +27,11 @@ export const MenuItem = ({ data, index }) => {
     </td> */}
                 <td>
                     {!data.isActive ? (
-                        <span className={`badge  status-success`} style={{ padding: "0.8em 1.2em", fontSize: 12 }}>
+                        <span className={`badge  status-success`} style={{ padding: "0.8em 1em", fontSize: 11 }}>
                             Hoạt Động
                         </span>
                     ) : (
-                        <span className={`badge  status-cancel`} style={{ padding: "0.8em 1.2em", fontSize: 12 }}>
+                        <span className={`badge  status-cancel`} style={{ padding: "0.8em 1em", fontSize: 11 }}>
                             Ngưng Hoạt Động
                         </span>
                     )}

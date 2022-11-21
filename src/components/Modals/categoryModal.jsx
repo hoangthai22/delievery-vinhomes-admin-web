@@ -52,6 +52,7 @@ export const CategoryModal = ({ handleReload }) => {
                     notify("Cập nhật thành công", "Success");
                     history.push("/admin/categories");
                     handleReload();
+
                     setOpenModal(false);
                     setImgUpdate(false);
                     setIsLoadingCircle(false);
@@ -200,10 +201,10 @@ export const CategoryModal = ({ handleReload }) => {
                                                 onClick={() => {
                                                     setOpenModal(false);
                                                 }}
-                                                className="btn-neutral"
+                                                // className="btn-neutral"
                                                 color="default"
                                                 size="lg"
-                                                style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem" }}
+                                                style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem", border: "none" }}
                                             >
                                                 <div className="flex" style={{ alignItems: "center" }}>
                                                     <i className="fa-solid fa-backward" style={{ fontSize: 18 }}></i>
@@ -218,15 +219,15 @@ export const CategoryModal = ({ handleReload }) => {
                                                 disabled={isLoadingCircle}
                                                 color="default"
                                                 size="lg"
-                                                style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 2rem" }}
+                                                style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 2rem", border: "1px solid var(--primary)" }}
                                             >
                                                 <div className="flex" style={{ alignItems: "center", width: 99, justifyContent: "center" }}>
                                                     {isLoadingCircle ? (
-                                                        <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                        <Spinner style={{ color: "#fff", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
                                                     ) : (
                                                         <>
-                                                            <i className="fa-solid fa-square-plus" style={{ fontSize: 18 }}></i>
-                                                            <span>Chỉnh Sửa</span>
+                                                            <i className="fa-solid fa-square-plus" style={{ fontSize: 18, color: "#fff" }}></i>
+                                                            <span style={{ color: "#fff" }}>Chỉnh Sửa</span>
                                                         </>
                                                     )}
                                                 </div>

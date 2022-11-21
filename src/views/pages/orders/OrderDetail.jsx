@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router";
 import { Button, Card, CardBody, CardHeader, Col, Container, Input, Row } from "reactstrap";
@@ -13,8 +14,10 @@ const OrderDetail = () => {
     const [orderId, setOrderId] = useState("");
     const [storeName, setStoreName] = useState("");
     const [cusBuilding, setCusBuilding] = useState("");
+    const [listProduct, setListProduct] = useState([]);
     const [total, setTotal] = useState("");
     const [shipCost, setShipCost] = useState("");
+    const [note, setNote] = useState("");
     const [cusName, setCusName] = useState("");
     const [shipperName, setshipperName] = useState("");
     const [shipperPhone, setshipperPhone] = useState("");
@@ -42,9 +45,11 @@ const OrderDetail = () => {
                         setCusName(order.fullName);
                         setCusBuilding(order.buildingName);
                         setPaymentName(order.paymentName);
+                        setNote(order.note);
                         setShipCost(order.shipCost);
                         setTotal(order.total);
                         setModeName(getModeName(order.modeId));
+                        setListProduct(order.listProInMenu);
                         let newStatus = [];
                         let flag = true;
                         for (let index = 0; index < order.listStatusOrder.length; index++) {
@@ -104,27 +109,15 @@ const OrderDetail = () => {
         }
     };
     const getStatusDay = (time) => {
-        let day = "";
-        let result = "";
-        if (time) {
-            day = time.split(" ")[0];
-            if (day) {
-                let month = day.split("/")[1];
-                let date = day.split("/")[2];
+        moment.locale("vi");
+        let dateConvert = moment(time).format("DD MMM");
 
-                result = date + " Tháng " + month;
-            } else {
-                result = day;
-            }
-        }
-        return result;
+        return dateConvert;
     };
     const getStatusHour = (time) => {
-        let hour = "";
-        if (time) {
-            hour = time.split(" ")[1];
-        }
-        return hour;
+        moment.locale("vi");
+        let hourConvert = moment(time).format(" H:mm");
+        return hourConvert;
     };
     return (
         <div>
@@ -184,7 +177,16 @@ const OrderDetail = () => {
                                                                 </div>
                                                                 <div style={{ width: 1, height: 45, background: "rgb(200,200,200)", display: line ? "block" : "none" }}></div>
                                                             </div>
-                                                            <div style={{ display: "flex", flexDirection: "column", justifyContent: "start", alignItems: "flex-end", fontSize: active ? 16 : 15 }}>
+                                                            <div
+                                                                style={{
+                                                                    flex: 1,
+                                                                    display: "flex",
+                                                                    flexDirection: "column",
+                                                                    justifyContent: "start",
+                                                                    // alignItems: "flex-end",
+                                                                    fontSize: active ? 16 : 15,
+                                                                }}
+                                                            >
                                                                 <span style={{ color: error ? "#ed4337" : active ? "green" : "#525f7f", fontWeight: active ? 600 : 500 }}>
                                                                     {getStatusMessage(item.status)}
                                                                 </span>
@@ -245,6 +247,34 @@ const OrderDetail = () => {
                                                 <Input className="form-control" type="text" id="example-search-input" readOnly value={modeName} onChange={(e) => {}} />
                                             </div>
                                         </div>
+                                        <div className="col-md-8">
+                                            <div className="form-group">
+                                                <label className="form-control-label">Danh sách món</label>
+                                                <div style={{ border: "1px solid #dee2e6", borderRadius: "0.5rem" }}>
+                                                    {listProduct.map((item, index) => {
+                                                        return (
+                                                            <div
+                                                                key={index}
+                                                                style={{
+                                                                    display: "flex",
+                                                                    gap: 15,
+                                                                    justifyContent: "space-between",
+                                                                    borderBottom: index !== listProduct.length - 1 ? "1px solid rgb(230,230,230)" : null,
+                                                                    padding: "15px 0",
+                                                                    margin: "0 15px",
+                                                                }}
+                                                            >
+                                                                <div style={{ display: "flex", gap: 15, fontSize: 15 }}>
+                                                                    <span>{item.quantity}x</span>
+                                                                    <span>{item.productName}</span>
+                                                                </div>
+                                                                <span>{item.price}</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -276,6 +306,12 @@ const OrderDetail = () => {
                                                 <Input className="form-control" type="number" id="example-search-input" readOnly value={`${phoneNumber}`} onChange={(e) => {}} />
                                             </div>
                                         </div>
+                                        <div className="col-md-12">
+                                            <div className="form-group">
+                                                <label className="form-control-label">Ghi chú </label>
+                                                <textarea className="form-control" type="text" id="example-search-input" readOnly value={`${note}`} onChange={(e) => {}} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -290,7 +326,14 @@ const OrderDetail = () => {
                                         <div className="col-md-4">
                                             <div className="form-group">
                                                 <label className="form-control-label">Phương thức thanh toán</label>
-                                                <Input className="form-control" type="search" id="example-search-input" value={paymentName} readOnly onChange={() => {}} />
+                                                <Input
+                                                    className="form-control"
+                                                    type="search"
+                                                    id="example-search-input"
+                                                    value={paymentName === 0 ? "Tiền mặt" : "VN Pay"}
+                                                    readOnly
+                                                    onChange={() => {}}
+                                                />
                                             </div>
                                         </div>
 
@@ -312,22 +355,6 @@ const OrderDetail = () => {
                         </Card>
                     </div>
                 </Row>
-                <Col className="text-md-right mb-3" lg="12" xs="5">
-                    <Button
-                        onClick={() => {
-                            history.push("/admin/orders");
-                        }}
-                        className="btn-neutral"
-                        color="default"
-                        size="lg"
-                        style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem" }}
-                    >
-                        <div className="flex" style={{ alignItems: "center" }}>
-                            <i className="fa-solid fa-backward" style={{ fontSize: 18 }}></i>
-                            <span>Trở lại</span>
-                        </div>
-                    </Button>
-                </Col>
             </Container>
         </div>
     );

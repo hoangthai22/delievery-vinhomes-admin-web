@@ -74,7 +74,7 @@ export const Login = () => {
                 <div class="login-content">
                     <form action="index.html" className="form-login">
                         <img src="images/avatar.svg" alt="" />
-                        <h2 class="login-title">Chào mừng bạn đến với VinGP Deliver</h2>
+                        <h2 class="login-title">Chào mừng bạn đến với Cộng Đồng Chung Cư</h2>
                         <span>Email : admin1@gmail.com / password : demo1234</span>
                         <div class="input-div one">
                             <div class="i">

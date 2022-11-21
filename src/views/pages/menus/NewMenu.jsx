@@ -359,10 +359,10 @@ export const NewMenu = () => {
                                             onClick={() => {
                                                 history.push("/admin/menus");
                                             }}
-                                            className="btn-neutral"
+                                            // className="btn-neutral"
                                             color="default"
                                             size="lg"
-                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem" }}
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem", border: "none" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center" }}>
                                                 <i className="fa-solid fa-backward" style={{ fontSize: 18 }}></i>
@@ -381,11 +381,11 @@ export const NewMenu = () => {
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 99, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
-                                                    <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                    <Spinner style={{ color: "#fff", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
                                                 ) : (
                                                     <>
-                                                        <i className="fa-solid fa-square-plus" style={{ fontSize: 18 }}></i>
-                                                        <span>Thêm mới</span>
+                                                        <i className="fa-solid fa-square-plus" style={{ fontSize: 18, color: "#fff" }}></i>
+                                                        <span style={{ color: "#fff" }}>Thêm mới</span>
                                                     </>
                                                 )}
                                             </div>

@@ -40,6 +40,20 @@ export const getListBuilding = (page, size) => {
         "Content-Type": "application/json",
     });
 };
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/areas?pageIndex=1&pageSize=20
+export const getListArea = (page, size) => {
+    return axios.get(`${BASE_URL}${"areas"}?pageIndex=${page}&pageSize=${size}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/areas/ByAreaId?areaId=2
+export const getListBuildingByAreaId = (id) => {
+    return axios.get(`${BASE_URL}areas/ByAreaId?areaId=${id}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/store-management/stores/search-name?storeName=H%E1%BA%B1ng&pageIndex=1&pageSize=20
 export const getListStoreByKey = (key, page, size) => {
     return axios.get(`${BASE_URL}${"store-management"}/stores/search-name?storeName=${key}&pageIndex=${page}&pageSize=${size}`, {
@@ -59,6 +73,7 @@ export const putStore = (store, id, imgUpdate) => {
         }
     );
 };
+
 //https://deliveryvhgp-webapi.azurewebsites.net/api/v1/store-management/stores
 export const postStore = (store) => {
     return axios.post(`${BASE_URL}${STORE}/stores`, store, {
