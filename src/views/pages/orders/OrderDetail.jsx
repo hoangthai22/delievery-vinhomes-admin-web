@@ -4,7 +4,7 @@ import { useHistory, useLocation } from "react-router";
 import { Button, Card, CardBody, CardHeader, Col, Container, Input, Row } from "reactstrap";
 import { getOrderDetail } from "../../../apis/orderApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
-import { getModeName } from "../../../constants";
+import { getModeName, getTimeConvert } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
 
 const OrderDetail = () => {
@@ -19,27 +19,31 @@ const OrderDetail = () => {
     const [shipCost, setShipCost] = useState("");
     const [note, setNote] = useState("");
     const [cusName, setCusName] = useState("");
-    const [shipperName, setshipperName] = useState("");
-    const [shipperPhone, setshipperPhone] = useState("");
+    const [shipperDelivery, setShipperDelivery] = useState("");
+    const [shipperCollecter, setShipperCollecter] = useState("");
+    // const [shipperName, setshipperName] = useState("");
+    // const [shipperPhone, setshipperPhone] = useState("");
     const [storeBuilding, setStoreBuilding] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [paymentName, setPaymentName] = useState("");
     const [statusList, setStatusList] = useState([]);
     const [modeName, setModeName] = useState("");
+    const [service, setService] = useState("");
+    const [dateCreated, setDateCreated] = useState("");
     let location = useLocation();
     let history = useHistory();
     useEffect(() => {
         const id = location.pathname.split("/")[3];
         if (id) {
+            console.log("load");
+            let listShipper = [];
             getOrderDetail(id)
                 .then((res) => {
                     if (res.data) {
-                        console.log(res.data);
                         const order = res.data;
                         setOrderId(id);
                         setStoreName(order.storeName);
-                        setshipperPhone(order.shipperPhone);
-                        setshipperName(order.shipperName);
+                        listShipper = order.listShipper;
                         setStoreBuilding(order.storeBuilding);
                         setPhoneNumber(order.phoneNumber);
                         setCusName(order.fullName);
@@ -50,6 +54,19 @@ const OrderDetail = () => {
                         setTotal(order.total);
                         setModeName(getModeName(order.modeId));
                         setListProduct(order.listProInMenu);
+                        setDateCreated(getTimeConvert(order.time));
+                        setService(order.serviceId === "1" ? "Hỏa tốc" : "Hub");
+
+                        if (listShipper.length > 0) {
+                            setShipperCollecter(listShipper[0].shipperName + " - " + listShipper[0].phone);
+                            if (listShipper[1]) {
+                                setShipperDelivery(listShipper[1].shipperName + " - " + listShipper[1].phone);
+                            } else {
+                                setShipperDelivery(listShipper[0].shipperName + " - " + listShipper[0].phone);
+                            }
+                        }
+                        console.log(order.listShipper);
+
                         let newStatus = [];
                         let flag = true;
                         for (let index = 0; index < order.listStatusOrder.length; index++) {
@@ -73,7 +90,7 @@ const OrderDetail = () => {
                     setIsLoadingCircle(false);
                 });
         }
-    }, [location]);
+    }, []);
     const getStatusMessage = (statusId) => {
         switch (statusId) {
             case 0:
@@ -231,14 +248,14 @@ const OrderDetail = () => {
                                         </div>
                                         <div className="col-md-4">
                                             <div className="form-group">
-                                                <label className="form-control-label">Tài xế </label>
-                                                <Input className="form-control" type="text" id="example-search-input" readOnly value={`${shipperName}`} onChange={(e) => {}} />
+                                                <label className="form-control-label">Tài xế lấy hàng</label>
+                                                <Input className="form-control" type="text" id="example-search-input" readOnly value={`${shipperCollecter}`} onChange={(e) => {}} />
                                             </div>
                                         </div>
                                         <div className="col-md-4">
                                             <div className="form-group">
-                                                <label className="form-control-label">Số điện thoại</label>
-                                                <Input className="form-control" type="text" id="example-search-input" readOnly value={`${shipperPhone}`} />
+                                                <label className="form-control-label">Tài xế giao hàng</label>
+                                                <Input className="form-control" type="text" id="example-search-input" readOnly value={`${shipperDelivery}`} />
                                             </div>
                                         </div>
                                         <div className="col-md-4">
@@ -347,6 +364,18 @@ const OrderDetail = () => {
                                             <div className="form-group">
                                                 <label className="form-control-label">Phí ship</label>
                                                 <Input className="form-control" type="number" id="example-search-input" value={`${shipCost}`} onChange={(e) => {}} />
+                                            </div>
+                                        </div>
+                                        <div className="col-md-4">
+                                            <div className="form-group">
+                                                <label className="form-control-label">Dịch vụ</label>
+                                                <Input className="form-control" type="text" id="example-search-input" value={`${service}`} onChange={(e) => {}} />
+                                            </div>
+                                        </div>
+                                        <div className="col-md-4">
+                                            <div className="form-group">
+                                                <label className="form-control-label">Ngày đặt hàng</label>
+                                                <Input className="form-control" type="text" id="example-search-input" value={`${dateCreated}`} onChange={(e) => {}} />
                                             </div>
                                         </div>
                                     </div>

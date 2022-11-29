@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import Select from "react-select";
 import { Button, Card, CardBody, CardHeader, Col, Container, Input, Modal, Row, Spinner } from "reactstrap";
-import { postArea } from "../../../apis/areaApiService";
+import { postArea, putArea } from "../../../apis/areaApiService";
 import { postStoreCategory } from "../../../apis/categoryApiService";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 export const NewCluster = ({ handleReload, listArea }) => {
-    const { openNewClusterModal, setOpenNewClusterModal } = useContext(AppContext);
+    const { openNewClusterModal, setOpenNewClusterModal, areaModal } = useContext(AppContext);
     const [clusterName, setClusterName] = useState("");
     const [clusterNameState, setClusterNameState] = useState("");
     const [status, setStatus] = useState(0);
@@ -24,25 +24,30 @@ export const NewCluster = ({ handleReload, listArea }) => {
 
     const hanldeUpdate = () => {
         if (validateCustomStylesForm()) {
-            // setIsLoadingCircle(true);
+            setIsLoadingCircle(true);
             let building = { name: clusterName };
-            console.log({ building });
-            // post(building)
-            //     .then((res) => {
-            //         if (res.data) {
-            //             notify("Thêm mới thành công", "Success");
-            //             history.push("/admin/areas");
-            //             handleReload();
-            //             setOpenNewBuildingModal(false);
-            //             setIsLoadingCircle(false);
-            //             setBuildingName("");
-            //         }
-            //     })
-            //     .catch((error) => {
-            //         console.log(error);
-            //         setIsLoadingCircle(false);
-            //         notify("Đã xảy ra lỗi gì đó!!", "Error");
-            //     });
+            let newArea = areaModal.listCluster.map((item) => {
+                return { name: item.name };
+            });
+            let area = areaModal;
+            area.listCluster = [...newArea, building];
+            console.log({ area });
+            putArea(area)
+                .then((res) => {
+                    if (res.data) {
+                        notify("Thêm mới thành công", "Success");
+                        handleReload({ value: res.data.id, label: res.data.name });
+                        setOpenNewClusterModal(false);
+                        setIsLoadingCircle(false);
+                        setClusterName("");
+                        setClusterNameState(false);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setIsLoadingCircle(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
+                });
         }
     };
     const validateCustomStylesForm = () => {

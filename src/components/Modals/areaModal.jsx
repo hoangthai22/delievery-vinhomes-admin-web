@@ -12,14 +12,23 @@ export const AreaModal = ({ handleReload }) => {
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
 
     useEffect(() => {
-        setAreaName(areaModal.label);
+        setAreaName(areaModal.name);
 
         setStatus({ label: "Hoạt động", value: 0 });
     }, [areaModal]);
 
     const hanldeUpdate = () => {
         setIsLoadingCircle(true);
-        let area = { id: areaModal.value, name: areaName };
+        let area = {
+            id: areaModal.id,
+            name: areaName,
+            listCluster: areaModal.listCluster.map((item) => {
+                return {
+                    name: item.name,
+                };
+            }),
+        };
+        console.log({ area });
         putArea(area)
             .then((res) => {
                 if (res.data) {
@@ -90,7 +99,7 @@ export const AreaModal = ({ handleReload }) => {
                                                                 <div className="col-md-4">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Mã khu vực </label>
-                                                                        <input className="form-control" type="search" id="example-search-input" value={areaModal.value} readOnly onChange={() => {}} />
+                                                                        <input className="form-control" type="search" id="example-search-input" value={areaModal.id} readOnly onChange={() => {}} />
                                                                     </div>
                                                                 </div>
                                                                 <div className="col-md-4">

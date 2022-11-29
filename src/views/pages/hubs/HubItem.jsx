@@ -3,8 +3,8 @@ import { useHistory } from "react-router";
 import { NOT_FOUND_IMG } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
 
-export const AreaItem = ({ data, index, areaId }) => {
-    const { setStoreCategoryModal, setOpenBuildingModal, setOpenDeleteModal, setBuildingModal, setOpenClusterModal, setClusterModal } = useContext(AppContext);
+export const HubItem = ({ data, index }) => {
+    const { setStoreCategoryModal, setOpenHubModal, setOpenDeleteModal, setHubModal } = useContext(AppContext);
     let history = useHistory();
     return (
         <>
@@ -13,6 +13,7 @@ export const AreaItem = ({ data, index, areaId }) => {
 
                 <td className="budget table-text-product bold">{data.id}</td>
                 <td className="budget table-text-product bold">{data.name}</td>
+                <td className="budget table-text-product bold">{data.buildingId}</td>
 
                 {/* <td>
         <span className="badge badge-lg badge-primary " style={{ color: "var(--secondary)", fontSize: 11, padding: "1em 1.4em" }}>
@@ -33,21 +34,12 @@ export const AreaItem = ({ data, index, areaId }) => {
 
                 <td className="">
                     <i
-                        className="fa-regular fa-eye mr-3 cusor"
-                        style={{ fontSize: 22 }}
-                        onClick={() => {
-                            setBuildingModal(data);
-                            history.push(`/admin/area/${areaId}/clusters/${data.id}`);
-                            // setOpenBuildingModal(true);
-                        }}
-                    ></i>
-                    <i
                         className="fa-solid fa-pen-to-square mr-3 cusor"
                         style={{ fontSize: 22 }}
                         onClick={() => {
-                            console.log({ data });
-                            setClusterModal(data);
-                            setOpenClusterModal(true);
+                            setHubModal({ ...data });
+                            // history.push(`/admin/area/${areaId}/clusters/${data.id}`);
+                            setOpenHubModal(true);
                         }}
                     ></i>
                     <i

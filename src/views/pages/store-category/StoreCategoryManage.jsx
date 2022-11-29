@@ -27,11 +27,20 @@ import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 import { NewStorestoreCategory } from "./NewStoreCategory";
 import { StoreCategoryItem } from "./StoreCategoryItem";
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 // core components
 function StoreCategoryManage() {
     const { setOpenModalNewCateStore, storeCategoryModal, setOpenDeleteModal, openDeleteModal, setStoreCategoryList, storeCategoryList } = useContext(AppContext);
     let history = useHistory();
-
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
     const [categoryList, setCategoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
@@ -200,7 +209,8 @@ function StoreCategoryManage() {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive hover={true}>
+                            <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                                <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
                                 <thead className="thead-light">
                                     <tr>
                                         <th className="sort table-title" scope="col">
@@ -237,10 +247,8 @@ function StoreCategoryManage() {
                                 </>
                             )}
                             {isLoading && (
-                                <CardBody className="loading-wrapper center_flex">
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
+                                <CardBody className=" center_flex">
+                                    <Lottie options={defaultOptions} height={400} width={400} />
                                 </CardBody>
                             )}
                             {/* {!isLoading && driverList.length > 0 && (

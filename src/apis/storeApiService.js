@@ -1,9 +1,22 @@
 import axios from "axios";
 import { BASE_URL, BASE_URL_V2, STORE } from "./constants";
 
-//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/store-management/stores?pageIndex=1&pageSize=10
-export const getListStores = (page, size) => {
-    return axios.get(`${BASE_URL}/${STORE}/${"stores"}?pageIndex=${page}&pageSize=${size}`, {
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/store-management/stores?pageIndex=1&pageSize=20&SearchByStoreName=n&SearchByBuilding=S1.03&SearchByStoreCategory=N%C3%B4ng%20s%E1%BA%A3&SearchByBrand=kh%C3%B4
+export const getListStores = (SearchByStoreName, SearchByBuilding, SearchByStoreCategory, SearchByBrand, page, size) => {
+    let url = "";
+    if (SearchByStoreName !== "") {
+        url = url + `&SearchByStoreName=${SearchByStoreName}`;
+    }
+    if (SearchByBuilding !== "") {
+        url = url + `&SearchByBuilding=${SearchByBuilding}`;
+    }
+    if (SearchByStoreCategory !== "") {
+        url = url + `&SearchByStoreCategory=${SearchByStoreCategory}`;
+    }
+    if (SearchByBrand !== "") {
+        url = url + `&SearchByBrand=${SearchByBrand}`;
+    }
+    return axios.get(`${BASE_URL}/${STORE}/${"stores"}?pageIndex=${page}&pageSize=${size}${url}`, {
         Accept: "application/json",
         "Content-Type": "application/json",
     });

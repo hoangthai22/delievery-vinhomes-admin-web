@@ -64,3 +64,7 @@ export const deleteBrand = (id) => {
 export const deleteStoreCate = (id) => {
     return axios.delete(`${BASE_URL}${"storeCategory-management"}/storeCategories/${id}`);
 };
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/category-management/categories/9fec8575-2ce1-4a2d-b536-bfb1458fda09
+export const deleteCategory = (id) => {
+    return axios.delete(`${BASE_URL}${"category-management"}/categories/${id}`);
+};

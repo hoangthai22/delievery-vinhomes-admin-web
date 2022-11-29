@@ -45,14 +45,23 @@ import { ShipperModal } from "../../../components/Modals/shipperModal";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 import { DriverItem } from "./DriverItem";
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 // core components
 function DriverManage() {
     const { openModal, categoryList } = useContext(AppContext);
     let history = useHistory();
 
     const [driverList, setDriverList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(true);
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
     const hanldeGetListDriver = () => {
         setIsLoading(true);
         getListShipper(1, 100)
@@ -155,41 +164,45 @@ function DriverManage() {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive hover={true}>
-                                <thead className="thead-light">
-                                    <tr>
-                                        <th className="sort table-title" scope="col">
-                                            STT
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Tên đăng nhập
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Họ & tên
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Số điện thoại
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Đội giao hàng
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Loại phương tiện
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Trạng thái
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Hành động
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="list">
-                                    {driverList.map((item, index) => {
-                                        return <DriverItem data={item} key={index} index={index} />;
-                                    })}
-                                </tbody>
-                            </Table>
+
+                            {!isLoading && (
+                                <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                                    <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
+                                    <thead className="thead-light">
+                                        <tr>
+                                            <th className="sort table-title" scope="col">
+                                                STT
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Tên đăng nhập
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Họ & tên
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Số điện thoại
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Đội giao hàng
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Loại phương tiện
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Trạng thái
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Hành động
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="list">
+                                        {driverList.map((item, index) => {
+                                            return <DriverItem data={item} key={index} index={index} />;
+                                        })}
+                                    </tbody>
+                                </Table>
+                            )}
                             {driverList.length === 0 && !isLoading && (
                                 <>
                                     <div className="center_flex" style={{ padding: "50px 0 0 0" }}>
@@ -201,10 +214,8 @@ function DriverManage() {
                                 </>
                             )}
                             {isLoading && (
-                                <CardBody className="loading-wrapper center_flex">
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
+                                <CardBody className=" center_flex">
+                                    <Lottie options={defaultOptions} height={400} width={400} />
                                 </CardBody>
                             )}
                             {/* {!isLoading && driverList.length > 0 && (

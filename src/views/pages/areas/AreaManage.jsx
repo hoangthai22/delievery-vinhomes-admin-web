@@ -18,7 +18,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { Button, Card, CardBody, CardHeader, Col, Container, DropdownItem, DropdownMenu, DropdownToggle, Modal, Row, Spinner, Table, UncontrolledDropdown } from "reactstrap";
-import { deleteArea } from "../../../apis/areaApiService";
+import { deleteArea, putArea } from "../../../apis/areaApiService";
 import { getListArea, getListBuildingByAreaId } from "../../../apis/storeApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { AreaModal } from "../../../components/Modals/areaModal";
@@ -30,9 +30,11 @@ import { AreaItem } from "./Areaitem";
 import { NewArea } from "./NewArea";
 import { NewBuilding } from "./NewBuilding";
 import { NewCluster } from "./NewCluster";
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 // core components
 function AreaManage() {
-    const { storeCategoryModal, setOpenDeleteModal, openDeleteModal, setAreaModal, setOpenAreaModal, setOpenNewAreaModal, openNewClusterModal, setOpenNewClusterModal } = useContext(AppContext);
+    const { storeCategoryModal, setOpenDeleteModal, openDeleteModal, setAreaModal, setOpenAreaModal, setOpenNewAreaModal, areaModal, setOpenNewClusterModal } = useContext(AppContext);
     let history = useHistory();
 
     const [areas, setAreas] = useState([]);
@@ -44,27 +46,36 @@ function AreaManage() {
     const [isLoading, setIsLoading] = useState(true);
     const [deleteAreaModal, setDeleteAreaModal] = useState(false);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
-
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
     const hanldeGetBuildingByArea = (id) => {
         setIsLoading(true);
         setCluster([]);
+
         getListBuildingByAreaId(id)
             .then((res) => {
                 if (res.data) {
                     const buidlingList = res.data;
-                    // let newBuildings = [];
-                    // let tmpList = buidlingList.listCluster.map((item, ind) => {
-                    //     return [...item.listBuilding];
-                    // });
-                    setCluster(buidlingList.listCluster);
-                    // tmpList.map((item, ind) => {
-                    //     newBuildings = [...newBuildings, ...item];
-                    // });
-                    // setBuildings(newBuildings);
+
+                    setCluster(
+                        buidlingList.listCluster.sort(function (a, b) {
+                            return a.name.length - b.name.length;
+                        })
+                    );
+                    // setAreaSelected(buidlingList.id);
+                    setAreaModal(buidlingList);
+
                     setIsLoading(false);
                     // console.log({ buildings });
                 } else {
                     setCluster([]);
+                    setIsLoading(false);
                 }
             })
             .catch((error) => {
@@ -83,10 +94,9 @@ function AreaManage() {
                     let newArea = areaList.map((item) => {
                         return { value: item.id, label: item.name };
                     });
-                    setAreaSelected(newArea[0]);
+                    setAreaSelected(newArea[0].value);
                     setAreas(newArea);
                     hanldeGetBuildingByArea(newArea[0].value);
-                    setIsLoading(false);
                 } else {
                     setAreas([]);
                 }
@@ -132,7 +142,7 @@ function AreaManage() {
                     let newArea = areaList.map((item) => {
                         return { value: item.id, label: item.name };
                     });
-                    setAreaSelected(area);
+                    setAreaSelected(area.value);
                     setAreas(newArea);
                     hanldeGetBuildingByArea(area.value);
                     setIsLoading(false);
@@ -146,6 +156,10 @@ function AreaManage() {
                 setAreas([]);
                 notify("Đã xảy ra lỗi gì đó!!", "Error");
             });
+    };
+    const handleUpdateClusterReload = (area) => {
+        setIsLoading(true);
+        hanldeGetBuildingByArea(area.value);
     };
     const customStylesPayment = {
         control: (provided, state) => ({
@@ -184,12 +198,37 @@ function AreaManage() {
                 notify("Đã xảy ra lỗi gì đó!!", "Error");
             });
     };
+    const hanldeDeleteCluster = (name) => {
+        setIsLoadingCircle(true);
+        let newArea = areaModal.listCluster.filter((item) => {
+            return item.name !== name;
+        });
+        newArea = newArea.map((item) => {
+            return { name: item.name };
+        });
+        let area = areaModal;
+        area.listCluster = newArea;
+        putArea(area)
+            .then((res) => {
+                if (res.data) {
+                    notify("Cập nhật thành công", "Success");
+                    handleUpdateReload({ value: res.data.id, label: res.data.name });
+                    setOpenDeleteModal(false);
+                    setIsLoadingCircle(false);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingCircle(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+    };
     return (
         <>
             <BuildingModal handleReload={handleReload} listCluster={listCluster} />
             <NewArea handleReload={handleReload} />
-            <NewCluster handleReload={handleReload} listArea={areas} />
-            <ClusterModal handleReload={handleReload} />
+            <NewCluster handleReload={handleUpdateReload} listArea={areas} />
+            <ClusterModal handleReload={handleUpdateClusterReload} />
             <AreaModal handleReload={handleUpdateReload} />
             {/* <ProductModal openModal={openModal} handleReload={handleReload} /> */}
             <SimpleHeader name="Danh Sách Khu Vực" parentName="Quản Lý" />
@@ -236,7 +275,7 @@ function AreaManage() {
                                         <Button
                                             onClick={() => {
                                                 // setIsLoadingCircle(true);
-                                                // hanldeDeleteStoreCate(storeCategoryModal.id);
+                                                hanldeDeleteCluster(storeCategoryModal.name);
                                             }}
                                             className="btn-neutral"
                                             disabled={isLoadingCircle}
@@ -356,9 +395,9 @@ function AreaManage() {
                                                     className="mb-0 center_flex"
                                                     key={index}
                                                     style={{
-                                                        background: item.value === areaSelected.value ? "var(--primary)" : "#fff",
-                                                        color: item.value === areaSelected.value ? "#fff" : "#637381",
-                                                        border: item.value !== areaSelected.value ? "1px solid rgb(222, 226, 230)" : "none",
+                                                        background: item.value === areaSelected ? "var(--primary)" : "#fff",
+                                                        color: item.value === areaSelected ? "#fff" : "#637381",
+                                                        border: item.value !== areaSelected ? "1px solid rgb(222, 226, 230)" : "none",
                                                         padding: "10px 20px",
                                                         fontWeight: 600,
                                                         height: 50,
@@ -367,9 +406,9 @@ function AreaManage() {
                                                         fontSize: 16,
                                                     }}
                                                     onClick={() => {
-                                                        if (item.value !== areaSelected.value) {
+                                                        if (item.value !== areaSelected) {
                                                             setIsLoading(true);
-                                                            setAreaSelected(item);
+                                                            setAreaSelected(item.value);
                                                             hanldeGetBuildingByArea(item.value);
                                                         }
                                                     }}
@@ -385,7 +424,7 @@ function AreaManage() {
                                                         <div style={{ display: "flex", flexDirection: "row", position: "relative", alignItems: "center" }}>
                                                             <span style={{ paddingRight: 15 }}>{item.label}</span>
 
-                                                            {item.value === areaSelected.value && (
+                                                            {item.value === areaSelected && (
                                                                 <UncontrolledDropdown>
                                                                     <DropdownToggle
                                                                         size="sm"
@@ -400,7 +439,8 @@ function AreaManage() {
                                                                             onClick={(e) => {
                                                                                 e.preventDefault();
                                                                                 setOpenAreaModal(true);
-                                                                                setAreaModal(item);
+                                                                                // setAreaModal(areaSelected);
+                                                                                // console.log(areaSelected);
                                                                                 // setStoreCategoryModal(item);
                                                                             }}
                                                                         >
@@ -480,33 +520,37 @@ function AreaManage() {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive hover={true}>
-                                <thead className="thead-light">
-                                    <tr>
-                                        <th className="sort table-title" scope="col">
-                                            STT
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Mã cụm tòa nhà
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Tên cụm tòa nhà
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Trạng thái
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Hành động
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="list">
-                                    {cluster.length > 0 &&
-                                        cluster.map((item, index) => {
-                                            return <AreaItem data={item} key={index} index={index} areaId={areaSelected.value} />;
-                                        })}
-                                </tbody>
-                            </Table>
+                            {!isLoading && (
+                                <Table className="align-items-center table-flush" responsive hover={true}>
+                                    <thead className="thead-light">
+                                        <tr>
+                                            <th className="sort table-title" scope="col">
+                                                STT
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Mã cụm tòa nhà
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Tên cụm tòa nhà
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Trạng thái
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Hành động
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="list" style={{ position: "relative" }}>
+                                        <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
+                                        {cluster.length > 0 &&
+                                            cluster.map((item, index) => {
+                                                return <AreaItem data={item} key={index} index={index} areaId={areaSelected} />;
+                                            })}
+                                    </tbody>
+                                </Table>
+                            )}
+
                             {cluster.length === 0 && !isLoading && (
                                 <>
                                     <div className="center_flex" style={{ padding: "50px 0 0 0" }}>
@@ -518,10 +562,8 @@ function AreaManage() {
                                 </>
                             )}
                             {isLoading && (
-                                <CardBody className="loading-wrapper center_flex">
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
+                                <CardBody className=" center_flex">
+                                    <Lottie options={defaultOptions} height={400} width={400} />
                                 </CardBody>
                             )}
                             {/* {!isLoading && driverList.length > 0 && (

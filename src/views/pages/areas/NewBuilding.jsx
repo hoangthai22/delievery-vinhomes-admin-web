@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router";
 import Select from "react-select";
 import { Button, Card, CardBody, CardHeader, Col, Container, Input, Modal, Row, Spinner } from "reactstrap";
-import { postArea, postBuilding } from "../../../apis/areaApiService";
+import { getListHub, postArea, postBuilding } from "../../../apis/areaApiService";
 import { postStoreCategory } from "../../../apis/categoryApiService";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
@@ -13,18 +13,37 @@ export const NewBuilding = ({ handleReload, listCluster }) => {
     const [status, setStatus] = useState(0);
     const [cluster, setCluster] = useState(0);
     const [hub, setHub] = useState({});
+    const [hubs, setHubs] = useState([]);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const [longitude, setLongitude] = useState("");
     const [longitudeState, setLongitudeState] = useState("");
     const [latitude, setLatitude] = useState("");
     const [latitudeState, setLatitudeState] = useState("");
     let location = useLocation();
+    const hanldeGetHub = () => {
+        setHubs([]);
+        getListHub(1, 100)
+            .then((res) => {
+                if (res.data) {
+                    const hubList = res.data;
+                    setHubs(hubList);
+                    setHub({ label: hubList[0].name, value: hubList[0].id });
+                } else {
+                    setHubs([]);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setHubs([]);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+    };
     useEffect(() => {
+        hanldeGetHub();
         setStatus({ label: "Hoạt động", value: 0 });
         if (listCluster.length > 0) {
             setCluster({ label: listCluster[0].name, value: listCluster[0].id });
         }
-        setHub({ label: "Hub A", value: 1 });
     }, [listCluster]);
 
     const validateCustomStylesForm = () => {
@@ -102,12 +121,9 @@ export const NewBuilding = ({ handleReload, listCluster }) => {
         { label: "Hoạt động", value: 0 },
         { label: "Ngưng hoạt động", value: 1 },
     ];
-    const optionsHub = [
-        { label: "Hub A", value: 1 },
-        { label: "Hub B", value: 2 },
-        { label: "Hub C", value: 3 },
-        { label: "Hub D", value: 4 },
-    ];
+    const optionsHub = hubs.map((item) => {
+        return { label: item.name, value: item.id };
+    });
     const optionsCluster = listCluster.map((item, ind) => {
         return { label: item.name, value: item.id };
     });

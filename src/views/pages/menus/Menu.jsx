@@ -8,6 +8,8 @@ import { MenuUpdateModal } from "../../../components/Modals/menuUpdateModal";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 import { MenuItem } from "./MenuItem";
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 // import Empty from "../../../../public/icons/empty.svg";
 export const Menus = () => {
     const [hTabsIcons, setHTabsIcons] = React.useState("");
@@ -24,6 +26,14 @@ export const Menus = () => {
             value: item.id,
         };
     });
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
     useEffect(() => {
         getListMenuByMode(mode)
             .then((res) => {
@@ -349,7 +359,8 @@ export const Menus = () => {
                                                     }
                                                 })} */}
 
-                                            <Table className="align-items-center table-flush" responsive hover={true}>
+                                            <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                                                <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
                                                 <thead className="thead-light">
                                                     <tr>
                                                         <th className="sort table-title" scope="col">
@@ -405,9 +416,7 @@ export const Menus = () => {
                                             )}
                                             {isLoading && (
                                                 <CardBody className="loading-wrapper center_flex">
-                                                    <Spinner className="loading" type="grow"></Spinner>
-                                                    <Spinner className="loading" type="grow"></Spinner>
-                                                    <Spinner className="loading" type="grow"></Spinner>
+                                                    <Lottie options={defaultOptions} height={400} width={400} />
                                                 </CardBody>
                                             )}
                                         </div>

@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const NOT_FOUND_IMG = "/images/notfound.webp";
 export const getBase64Image = (url, type) => {
     //image/png
@@ -56,7 +58,12 @@ export const getBase64Ima = (imgUrl) => {
         };
     });
 };
-export const statusType = [
+export const statusTypeOptions = [
+    {
+        id: -1,
+        value: "Tất cả",
+        class: "status-create",
+    },
     {
         id: 0,
         value: "Mới",
@@ -128,6 +135,78 @@ export const statusType = [
         class: "status-cancel",
     },
 ];
+export const statusType = [
+    {
+        id: 0,
+        value: "Mới",
+        class: "status-create",
+    },
+    {
+        id: 1,
+        value: "Cửa hàng xác nhận",
+        class: "status-create",
+    },
+    {
+        id: 2,
+        value: "Chưa có tài xế",
+        class: "status-shiper",
+    },
+    {
+        id: 3,
+        value: "Tài xế đã nhận",
+        class: "status-processing",
+    },
+    {
+        id: 4,
+        value: "Đang Giao",
+        class: "status-processing",
+    },
+    {
+        id: 5,
+        value: "Hoàn Thành",
+        class: "status-success",
+    },
+    {
+        id: 6,
+        value: "Đã Hủy",
+        class: "status-cancel",
+    },
+    {
+        id: 7,
+        value: "Đang lấy hàng",
+        class: "status-processing",
+    },
+    {
+        id: 8,
+        value: "Ở Hub",
+        class: "status-processing",
+    },
+    {
+        id: 9,
+        value: "Đang giao",
+        class: "status-processing",
+    },
+    {
+        id: 10,
+        value: "Hủy do hết thời gian đợi",
+        class: "status-cancel",
+    },
+    {
+        id: 11,
+        value: "Tài xế hủy",
+        class: "status-cancel",
+    },
+    {
+        id: 12,
+        value: "Cửa hàng hủy",
+        class: "status-cancel",
+    },
+    {
+        id: 13,
+        value: "Khách hàng hủy",
+        class: "status-cancel",
+    },
+];
 export const getModeName = (mode) => {
     switch (mode) {
         case "1":
@@ -139,5 +218,24 @@ export const getModeName = (mode) => {
 
         default:
             return "Gọi món";
+    }
+};
+export const getTimeConvert = (time) => {
+    moment.locale("vi");
+    let date = moment(time).format("l");
+    let hour = moment(time).format("LT");
+    return `${date}, ${hour}`;
+};
+export const getPaymentStatusName = (payment) => {
+    switch (payment) {
+        case 0:
+            return "Chưa thanh toán VN Pay";
+        case 1:
+            return "VN Pay";
+        case 2:
+            return "Thanh toán thất bại VN Pay";
+
+        default:
+            return "---";
     }
 };

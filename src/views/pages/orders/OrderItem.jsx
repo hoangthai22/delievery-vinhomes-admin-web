@@ -2,9 +2,9 @@ import moment from "moment";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router";
 import { Tooltip } from "reactstrap";
-import { getModeName, statusType } from "../../../constants";
+import { getModeName, getPaymentStatusName, getTimeConvert, statusType } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
-
+import "moment/locale/vi";
 export const OrderItem = ({ data, index }) => {
     const [tooltipOpenEdit, setTooltipOpenEdit] = useState(false);
     const toggleEdit = () => setTooltipOpenEdit(!tooltipOpenEdit);
@@ -13,25 +13,7 @@ export const OrderItem = ({ data, index }) => {
     const getStatus = (status) => {
         return statusType[status];
     };
-    const getTimeConvert = (time) => {
-        moment.locale("vi");
-        let date = moment(time).format("l");
-        let hour = moment(time).format("LT");
-        return `${date}, ${hour}`;
-    };
-    const getPaymentStatusName = (payment) => {
-        switch (payment) {
-            case 0:
-                return "Chưa thanh toán VN Pay";
-            case 1:
-                return "VN Pay";
-            case 2:
-                return "Thanh toán thất bại VN Pay";
 
-            default:
-                return "---";
-        }
-    };
     return (
         <tr>
             <td className="budget table-text" style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
@@ -68,9 +50,9 @@ export const OrderItem = ({ data, index }) => {
                     </span>
                 }
             </td>
-            <td className="budget table-text bold" style={{ color: "var(--secondary)", padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
+            {/* <td className="budget table-text bold" style={{ color: "var(--secondary)", padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
                 {data.shipper}
-            </td>
+            </td> */}
             <td className="budget table-text" style={{ padding: "1.7rem 0rem 1.7rem 1.5rem" }}>
                 {getModeName(data.modeId)}
             </td>

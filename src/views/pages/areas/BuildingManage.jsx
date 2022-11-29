@@ -17,29 +17,37 @@
 // reactstrap components
 import { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router";
-import { Button, Card, CardBody, CardHeader, Col, Container, DropdownItem, DropdownMenu, DropdownToggle, Modal, Row, Spinner, Table, UncontrolledDropdown } from "reactstrap";
-import { deleteArea, deleteBuilding } from "../../../apis/areaApiService";
-import { getListArea, getListBuildingByAreaId } from "../../../apis/storeApiService";
+import { Button, Card, CardBody, CardHeader, Col, Container, Modal, Row, Spinner, Table } from "reactstrap";
+import { deleteBuilding } from "../../../apis/areaApiService";
+import { getListBuildingByAreaId } from "../../../apis/storeApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
-import { AreaModal } from "../../../components/Modals/areaModal";
 import { BuildingModal } from "../../../components/Modals/buildingModal";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
-import { AreaItem } from "./Areaitem";
 import { BuildingItem } from "./BuildingItem";
-import { NewArea } from "./NewArea";
 import { NewBuilding } from "./NewBuilding";
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 // core components
 function BuildingManage() {
     const { storeCategoryModal, setOpenDeleteModal, openDeleteModal, setOpenNewBuildingModal } = useContext(AppContext);
     let history = useHistory();
 
     const [buildings, setBuildings] = useState([]);
+
     const [listCluster, setListCluster] = useState([]);
     const [clusterSelected, setclusterSelected] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     let location = useLocation();
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
     const hanldeGetBuildingByArea = (value) => {
         let areaId = location.pathname.split("/")[3];
         setIsLoading(true);
@@ -51,13 +59,14 @@ function BuildingManage() {
                     buidlingList.listCluster.map((item, ind) => {
                         if (item.id === value) {
                             setBuildings(item.listBuilding);
-                            setclusterSelected(item);
+                            setclusterSelected(item.id);
                         }
                     });
                     setListCluster(buidlingList.listCluster);
                     setIsLoading(false);
                 } else {
                     setBuildings([]);
+                    setIsLoading(false);
                 }
             })
             .catch((error) => {
@@ -356,9 +365,9 @@ function BuildingManage() {
                                                     className="mb-0 center_flex"
                                                     key={index}
                                                     style={{
-                                                        background: item.id === clusterSelected.id ? "var(--primary)" : "#fff",
-                                                        color: item.id === clusterSelected.id ? "#fff" : "#637381",
-                                                        border: item.id !== clusterSelected.id ? "1px solid rgb(222, 226, 230)" : "none",
+                                                        background: item.id === clusterSelected ? "var(--primary)" : "#fff",
+                                                        color: item.id === clusterSelected ? "#fff" : "#637381",
+                                                        border: item.id !== clusterSelected ? "1px solid rgb(222, 226, 230)" : "none",
                                                         padding: "10px 20px",
                                                         fontWeight: 600,
                                                         height: 50,
@@ -367,10 +376,11 @@ function BuildingManage() {
                                                         fontSize: 16,
                                                     }}
                                                     onClick={() => {
-                                                        if (item.id !== clusterSelected.id) {
+                                                        if (item.id !== clusterSelected) {
+                                                            let areaId = location.pathname.split("/")[3];
                                                             setIsLoading(true);
-                                                            history.replace(`/admin/area/2/clusters/${item.id}`);
-                                                            setclusterSelected(item);
+                                                            history.replace(`/admin/area/${areaId}/clusters/${item.id}`);
+                                                            setclusterSelected(item.id);
                                                             hanldeGetBuildingByArea(item.id);
                                                         }
                                                     }}
@@ -481,33 +491,37 @@ function BuildingManage() {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive hover={true}>
-                                <thead className="thead-light">
-                                    <tr>
-                                        <th className="sort table-title" scope="col">
-                                            STT
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Mã tòa nhà
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Tên tòa nhà
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Trạng thái
-                                        </th>
-                                        <th className="sort table-title" scope="col">
-                                            Hành động
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="list">
-                                    {buildings.length > 0 &&
-                                        buildings.map((item, index) => {
-                                            return <BuildingItem data={item} key={index} index={index} clusterId={clusterSelected.id} clusterName={clusterSelected.name} />;
-                                        })}
-                                </tbody>
-                            </Table>
+                            {!isLoading && (
+                                <Table className="align-items-center table-flush" responsive hover={true}>
+                                    <thead className="thead-light">
+                                        <tr>
+                                            <th className="sort table-title" scope="col">
+                                                STT
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Mã tòa nhà
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Tên tòa nhà
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Trạng thái
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Hành động
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="list" style={{ position: "relative" }}>
+                                        <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
+                                        {buildings.length > 0 &&
+                                            buildings.map((item, index) => {
+                                                return <BuildingItem data={item} key={index} index={index} clusterId={clusterSelected} />;
+                                            })}
+                                    </tbody>
+                                </Table>
+                            )}
+
                             {buildings.length === 0 && !isLoading && (
                                 <>
                                     <div className="center_flex" style={{ padding: "50px 0 0 0" }}>
@@ -519,10 +533,8 @@ function BuildingManage() {
                                 </>
                             )}
                             {isLoading && (
-                                <CardBody className="loading-wrapper center_flex">
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
+                                <CardBody className=" center_flex">
+                                    <Lottie options={defaultOptions} height={400} width={400} />
                                 </CardBody>
                             )}
                             {/* {!isLoading && driverList.length > 0 && (

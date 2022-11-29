@@ -19,6 +19,7 @@ import BrandManage from "./views/pages/brands/BrandManage.jsx";
 import CategoryManage from "./views/pages/categories/CategoryManage.jsx";
 import Dashboard from "./views/pages/dashboards/Dashboard.jsx";
 import DriverManage from "./views/pages/drivers/DriverManage.jsx";
+import HubManage from "./views/pages/hubs/HubManage.jsx";
 import { Menus } from "./views/pages/menus/Menu.jsx";
 import { Order } from "./views/pages/orders/Order.jsx";
 import StoreCategoryManage from "./views/pages/store-category/StoreCategoryManage.jsx";
@@ -102,6 +103,13 @@ const routes = [
         name: "Khu vực",
         icon: "fa-solid fa-city",
         component: AreaManage,
+        layout: "/admin",
+    },
+    {
+        path: "/hubs",
+        name: "Hub",
+        icon: "fa-solid fa-warehouse",
+        component: HubManage,
         layout: "/admin",
     },
 ];

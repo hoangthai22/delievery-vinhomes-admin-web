@@ -9,14 +9,21 @@ import { DeleteModal } from "../../../components/Modals/deleteModal";
 import { StoreModal } from "../../../components/Modals/storeModal";
 import { AppContext } from "../../../context/AppProvider";
 import { StoreItem } from "./StoreItem";
-
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 export const StoreManage = () => {
-    const { buildingList, storeCategoryList } = useContext(AppContext);
+    const { buildingList, storeCategoryList, brandList } = useContext(AppContext);
     const [storeCategory, setStoreCategory] = useState("");
     const [storeLists, setStoreLists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [building, setBuilding] = useState("");
+    const [brand, setBrand] = useState("");
     const [keyword, setKeyword] = useState("");
+    const [filter, setFilter] = useState({
+        buildingFilter: "",
+        storeCateFilter: "",
+        brandFilter: "",
+    });
     function fetchDropdownOptions(key) {
         setIsLoading(true);
         setStoreLists([]);
@@ -31,7 +38,7 @@ export const StoreManage = () => {
                 })
                 .catch((error) => console.log(error));
         } else {
-            hanldeGetListStore();
+            hanldeGetListStore("", "", "");
         }
     }
     const debounceDropDown = useCallback(
@@ -44,10 +51,16 @@ export const StoreManage = () => {
         debounceDropDown(value);
     }
     let history = useHistory();
-    const hanldeGetListStore = () => {
+    const hanldeGetListStore = (building, storeCate, brand) => {
+        let buildingFilter = "";
+        let storeCateFilter = "";
+        let brandFilter = "";
+        buildingFilter = building;
+        storeCateFilter = storeCate;
+        brandFilter = brand;
         setIsLoading(true);
         setStoreLists([]);
-        getListStores(1, 100)
+        getListStores("", buildingFilter === "Tất cả" ? "" : buildingFilter, storeCateFilter === "Tất cả" ? "" : storeCateFilter, brandFilter === "Tất cả" ? "" : brandFilter, 1, 100)
             .then((res) => {
                 const stores = res.data;
                 console.log(stores);
@@ -75,25 +88,84 @@ export const StoreManage = () => {
             margin: "5px",
         }),
     };
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
+    const customStylesBuilding = {
+        control: (provided, state) => ({
+            ...provided,
+            background: "#fff",
+            borderColor: "rgb(158, 158, 158)",
+            minHeight: "30px",
+            height: "46px",
+            width: "150px",
+            boxShadow: state.isFocused ? null : null,
+            borderRadius: "0.5rem",
+        }),
+
+        input: (provided, state) => ({
+            ...provided,
+            margin: "5px",
+        }),
+    };
     useEffect(() => {
-        hanldeGetListStore();
+        hanldeGetListStore("", "", "");
     }, []);
 
     const handleReload = () => {
-        hanldeGetListStore();
+        hanldeGetListStore("", "", "");
     };
-    const optionsBuilding = buildingList.map((item) => {
-        return {
-            label: item.name,
-            value: item.id,
+    const optionsBuilding = () => {
+        let newList;
+        newList = buildingList.map((item) => {
+            return {
+                label: item.name,
+                value: item.id,
+            };
+        });
+        let element = {
+            label: "Tất cả",
+            value: -1,
         };
-    });
-    const optionsCategoryStore = storeCategoryList.map((item) => {
-        return {
-            label: item.name,
-            value: item.id,
+        newList = [element].concat(newList);
+        return newList;
+    };
+    const optionsCategoryStore = () => {
+        let newList;
+        newList = storeCategoryList.map((item) => {
+            return {
+                label: item.name,
+                value: item.id,
+            };
+        });
+        let element = {
+            label: "Tất cả",
+            value: -1,
         };
-    });
+        newList = [element].concat(newList);
+        return newList;
+    };
+    const optionsBrand = () => {
+        let newList;
+        newList = brandList.map((item) => {
+            return {
+                label: item.name,
+                value: item.id,
+            };
+        });
+        let element = {
+            label: "Tất cả",
+            value: -1,
+        };
+        newList = [element].concat(newList);
+        return newList;
+    };
+
     return (
         <>
             <StoreModal handleReload={handleReload} />
@@ -119,25 +191,40 @@ export const StoreManage = () => {
                                                         <span className="fas fa-search" />
                                                     </InputGroupText>
                                                 </InputGroupAddon>
-                                                <Input placeholder="Tìm kiếm bằng tên cửa hàng" type="search" onChange={handleInputOnchange} className="btn-lg" style={{ height: 46, width: 250 }} />
+                                                <Input placeholder="Tìm kiếm bằng tên cửa hàng" type="search" onChange={handleInputOnchange} className="btn-lg" style={{ height: 46 }} />
                                             </InputGroup>
                                         </FormGroup>
                                         <Select
-                                            options={optionsBuilding}
+                                            options={optionsBuilding()}
                                             placeholder="Tòa nhà"
-                                            styles={customStylesPayment}
+                                            styles={customStylesBuilding}
                                             value={building}
                                             onChange={(e) => {
                                                 setBuilding(e);
+                                                setFilter({ ...filter, buildingFilter: e.label });
+                                                hanldeGetListStore(e.label, filter.storeCateFilter, filter.brandFilter);
                                             }}
                                         />
                                         <Select
-                                            options={optionsCategoryStore}
+                                            options={optionsCategoryStore()}
                                             placeholder="Loại cửa hàng"
                                             styles={customStylesPayment}
                                             value={storeCategory}
                                             onChange={(e) => {
                                                 setStoreCategory(e);
+                                                setFilter({ ...filter, storeCateFilter: e.label });
+                                                hanldeGetListStore(filter.buildingFilter, e.label, filter.brandFilter);
+                                            }}
+                                        />
+                                        <Select
+                                            options={optionsBrand()}
+                                            placeholder="Thương hiệu"
+                                            styles={customStylesPayment}
+                                            value={brand}
+                                            onChange={(e) => {
+                                                setBrand(e);
+                                                setFilter({ ...filter, brandFilter: e.label });
+                                                hanldeGetListStore(filter.buildingFilter, filter.storeCateFilter, e.label);
                                             }}
                                         />
                                         {/* <Dropdown isOpen={dropdownOpen} toggle={toggle}>
@@ -177,7 +264,8 @@ export const StoreManage = () => {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive hover={true}>
+                            <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                                <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
                                 <thead className="thead-light">
                                     <tr>
                                         <th className="sort table-title" scope="col">
@@ -232,10 +320,8 @@ export const StoreManage = () => {
                                 </>
                             )}
                             {isLoading && (
-                                <CardBody className="loading-wrapper center_flex">
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
-                                    <Spinner className="loading" type="grow"></Spinner>
+                                <CardBody className=" center_flex">
+                                    <Lottie options={defaultOptions} height={400} width={400} />
                                 </CardBody>
                             )}
                             {/* {!isLoading && storeLists.length > 0 && (

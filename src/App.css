@@ -453,3 +453,32 @@ input[type="checkbox"]:checked ~ .indicator::after {
     background-color: rgb(230, 230, 230);
     color: rgb(100, 100, 100);
 }
+.loading-spin {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+    background-color: #fff;
+    /* transition: 0.8s all;
+    -webkit-transition: 0.8s all;
+    -moz-transition: 0.8s all; */
+    opacity: 1;
+    z-index: 1;
+}
+.loading-spin-done {
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.7s all;
+    -webkit-transition: 0.7s all;
+    -moz-transition: 0.7s all;
+    /* width: 0px;
+    height: 0px; */
+    /* top: 100%;
+    bottom: 0; */
+    /* top: 0;
+    /* display: none; */
+}
+.page-item.active .page-link {
+    border-color: var(--primary) !important;
+}

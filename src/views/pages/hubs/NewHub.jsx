@@ -1,32 +1,45 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router";
+import { useLocation } from "react-router";
 import Select from "react-select";
 import { Button, Card, CardBody, CardHeader, Col, Container, Input, Modal, Row, Spinner } from "reactstrap";
-import { postArea } from "../../../apis/areaApiService";
-import { postStoreCategory } from "../../../apis/categoryApiService";
+import { postHub } from "../../../apis/areaApiService";
+import { getListBuilding } from "../../../apis/storeApiService";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
-export const NewArea = ({ handleReload }) => {
-    const { openNewAreaModal, setOpenNewAreaModal } = useContext(AppContext);
-    const [areaName, setAreaName] = useState("");
-    const [areaNameState, setAreaNameState] = useState("");
+export const NewHub = ({ handleReload }) => {
+    const { openNewHubModal, setOpenNewHubModal } = useContext(AppContext);
+    const [buildings, setBuildings] = useState([]);
+    const [building, setBuilding] = useState([]);
+    const [hubName, setHubName] = useState("");
+    const [hubNameState, setHubNameState] = useState("");
     const [status, setStatus] = useState(0);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    let history = useHistory();
-
+    let location = useLocation();
     useEffect(() => {
         setStatus({ label: "Hoạt động", value: 0 });
+        getListBuilding(1, 100)
+            .then((res) => {
+                const buildings = res.data;
+                setBuildings(
+                    buildings.sort(function (a, b) {
+                        return parseInt(a.id.split("b")[1]) - parseInt(b.id.split("b")[1]);
+                    })
+                );
+                setBuilding({ label: buildings[0].name, value: buildings[0].id });
+            })
+            .catch((error) => {
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
     }, []);
 
     const validateCustomStylesForm = () => {
         let valid = true;
-        if (areaName === "") {
+        if (hubName === "") {
             valid = false;
-            setAreaNameState("invalid");
+            setHubNameState("invalid");
         } else {
             // valid = true;
-            setAreaNameState("valid");
+            setHubNameState("valid");
         }
 
         return valid;
@@ -34,23 +47,22 @@ export const NewArea = ({ handleReload }) => {
     const hanldeUpdate = () => {
         if (validateCustomStylesForm()) {
             setIsLoadingCircle(true);
-            let area = { name: areaName, listCluster: [] };
-            postArea(area)
+            let hub = { name: hubName, buildingId: building.value };
+
+            postHub(hub)
                 .then((res) => {
                     if (res.data) {
-                        setIsLoading(false);
                         notify("Thêm mới thành công", "Success");
-                        history.push("/admin/areas");
                         handleReload();
-                        setOpenNewAreaModal(false);
+                        setOpenNewHubModal(false);
                         setIsLoadingCircle(false);
-                        setAreaName("");
+                        setHubName("");
+                        setBuilding("");
                     }
                 })
                 .catch((error) => {
                     console.log(error);
                     setIsLoadingCircle(false);
-                    setIsLoading(false);
                     notify("Đã xảy ra lỗi gì đó!!", "Error");
                 });
         }
@@ -77,6 +89,11 @@ export const NewArea = ({ handleReload }) => {
         { label: "Hoạt động", value: 0 },
         { label: "Ngưng hoạt động", value: 1 },
     ];
+
+    const optionsBuilding = buildings.map((item, ind) => {
+        return { label: item.name, value: item.id };
+    });
+
     return (
         <>
             <Row>
@@ -84,11 +101,11 @@ export const NewArea = ({ handleReload }) => {
                     <Modal
                         className="modal-dialog-centered"
                         size="md"
-                        isOpen={openNewAreaModal}
+                        isOpen={openNewHubModal}
                         toggle={() => {
-                            setOpenNewAreaModal(false);
-                            setAreaName("");
-                            setAreaNameState(false);
+                            setOpenNewHubModal(false);
+                            setHubName("");
+                            setHubNameState(false);
                         }}
                     >
                         <div className="modal-body p-0">
@@ -103,7 +120,7 @@ export const NewArea = ({ handleReload }) => {
                                                 <Card>
                                                     <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "10px 0px" }} className="align-items-center">
                                                         <CardHeader className="border-0" style={{ padding: "15px" }}>
-                                                            <h2 className="mb-0">Thông tin khu vực </h2>
+                                                            <h2 className="mb-0">Thông tin hub </h2>
                                                         </CardHeader>
                                                     </div>
                                                     <div className="col-md-12">
@@ -111,22 +128,37 @@ export const NewArea = ({ handleReload }) => {
                                                             <div className="row">
                                                                 <div className="col-md-6">
                                                                     <div className="form-group">
-                                                                        <label className="form-control-label">Tên khu vực </label>
+                                                                        <label className="form-control-label">Tên hub </label>
                                                                         <Input
-                                                                            valid={areaNameState === "valid"}
-                                                                            invalid={areaNameState === "invalid"}
+                                                                            valid={hubNameState === "valid"}
+                                                                            invalid={hubNameState === "invalid"}
                                                                             className="form-control"
                                                                             type="search"
                                                                             id="example-search-input"
-                                                                            value={`${areaName}`}
+                                                                            value={`${hubName}`}
                                                                             onChange={(e) => {
-                                                                                setAreaName(e.target.value);
+                                                                                setHubName(e.target.value);
                                                                             }}
                                                                         />{" "}
-                                                                        <div className="invalid-feedback">Tên khu vực không được để trống</div>
+                                                                        <div className="invalid-feedback">Tên hub không được để trống</div>
                                                                     </div>
                                                                 </div>
-
+                                                                <div className="col-md-6">
+                                                                    <div className="form-group">
+                                                                        <label className="form-control-label">Tòa nhà</label>
+                                                                        <Select
+                                                                            options={optionsBuilding}
+                                                                            placeholder="Tòa nhà"
+                                                                            styles={customStylesPayment}
+                                                                            value={building}
+                                                                            defaultValue={building}
+                                                                            onChange={(e) => {
+                                                                                console.log(e);
+                                                                                setBuilding(e);
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                </div>{" "}
                                                                 <div className="col-md-6">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Trạng Thái</label>
@@ -142,7 +174,7 @@ export const NewArea = ({ handleReload }) => {
                                                                             }}
                                                                         />
                                                                     </div>
-                                                                </div>
+                                                                </div>{" "}
                                                             </div>
                                                         </form>
                                                     </div>
@@ -152,7 +184,7 @@ export const NewArea = ({ handleReload }) => {
                                         <Col className="text-md-right mb-3" lg="12" xs="5">
                                             <Button
                                                 onClick={() => {
-                                                    setOpenNewAreaModal(false);
+                                                    setOpenNewHubModal(false);
                                                 }}
                                                 // className="btn-neutral"
                                                 color="default"

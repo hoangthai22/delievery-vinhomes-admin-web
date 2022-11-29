@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 // react library for routing
 import { Redirect, Route, Switch, useLocation } from "react-router-dom";
+import { CardBody, Spinner } from "reactstrap";
 import AdminNavbar from "../components/Navbars/AdminNavbar.js";
 // core components
 // import AdminFooter from "../components/Footers/AdminFooter.js";
 import Sidebar from "../components/Sidebar/Sidebar.js";
+import { AppContext } from "../context/AppProvider.jsx";
 import BuildingManage from "../views/pages/areas/BuildingManage.jsx";
 import { NewCategory } from "../views/pages/categories/NewCategory.jsx";
 import { NewDriver } from "../views/pages/drivers/NewDriver.jsx";
@@ -13,8 +15,11 @@ import OrderDetail from "../views/pages/orders/OrderDetail.jsx";
 import { NewStore } from "../views/pages/stores/NewStore.jsx";
 // import AdminNavbar from "../components/Navbars/AdminNavbar";
 import routes from "./../routes.js";
-
+import Lottie from "react-lottie";
+import animationData from "../assets/loading.json";
+// import logo from "../../public/images/loading.gif";
 function Admin() {
+    const { isLoadingMain } = useContext(AppContext);
     const [sidenavOpen, setSidenavOpen] = React.useState(true);
     const location = useLocation();
     const mainContentRef = React.useRef(null);
@@ -57,7 +62,14 @@ function Admin() {
     const getNavbarTheme = () => {
         return location.pathname.indexOf("admin/alternative-dashboard") === -1 ? "dark" : "light";
     };
-
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
     return (
         <>
             <Sidebar
@@ -70,9 +82,14 @@ function Admin() {
                     imgAlt: "...",
                 }}
             />
+
             <div className="main-content" ref={mainContentRef}>
                 <AdminNavbar theme={getNavbarTheme()} toggleSidenav={toggleSidenav} sidenavOpen={sidenavOpen} brandText={getBrandText(location.pathname)} />
-
+                {isLoadingMain && (
+                    <CardBody className="loading-wrapper center_flex" style={{ position: "absolute", zIndex: 99, background: "rgb(250,250,250)", width: "100%", height: "95%", opacity: 0.8 }}>
+                        <Lottie options={defaultOptions} height={400} width={400} />
+                    </CardBody>
+                )}
                 <Switch>
                     {getRoutes(routes)}
                     <Route path="/admin/store" render={() => <NewStore />} />

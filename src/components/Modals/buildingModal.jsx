@@ -2,7 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import Select from "react-select";
 import { Button, Card, CardBody, CardHeader, Col, Container, Modal, Row, Spinner } from "reactstrap";
+import { putBuilding } from "../../apis/areaApiService";
 import { AppContext } from "../../context/AppProvider";
+import { notify } from "../Toast/ToastCustom";
 export const BuildingModal = ({ handleReload, listCluster }) => {
     const { openBuildingModal, setOpenBuildingModal, buildingModal, setBuildingModal } = useContext(AppContext);
     const [buildingName, setBuildingName] = useState("");
@@ -20,31 +22,37 @@ export const BuildingModal = ({ handleReload, listCluster }) => {
         setLatitude(buildingModal.latitude || "");
 
         setStatus({ label: "Hoạt động", value: 0 });
-        setCluster({ label: buildingModal.clusterName, value: buildingModal.clusterId });
+        for (let index = 0; index < listCluster.length; index++) {
+            const element = listCluster[index];
+            if (element.id === buildingModal.clusterId) {
+                setCluster({ label: element.name, value: buildingModal.clusterId });
+            }
+        }
     }, [buildingModal]);
 
     const hanldeUpdate = () => {
-        console.log();
-        // setIsLoadingCircle(true);
-        // let categoryUpdate = { id: categoryId, name: categoryName, status: status.label, storeName: "", storeId: "", storeImage: "" };
-        // console.log({ categoryUpdate });
-        // putStoreCategory(categoryUpdate)
-        //     .then((res) => {
-        //         if (res.data) {
-        //             setIsLoading(false);
-        //             notify("Cập nhật thành công", "Success");
-        //             history.push("/admin/categorieStore");
-        //             handleReload();
-        //             setOpenModal(false);
-        //             setIsLoadingCircle(false);
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         console.log(error);
-        //         setIsLoading(false);
-        //         setIsLoadingCircle(false);
-        //         notify("Đã xảy ra lỗi gì đó!!", "Error");
-        //     });
+        setIsLoadingCircle(true);
+        let building = {
+            name: buildingName,
+            longitude: longitude,
+            latitude: latitude,
+        };
+        console.log({ building });
+        putBuilding(building, buildingModal.id)
+            .then((res) => {
+                if (res.data) {
+                    notify("Cập nhật thành công", "Success");
+                    handleReload();
+                    setOpenBuildingModal(false);
+                    setIsLoadingCircle(false);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setOpenBuildingModal(false);
+                setIsLoadingCircle(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
     };
     const customStylesPayment = {
         control: (provided, state) => ({
@@ -125,13 +133,14 @@ export const BuildingModal = ({ handleReload, listCluster }) => {
                                                                         <label className="form-control-label">Cụm tòa nhà</label>
                                                                         <Select
                                                                             options={optionsCluster}
-                                                                            placeholder="Trạng Thái"
+                                                                            isDisabled
+                                                                            placeholder="Cụm tòa nhà"
                                                                             styles={customStylesPayment}
                                                                             value={cluster}
                                                                             // defaultValue={cluster}
                                                                             onChange={(e) => {
-                                                                                console.log(e);
-                                                                                setCluster(e);
+                                                                                // console.log(e);
+                                                                                // setCluster(e);
                                                                             }}
                                                                         />
                                                                     </div>

@@ -14,22 +14,25 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 // node.js library that concatenates classes (strings)
 // javascipt plugin for creating charts
 import { Chart } from "chart.js";
 // react plugin used to create charts
 // reactstrap components
-import { Card, Container, Row } from "reactstrap";
+import { Card, CardBody, Container, Row, Spinner } from "reactstrap";
 
 // core components
 // import CardsHeader from "../../../components/Headers/CardsHeader.js";
-
+import Select from "react-select";
 import CardsHeader from "../../../components/Headers/CardsHeader.js";
-import { getOrderReport } from "../../../apis/orderApiService.js";
+import { getOrderReport, getOrderReportPrice } from "../../../apis/orderApiService.js";
 import { notify } from "../../../components/Toast/ToastCustom.js";
+import moment from "moment";
+import { AppContext } from "../../../context/AppProvider.jsx";
 
 function Dashboard() {
+    const { setIsLoadingMain } = useContext(AppContext);
     const [activeNav, setActiveNav] = React.useState(1);
     const [dayFilter, setDayFilter] = React.useState("");
     const [countStore, setCountStore] = React.useState(0);
@@ -40,13 +43,26 @@ function Dashboard() {
     const [countOrderNew, setCountOrderNew] = React.useState(0);
     const [countOrderPaymentFail, setCountOrderPaymentFail] = React.useState(0);
     const [chartExample1Data, setChartExample1Data] = React.useState("data1");
+
+    const [totalOrder, setTotalOrder] = React.useState(0);
+    const [totalShipFree, setTotalShipFree] = React.useState(0);
+    const [totalPaymentVNPay, setTotalPaymentVNPay] = React.useState(0);
+    const [totalPaymentCash, setTotalPaymentCash] = React.useState(0);
+    const [totalSurcharge, setTotalSurcharge] = React.useState(0);
+    const [totalRevenueOrder, setTotalRevenueOrder] = React.useState(0);
+    const [totalProfitOrder, setTotalProfitOrder] = React.useState(0);
+    const [Date, setDate] = useState({
+        label: "Tất cả",
+        value: 1,
+    });
     const toggleNavs = (e, index) => {
         e.preventDefault();
         setActiveNav(index);
         setChartExample1Data(chartExample1Data === "data1" ? "data2" : "data1");
     };
-    useEffect(() => {
-        getOrderReport(dayFilter)
+    const hanldeGetReport = (day) => {
+        setIsLoadingMain(true);
+        getOrderReport(day)
             .then((res) => {
                 if (res.data) {
                     let report = res.data;
@@ -63,20 +79,93 @@ function Dashboard() {
                 console.log(error);
                 notify("Đã xảy ra lỗi gì đó!!", "Error");
             });
+        getOrderReportPrice(day)
+            .then((res) => {
+                if (res.data) {
+                    let report = res.data;
+
+                    setTimeout(() => {
+                        setTotalOrder(report.totalOrder);
+                        setTotalShipFree(report.totalShipFree);
+                        setTotalPaymentVNPay(report.totalPaymentVNPay);
+                        setTotalPaymentCash(report.totalPaymentCash);
+                        setTotalSurcharge(report.totalSurcharge);
+                        setTotalRevenueOrder(report.totalRevenueOrder);
+                        setTotalProfitOrder(report.totalProfitOrder);
+                        setIsLoadingMain(false);
+                    }, 1000);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+    };
+    useEffect(() => {
+        hanldeGetReport(dayFilter);
 
         return () => {};
     }, []);
 
+    const options = () => {
+        return [
+            {
+                label: "Tất cả",
+                value: 1,
+            },
+            {
+                label: "Hôm nay",
+                value: 2,
+            },
+        ];
+    };
+    const customStylesPayment = {
+        control: (provided, state) => ({
+            ...provided,
+            background: "#fff",
+            borderColor: "rgb(200, 200, 200)",
+            minHeight: "30px",
+            height: "46px",
+            width: "200px",
+            boxShadow: state.isFocused ? null : null,
+            borderRadius: "0.5rem",
+        }),
+
+        input: (provided, state) => ({
+            ...provided,
+            margin: "5px",
+        }),
+    };
     return (
         <>
             <CardsHeader name="" parentName="Dashboards" countOrder={countOrder} countShipper={countShipper} countStore={countStore} />
+
             <Container className="mt--12" fluid>
-                <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "10px 0 20px 0" }}>
                     <h1>Báo cáo tổng quan</h1>
+                    <Select
+                        options={options()}
+                        placeholder="Lọc theo ngày"
+                        styles={customStylesPayment}
+                        value={Date}
+                        onChange={(e) => {
+                            setDate(e);
+                            if (e.value === 1) {
+                                hanldeGetReport("");
+                            } else {
+                                let date = "";
+                                moment.locale("en");
+                                let dateConvert = moment().format("ll");
+                                date = dateConvert.split(",")[0] + dateConvert.split(",")[1];
+                                console.log(date);
+                                hanldeGetReport(date);
+                            }
+                        }}
+                    />
                 </div>
                 <Row>
                     <div className="col-lg-6">
-                        <Card style={{ background: "rgba(255, 170, 76, 0.9)", height: 430 }}>
+                        <Card style={{ background: "rgba(255, 170, 76, 0.9)", height: 440 }}>
                             <div className="col-md-12">
                                 <form>
                                     <div className="row">
@@ -86,20 +175,20 @@ function Dashboard() {
                                                 <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Đơn vị (Hóa đơn)</span>
                                             </div>
                                             <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng thành công</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderDone}</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Số đơn hàng thành công</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{countOrderDone}</span>
                                             </div>
                                             <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng mới</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderNew}</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Số đơn hàng mới</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{countOrderNew}</span>
                                             </div>
                                             <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng thanh toán thất bại</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderPaymentFail}</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Số đơn hàng chưa thanh toán</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{countOrderPaymentFail}</span>
                                             </div>
                                             <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Số đơn hàng giao thất bại</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrderFail}</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Số đơn hàng thất bại</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{countOrderFail}</span>
                                             </div>
                                             <div
                                                 style={{
@@ -111,8 +200,8 @@ function Dashboard() {
                                                     padding: "5px 10px",
                                                 }}
                                             >
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Tổng số đơn hàng</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{countOrder}</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng số đơn hàng</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{countOrder}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -121,7 +210,7 @@ function Dashboard() {
                         </Card>
                     </div>
                     <div className="col-lg-6">
-                        <Card style={{ background: "rgb(76, 175, 80)", height: 430 }}>
+                        <Card style={{ background: "rgb(76, 175, 80)", height: 440 }}>
                             <div className="col-md-12">
                                 <form>
                                     <div className="row">
@@ -130,21 +219,19 @@ function Dashboard() {
                                                 <span style={{ color: "#fff", fontSize: 24, fontWeight: 700 }}>Tổng doanh thu bán hàng</span>
                                                 <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Đơn vị (VND)</span>
                                             </div>
-                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Phí ship</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
+
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 20px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng thu hộ tài khoản (1)</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{totalPaymentVNPay.toLocaleString()}</span>
                                             </div>
-                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Tổng thu hộ</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 20px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng thu hộ tiền mặt (2)</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{totalPaymentCash.toLocaleString()}</span>
                                             </div>
-                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Phụ phí</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
-                                            </div>
-                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 30px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>---</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>---</span>
+
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 20px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Phí ship (3)</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{totalShipFree.toLocaleString()}</span>
                                             </div>
                                             <div
                                                 style={{
@@ -156,8 +243,25 @@ function Dashboard() {
                                                     padding: "5px 10px",
                                                 }}
                                             >
-                                                <span style={{ color: "#fff", fontSize: 17, fontWeight: 600 }}>Tổng doanh thu</span>
-                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{0}</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng doanh thu (1) + (2) + (3)</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{totalRevenueOrder.toLocaleString()}</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "20px 10px 20px 10px" }}>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng thu hộ</span>
+                                                <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{totalOrder.toLocaleString()}</span>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                    background: "rgba(250, 250, 250, 0.22)",
+                                                    borderRadius: 10,
+                                                    padding: "5px 10px",
+                                                }}
+                                            >
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng lợi nhuận</span>
+                                                <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{totalProfitOrder.toLocaleString()}</span>
                                             </div>
                                         </div>
                                     </div>

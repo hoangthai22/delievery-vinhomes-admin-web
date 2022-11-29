@@ -1,59 +1,63 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router";
 import Select from "react-select";
-import { Button, Card, CardBody, CardHeader, Col, Container, Input, Modal, Row, Spinner } from "reactstrap";
-import { postArea } from "../../../apis/areaApiService";
-import { postStoreCategory } from "../../../apis/categoryApiService";
-import { notify } from "../../../components/Toast/ToastCustom";
-import { AppContext } from "../../../context/AppProvider";
-export const NewArea = ({ handleReload }) => {
-    const { openNewAreaModal, setOpenNewAreaModal } = useContext(AppContext);
-    const [areaName, setAreaName] = useState("");
-    const [areaNameState, setAreaNameState] = useState("");
+import { Button, Card, CardBody, CardHeader, Col, Container, Modal, Row, Spinner } from "reactstrap";
+import { putArea, putHub } from "../../apis/areaApiService";
+import { getListBuilding } from "../../apis/storeApiService";
+import { AppContext } from "../../context/AppProvider";
+import { notify } from "../Toast/ToastCustom";
+export const HubModal = ({ handleReload }) => {
+    const { hubModal, setHubModal, openHubModal, setOpenHubModal } = useContext(AppContext);
+    const [hubName, setHubName] = useState("");
     const [status, setStatus] = useState(0);
+    const [buildings, setBuildings] = useState([]);
+    const [building, setBuilding] = useState([]);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    let history = useHistory();
 
     useEffect(() => {
-        setStatus({ label: "Hoạt động", value: 0 });
-    }, []);
-
-    const validateCustomStylesForm = () => {
-        let valid = true;
-        if (areaName === "") {
-            valid = false;
-            setAreaNameState("invalid");
-        } else {
-            // valid = true;
-            setAreaNameState("valid");
-        }
-
-        return valid;
-    };
-    const hanldeUpdate = () => {
-        if (validateCustomStylesForm()) {
-            setIsLoadingCircle(true);
-            let area = { name: areaName, listCluster: [] };
-            postArea(area)
-                .then((res) => {
-                    if (res.data) {
-                        setIsLoading(false);
-                        notify("Thêm mới thành công", "Success");
-                        history.push("/admin/areas");
-                        handleReload();
-                        setOpenNewAreaModal(false);
-                        setIsLoadingCircle(false);
-                        setAreaName("");
+        setHubName(hubModal.name);
+        getListBuilding(1, 100)
+            .then((res) => {
+                const buildings = res.data;
+                setBuildings(
+                    buildings.sort(function (a, b) {
+                        return parseInt(a.id.split("b")[1]) - parseInt(b.id.split("b")[1]);
+                    })
+                );
+                for (let index = 0; index < buildings.length; index++) {
+                    const element = buildings[index];
+                    if (hubModal.buildingId === element.id) {
+                        setBuilding({ label: element.name, value: element.id });
                     }
-                })
-                .catch((error) => {
-                    console.log(error);
+                }
+            })
+            .catch((error) => {
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+        setStatus({ label: "Hoạt động", value: 0 });
+    }, [hubModal]);
+
+    const hanldeUpdate = () => {
+        setIsLoadingCircle(true);
+        let hub = {
+            id: hubModal.id,
+            name: hubName,
+            buildingId: building.value,
+        };
+        console.log({ hub });
+        putHub(hub)
+            .then((res) => {
+                if (res.data) {
+                    notify("Cập nhật thành công", "Success");
+                    handleReload({ value: res.data.id, label: res.data.name });
+                    setOpenHubModal(false);
                     setIsLoadingCircle(false);
-                    setIsLoading(false);
-                    notify("Đã xảy ra lỗi gì đó!!", "Error");
-                });
-        }
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingCircle(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
     };
     const customStylesPayment = {
         control: (provided, state) => ({
@@ -73,6 +77,9 @@ export const NewArea = ({ handleReload }) => {
         }),
     };
 
+    const optionsBuilding = buildings.map((item, ind) => {
+        return { label: item.name, value: item.id };
+    });
     const optionsStatus = [
         { label: "Hoạt động", value: 0 },
         { label: "Ngưng hoạt động", value: 1 },
@@ -84,11 +91,9 @@ export const NewArea = ({ handleReload }) => {
                     <Modal
                         className="modal-dialog-centered"
                         size="md"
-                        isOpen={openNewAreaModal}
+                        isOpen={openHubModal}
                         toggle={() => {
-                            setOpenNewAreaModal(false);
-                            setAreaName("");
-                            setAreaNameState(false);
+                            setOpenHubModal(false);
                         }}
                     >
                         <div className="modal-body p-0">
@@ -103,7 +108,7 @@ export const NewArea = ({ handleReload }) => {
                                                 <Card>
                                                     <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "10px 0px" }} className="align-items-center">
                                                         <CardHeader className="border-0" style={{ padding: "15px" }}>
-                                                            <h2 className="mb-0">Thông tin khu vực </h2>
+                                                            <h2 className="mb-0">Thông tin hub </h2>
                                                         </CardHeader>
                                                     </div>
                                                     <div className="col-md-12">
@@ -111,22 +116,40 @@ export const NewArea = ({ handleReload }) => {
                                                             <div className="row">
                                                                 <div className="col-md-6">
                                                                     <div className="form-group">
-                                                                        <label className="form-control-label">Tên khu vực </label>
-                                                                        <Input
-                                                                            valid={areaNameState === "valid"}
-                                                                            invalid={areaNameState === "invalid"}
+                                                                        <label className="form-control-label">Mã hub </label>
+                                                                        <input className="form-control" type="search" id="example-search-input" value={hubModal.id} readOnly onChange={() => {}} />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-md-6">
+                                                                    <div className="form-group">
+                                                                        <label className="form-control-label">Tên hub </label>
+                                                                        <input
                                                                             className="form-control"
                                                                             type="search"
                                                                             id="example-search-input"
-                                                                            value={`${areaName}`}
+                                                                            value={`${hubName}`}
                                                                             onChange={(e) => {
-                                                                                setAreaName(e.target.value);
+                                                                                setHubName(e.target.value);
                                                                             }}
-                                                                        />{" "}
-                                                                        <div className="invalid-feedback">Tên khu vực không được để trống</div>
+                                                                        />
                                                                     </div>
                                                                 </div>
-
+                                                                <div className="col-md-6">
+                                                                    <div className="form-group">
+                                                                        <label className="form-control-label">Tòa nhà</label>
+                                                                        <Select
+                                                                            options={optionsBuilding}
+                                                                            placeholder="Tòa nhà"
+                                                                            styles={customStylesPayment}
+                                                                            value={building}
+                                                                            defaultValue={building}
+                                                                            onChange={(e) => {
+                                                                                console.log(e);
+                                                                                setBuilding(e);
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
                                                                 <div className="col-md-6">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Trạng Thái</label>
@@ -152,7 +175,7 @@ export const NewArea = ({ handleReload }) => {
                                         <Col className="text-md-right mb-3" lg="12" xs="5">
                                             <Button
                                                 onClick={() => {
-                                                    setOpenNewAreaModal(false);
+                                                    setOpenHubModal(false);
                                                 }}
                                                 // className="btn-neutral"
                                                 color="default"
@@ -180,7 +203,7 @@ export const NewArea = ({ handleReload }) => {
                                                     ) : (
                                                         <>
                                                             <i className="fa-solid fa-square-plus" style={{ fontSize: 18, color: "#fff" }}></i>
-                                                            <span style={{ color: "#fff" }}>Thêm mới</span>
+                                                            <span style={{ color: "#fff" }}>Chỉnh Sửa</span>
                                                         </>
                                                     )}
                                                 </div>

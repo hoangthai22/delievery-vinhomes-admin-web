@@ -6,7 +6,7 @@ import { putArea } from "../../apis/areaApiService";
 import { AppContext } from "../../context/AppProvider";
 import { notify } from "../Toast/ToastCustom";
 export const ClusterModal = ({ handleReload }) => {
-    const { openClusterModal, setOpenClusterModal, clusterModal, setClusterModal } = useContext(AppContext);
+    const { openClusterModal, setOpenClusterModal, clusterModal, setClusterModal, setAreaModal, areaModal } = useContext(AppContext);
     const [clusterName, setClusterName] = useState("");
     const [status, setStatus] = useState(0);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
@@ -19,21 +19,32 @@ export const ClusterModal = ({ handleReload }) => {
 
     const hanldeUpdate = () => {
         setIsLoadingCircle(true);
-        let area = { id: clusterModal.id, name: clusterName };
-        // putArea(area)
-        //     .then((res) => {
-        //         if (res.data) {
-        //             notify("Cập nhật thành công", "Success");
-        //             handleReload({ value: res.data.id, label: res.data.name });
-        //             setOpenAreaModal(false);
-        //             setIsLoadingCircle(false);
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         console.log(error);
-        //         setIsLoadingCircle(false);
-        //         notify("Đã xảy ra lỗi gì đó!!", "Error");
-        //     });
+
+        let newArea = areaModal.listCluster.map((item) => {
+            if (item.id === clusterModal.id) {
+                item.name = clusterName;
+                return { name: item.name };
+            } else {
+                return { name: item.name };
+            }
+        });
+        let area = areaModal;
+        area.listCluster = newArea;
+
+        putArea(area)
+            .then((res) => {
+                if (res.data) {
+                    notify("Cập nhật thành công", "Success");
+                    handleReload({ value: res.data.id, label: res.data.name });
+                    setOpenClusterModal(false);
+                    setIsLoadingCircle(false);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingCircle(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
     };
     const customStylesPayment = {
         control: (provided, state) => ({

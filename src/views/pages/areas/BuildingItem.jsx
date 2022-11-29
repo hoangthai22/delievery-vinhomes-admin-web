@@ -3,7 +3,7 @@ import { useHistory } from "react-router";
 import { NOT_FOUND_IMG } from "../../../constants";
 import { AppContext } from "../../../context/AppProvider";
 
-export const BuildingItem = ({ data, index, areaId, clusterId, clusterName }) => {
+export const BuildingItem = ({ data, index, areaId, clusterId }) => {
     const { setStoreCategoryModal, setOpenBuildingModal, setOpenDeleteModal, setBuildingModal } = useContext(AppContext);
     let history = useHistory();
     return (
@@ -36,7 +36,7 @@ export const BuildingItem = ({ data, index, areaId, clusterId, clusterName }) =>
                         className="fa-solid fa-pen-to-square mr-3 cusor"
                         style={{ fontSize: 22 }}
                         onClick={() => {
-                            setBuildingModal({ ...data, clusterId, clusterName });
+                            setBuildingModal({ ...data, clusterId });
                             // history.push(`/admin/area/${areaId}/clusters/${data.id}`);
                             setOpenBuildingModal(true);
                         }}

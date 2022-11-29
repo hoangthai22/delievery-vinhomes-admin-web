@@ -8,6 +8,7 @@ export const AppContext = React.createContext();
 
 export default function AppProvider({ children }) {
     const [openModal, setOpenModal] = useState(false);
+    const [isLoadingMain, setIsLoadingMain] = useState(false);
     const [openModalNewCateStore, setOpenModalNewCateStore] = useState(false);
     const [productModal, setProductModal] = useState({});
     const [storeModal, setStoreModal] = useState({});
@@ -27,6 +28,11 @@ export default function AppProvider({ children }) {
     const [openNewBuildingModal, setOpenNewBuildingModal] = useState(false);
     const [openBuildingModal, setOpenBuildingModal] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const [hubModal, setHubModal] = useState({});
+    const [openNewHubModal, setOpenNewHubModal] = useState(false);
+    const [openHubModal, setOpenHubModal] = useState(false);
+    // const [openDeleteHubModal, setOpenDeleteHubModal] = useState(false);
 
     const [deleteModal, setDeleteModal] = useState({});
     const [storeCategoryModal, setStoreCategoryModal] = useState({});
@@ -137,6 +143,14 @@ export default function AppProvider({ children }) {
                 setClusterModal,
                 openNewClusterModal,
                 setOpenNewClusterModal,
+                hubModal,
+                setHubModal,
+                openNewHubModal,
+                setOpenNewHubModal,
+                openHubModal,
+                setOpenHubModal,
+                isLoadingMain,
+                setIsLoadingMain,
             }}
         >
             {children}

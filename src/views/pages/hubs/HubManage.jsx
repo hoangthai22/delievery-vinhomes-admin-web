@@ -15,22 +15,21 @@
 
 */
 // reactstrap components
-import { debounce } from "lodash";
-import { useCallback, useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router";
-import { Button, Card, CardBody, CardHeader, Col, Container, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, Row, Spinner, Table } from "reactstrap";
-import { deleteCategory, getListCategorys, getListStoreCategorysByKey } from "../../../apis/categoryApiService";
-import { getListStoreByKey } from "../../../apis/storeApiService";
-import Lottie from "react-lottie";
-import animationData from "../../../assets/loading.json";
+import { useContext, useEffect, useState } from "react";
+import { useHistory, useLocation } from "react-router";
+import { Button, Card, CardBody, CardHeader, Col, Container, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, Row, Spinner, Table } from "reactstrap";
+import { deleteHub, getListHub } from "../../../apis/areaApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
-import { CategoryModal } from "../../../components/Modals/categoryModal";
+import { HubModal } from "../../../components/Modals/hubModal";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
-import { CategoryItem } from "./CategoryItem";
+import { HubItem } from "./HubItem";
+import { NewHub } from "./NewHub";
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 // core components
-function CategoryManage() {
-    const { storeCategoryModal, openDeleteModal, setOpenDeleteModal } = useContext(AppContext);
+function HubManage() {
+    const { storeCategoryModal, setOpenDeleteModal, openDeleteModal, setOpenNewHubModal } = useContext(AppContext);
     let history = useHistory();
     const defaultOptions = {
         loop: true,
@@ -40,61 +39,47 @@ function CategoryManage() {
             preserveAspectRatio: "xMidYMid slice",
         },
     };
-    const [categoryList, setCategoryList] = useState([]);
+    const [hubs, setHubs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
-    const [keyword, setKeyword] = useState("");
-    function fetchDropdownOptions(key) {
+    let location = useLocation();
+    const hanldeGetHub = () => {
         setIsLoading(true);
-        setCategoryList([]);
-        console.log(key);
-        if (key !== "") {
-            getListStoreCategorysByKey(key, 1, 100)
-                .then((res) => {
-                    const cate = res.data;
-                    console.log(cate);
-                    setTimeout(() => {
-                        setCategoryList(cate);
-                        setIsLoading(false);
-                    }, 1);
-                })
-                .catch((error) => console.log(error));
-        } else {
-            hanldeGetListCategorys();
-        }
-    }
-    const debounceDropDown = useCallback(
-        debounce((nextValue) => fetchDropdownOptions(nextValue), 1000),
-        []
-    );
-    function handleInputOnchange(e) {
-        const { value } = e.target;
-        setKeyword(value);
-        debounceDropDown(value);
-    }
-    const hanldeGetListCategorys = () => {
-        getListCategorys(1, 100).then((res) => {
-            const categorys = res.data;
-            setCategoryList(categorys);
-            setIsLoading(false);
-        });
+        setHubs([]);
+        getListHub(1, 100)
+            .then((res) => {
+                if (res.data) {
+                    const hubList = res.data;
+                    setHubs(hubList);
+                    setIsLoading(false);
+                } else {
+                    setHubs([]);
+                    setIsLoading(false);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoading(false);
+                setHubs([]);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
     };
     useEffect(() => {
-        setIsLoading(true);
-        setTimeout(() => {
-            hanldeGetListCategorys();
-        }, 1);
+        hanldeGetHub();
     }, []);
-    const hanldeDeleteCategory = (id) => {
+
+    const handleReload = () => {
+        hanldeGetHub();
+    };
+
+    const hanldeDeleteHub = (id) => {
         setIsLoadingCircle(true);
-        deleteCategory(id)
+        deleteHub(id)
             .then((res) => {
                 if (res.data) {
                     setIsLoading(false);
-                    notify("Xóa danh mục thành công", "Success");
-                    // let NewStoreCategory = storeCategoryList.filter((item) => item.name !== name);
-                    // setStoreCategoryList([...NewStoreCategory]);
-                    handleReload();
+                    notify("Xóa hub thành công", "Success");
+                    hanldeGetHub();
                     setOpenDeleteModal(false);
                     setIsLoadingCircle(false);
                 }
@@ -106,16 +91,13 @@ function CategoryManage() {
                 notify("Đã xảy ra lỗi gì đó!!", "Error");
             });
     };
-    const handleReload = () => {
-        setIsLoading(true);
-        hanldeGetListCategorys();
-    };
-
     return (
         <>
-            <CategoryModal handleReload={handleReload} />
+            <NewHub handleReload={handleReload} />
+            {/* <NewCluster handleReload={handleReload} /> */}
+            <HubModal handleReload={handleReload} />
             {/* <ProductModal openModal={openModal} handleReload={handleReload} /> */}
-            <SimpleHeader name="Danh Sách Danh Mục" parentName="Quản Lý" />
+            <SimpleHeader name="Danh sách Hub" parentName="Quản Lý" />
             <Modal
                 className="modal-dialog-centered"
                 size="sm"
@@ -133,7 +115,7 @@ function CategoryManage() {
                                         <h3>Bạn có chắc</h3>
                                         <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0px 0px 30px 0px" }} className="">
                                             <span className="mb-0">
-                                                Danh mục: <span style={{ fontWeight: 700 }}>{storeCategoryModal.name}</span> sẽ bị xóa!!!{" "}
+                                                Hub: <span style={{ fontWeight: 700 }}>{storeCategoryModal.name}</span> sẽ bị xóa!!!{" "}
                                             </span>
                                             <span className="mb-0">Bạn sẽ không thể hoàn nguyên hành động này </span>
                                         </div>
@@ -159,14 +141,13 @@ function CategoryManage() {
                                         <Button
                                             onClick={() => {
                                                 setIsLoadingCircle(true);
-                                                hanldeDeleteCategory(storeCategoryModal.id);
-                                                // hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.name);
+                                                hanldeDeleteHub(storeCategoryModal.id);
                                             }}
                                             className="btn-neutral"
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 1rem" }}
+                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
@@ -185,37 +166,36 @@ function CategoryManage() {
                     </Card>
                 </div>
             </Modal>
+
             <Container className="mt--6" fluid>
                 <Row>
                     <div className="col">
                         <Card>
                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "20px 0px" }} className="align-items-center">
-                                <CardHeader className="" style={{ padding: "0 0 0 20px" }}>
-                                    <div className="flex" style={{ alignItems: "center", gap: 20 }}>
-                                        <div className="mb-0">
-                                            <InputGroup className="input-group-lg input-group-flush" style={{ border: "1px solid #9e9e9e" }}>
-                                                <InputGroupAddon addonType="prepend">
-                                                    <InputGroupText style={{ padding: "0 15px" }}>
-                                                        <span className="fas fa-search" />
-                                                    </InputGroupText>
-                                                </InputGroupAddon>
-                                                <Input placeholder="Tìm kiếm bằng tên danh mục" type="search" onChange={handleInputOnchange} className="btn-lg" style={{ height: 46, width: 250 }} />
-                                            </InputGroup>
-                                        </div>
-                                    </div>
+                                <CardHeader className="" style={{ padding: "0 0 0 20px", borderBottom: "none" }}>
+                                    {" "}
+                                    <FormGroup className="mb-0">
+                                        <InputGroup className="input-group-lg input-group-flush" style={{ border: "1px solid #9e9e9e" }}>
+                                            <InputGroupAddon addonType="prepend">
+                                                <InputGroupText style={{ padding: "0 15px" }}>
+                                                    <span className="fas fa-search" />
+                                                </InputGroupText>
+                                            </InputGroupAddon>
+                                            <Input placeholder="Tìm kiếm bằng tên hub" type="search" className="btn-lg" style={{ height: 46, width: 250 }} />
+                                        </InputGroup>
+                                    </FormGroup>
                                 </CardHeader>
-
                                 <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">
                                     <Button
                                         onClick={() => {
-                                            history.push("/admin/category");
+                                            setOpenNewHubModal(true);
                                         }}
                                         className="btn-neutral"
                                         color="default"
                                         size="lg"
                                         style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, border: "1px solid var(--primary)" }}
                                     >
-                                        + Thêm Danh Mục Mới
+                                        + Thêm Hub Mới
                                     </Button>
                                 </Col>
                             </div>
@@ -229,14 +209,13 @@ function CategoryManage() {
                                                 STT
                                             </th>
                                             <th className="sort table-title" scope="col">
-                                                Hình ảnh
-                                            </th>
-
-                                            <th className="sort table-title" scope="col">
-                                                Tên danh mục
+                                                Mã hub
                                             </th>
                                             <th className="sort table-title" scope="col">
-                                                Mã danh mục
+                                                Tên hub
+                                            </th>
+                                            <th className="sort table-title" scope="col">
+                                                Tòa nhà
                                             </th>
                                             <th className="sort table-title" scope="col">
                                                 Trạng thái
@@ -247,19 +226,20 @@ function CategoryManage() {
                                         </tr>
                                     </thead>
                                     <tbody className="list">
-                                        {categoryList.map((item, index) => {
-                                            return <CategoryItem data={item} key={index} index={index} />;
-                                        })}
+                                        {hubs.length > 0 &&
+                                            hubs.map((item, index) => {
+                                                return <HubItem data={item} key={index} index={index} />;
+                                            })}
                                     </tbody>
                                 </Table>
                             )}
-                            {categoryList.length === 0 && !isLoading && (
+                            {hubs.length === 0 && !isLoading && (
                                 <>
                                     <div className="center_flex" style={{ padding: "50px 0 0 0" }}>
                                         <img src="/icons/empty.png" alt="" style={{ textAlign: "center", width: 300 }} />
                                     </div>
                                     <h1 className="description" style={{ fontSize: 18, textAlign: "center", padding: "20px 0 50px 0" }}>
-                                        Không có danh mục nào!!!
+                                        Không có tòa nhà nào!!!
                                     </h1>
                                 </>
                             )}
@@ -311,4 +291,4 @@ function CategoryManage() {
     );
 }
 
-export default CategoryManage;
+export default HubManage;
