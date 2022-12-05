@@ -1,7 +1,26 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import Select from "react-select";
-import { Button, Card, CardBody, CardTitle, Col, Container, Nav, NavItem, NavLink, Row, Spinner, TabContent, Table, TabPane } from "reactstrap";
+import {
+    Button,
+    Card,
+    CardBody,
+    CardTitle,
+    Col,
+    Container,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Nav,
+    NavItem,
+    NavLink,
+    Row,
+    Spinner,
+    TabContent,
+    Table,
+    TabPane,
+    UncontrolledDropdown,
+} from "reactstrap";
 import { getListMenuByMenuId, getListMenuByMode } from "../../../apis/menuApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { MenuUpdateModal } from "../../../components/Modals/menuUpdateModal";
@@ -226,15 +245,50 @@ export const Menus = () => {
                                                             href="#pablo"
                                                             onClick={(e) => {
                                                                 e.preventDefault();
-                                                                hanldeChangeMenu(item.id);
-                                                                convertTime(item.endTime);
+                                                                if (hTabsIcons !== item.id) {
+                                                                    hanldeChangeMenu(item.id);
+                                                                    convertTime(item.endTime);
+                                                                }
                                                             }}
-                                                            style={{ padding: "0px" }}
+                                                            style={{ padding: "0px", color: "white", display: "flex", alignItems: "center", gap: 10 }}
                                                         >
                                                             <div style={{ display: "flex", flexDirection: "column", position: "relative" }}>
                                                                 <span style={{}}>{item.name}</span>
                                                                 <span style={{ fontSize: 14, fontWeight: 500 }}>{"(" + convertTime(item.startTime) + " - " + convertTime(item.endTime) + ")"}</span>
                                                             </div>
+                                                            {hTabsIcons === item.id && (
+                                                                <UncontrolledDropdown>
+                                                                    <DropdownToggle
+                                                                        size="sm"
+                                                                        className="mr-0"
+                                                                        style={{ background: "var(--primary)", border: "none", boxShadow: "none", color: "#fff" }}
+                                                                    >
+                                                                        <i class="fa-solid fa-ellipsis-vertical" style={{ fontSize: 18 }}></i>
+                                                                    </DropdownToggle>
+                                                                    <DropdownMenu left>
+                                                                        <DropdownItem
+                                                                            href="#pablo"
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                // setAreaModal(areaSelected);
+                                                                                // console.log(areaSelected);
+                                                                                // setStoreCategoryModal(item);
+                                                                            }}
+                                                                        >
+                                                                            Chỉnh sửa
+                                                                        </DropdownItem>
+                                                                        <DropdownItem
+                                                                            href="#pablo"
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                // setStoreCategoryModal(item);
+                                                                            }}
+                                                                        >
+                                                                            Xóa
+                                                                        </DropdownItem>
+                                                                    </DropdownMenu>
+                                                                </UncontrolledDropdown>
+                                                            )}
                                                         </NavLink>
                                                     </NavItem>
                                                 ))}

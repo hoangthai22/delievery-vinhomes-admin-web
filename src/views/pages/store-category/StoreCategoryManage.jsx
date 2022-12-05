@@ -156,7 +156,7 @@ function StoreCategoryManage() {
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 1rem" }}
+                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
@@ -205,7 +205,7 @@ function StoreCategoryManage() {
                                         size="lg"
                                         style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, border: "1px solid var(--primary)" }}
                                     >
-                                        + Thêm Danh Mục Mới
+                                        + Thêm Loại Cửa Hàng Mới
                                     </Button>
                                 </Col>
                             </div>
@@ -216,9 +216,9 @@ function StoreCategoryManage() {
                                         <th className="sort table-title" scope="col">
                                             STT
                                         </th>
-                                        <th className="sort table-title" scope="col">
+                                        {/* <th className="sort table-title" scope="col">
                                             Mã loại cửa hàng
-                                        </th>
+                                        </th> */}
                                         <th className="sort table-title" scope="col">
                                             Tên loại cửa hàng
                                         </th>

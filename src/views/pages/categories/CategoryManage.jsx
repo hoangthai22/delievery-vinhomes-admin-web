@@ -15,11 +15,12 @@
 
 */
 // reactstrap components
+import ImageUploading from "react-images-uploading";
 import { debounce } from "lodash";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { Button, Card, CardBody, CardHeader, Col, Container, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, Row, Spinner, Table } from "reactstrap";
-import { deleteCategory, getListCategorys, getListStoreCategorysByKey } from "../../../apis/categoryApiService";
+import { deleteCategory, getListCategorys, getListStoreCategorysByKey, postCategory } from "../../../apis/categoryApiService";
 import { getListStoreByKey } from "../../../apis/storeApiService";
 import Lottie from "react-lottie";
 import animationData from "../../../assets/loading.json";
@@ -28,9 +29,10 @@ import { CategoryModal } from "../../../components/Modals/categoryModal";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 import { CategoryItem } from "./CategoryItem";
+import { getBase64Image } from "../../../constants";
 // core components
 function CategoryManage() {
-    const { storeCategoryModal, openDeleteModal, setOpenDeleteModal } = useContext(AppContext);
+    const { storeCategoryModal, openDeleteModal, setOpenDeleteModal, openCategoryModal, setOpenCategoryModal } = useContext(AppContext);
     let history = useHistory();
     const defaultOptions = {
         loop: true,
@@ -43,7 +45,66 @@ function CategoryManage() {
     const [categoryList, setCategoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
+    const [categoryName, setcategoryName] = useState("");
+    const [categoryNameState, setcategoryNameState] = useState("");
+    const [imageState, setimageState] = useState("");
     const [keyword, setKeyword] = useState("");
+    const [images, setImages] = useState([]);
+    const maxNumber = 69;
+    const onChange = (imageList, addUpdateIndex) => {
+        // data for submit
+        if (imageList.length > 0) {
+            setimageState("valid");
+        } else {
+            setimageState("invalid");
+        }
+        console.log(imageList.length);
+        setImages(imageList);
+    };
+    const validateCustomStylesForm = () => {
+        let valid = true;
+        if (categoryName === "") {
+            valid = false;
+            setcategoryNameState("invalid");
+        } else {
+            // valid = true;
+            setcategoryNameState("valid");
+        }
+        if (images.length === 0) {
+            valid = false;
+            setimageState("invalid");
+        } else {
+            // valid = true;
+            setimageState("valid");
+        }
+
+        return valid;
+    };
+    const hanldeSubmit = () => {
+        if (validateCustomStylesForm()) {
+            setIsLoadingCircle(true);
+            let cate = { name: categoryName, image: getBase64Image(images[0].data_url || "", images[0]?.file?.type) };
+            postCategory(cate)
+                .then((res) => {
+                    if (res.data) {
+                        console.log(res.data);
+                        setIsLoadingCircle(false);
+                        handleReload();
+                        setCategoryList([...categoryList, cate]);
+                        notify("Thêm danh mục thành công", "Success");
+                        setOpenCategoryModal(false);
+                        setImages([]);
+                        setcategoryName("");
+                        // history.push("/admin/categories");
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setIsLoadingCircle(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
+                });
+        }
+    };
     function fetchDropdownOptions(key) {
         setIsLoading(true);
         setCategoryList([]);
@@ -83,7 +144,7 @@ function CategoryManage() {
         setIsLoading(true);
         setTimeout(() => {
             hanldeGetListCategorys();
-        }, 1);
+        }, 100);
     }, []);
     const hanldeDeleteCategory = (id) => {
         setIsLoadingCircle(true);
@@ -116,6 +177,128 @@ function CategoryManage() {
             <CategoryModal handleReload={handleReload} />
             {/* <ProductModal openModal={openModal} handleReload={handleReload} /> */}
             <SimpleHeader name="Danh Sách Danh Mục" parentName="Quản Lý" />
+            <Row>
+                <Col md="4">
+                    <Modal
+                        className="modal-dialog-centered"
+                        size="md"
+                        isOpen={openCategoryModal}
+                        toggle={() => {
+                            setOpenCategoryModal(false);
+                            setImages([]);
+                            setcategoryName("");
+                        }}
+                    >
+                        <div className="modal-body p-0">
+                            <Card>
+                                <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "10px 0px" }} className="align-items-center">
+                                    <CardHeader className="border-0" style={{ padding: "1rem" }}>
+                                        <h2 className="mb-0">Hình ảnh</h2>
+                                    </CardHeader>
+                                </div>
+                                <div className="col-md-12">
+                                    <form>
+                                        <div className="row">
+                                            <div className="" id="dropzone-single" style={{ width: "100%", padding: "0 30px 30px 30px" }}>
+                                                <div className="" style={{ height: "100%" }}>
+                                                    <ImageUploading value={images} onChange={onChange} maxNumber={maxNumber} dataURLKey="data_url" acceptType={["jpg", "png", "jpeg"]}>
+                                                        {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
+                                                            // write your building UI
+                                                            <div className="upload-img" onClick={onImageUpload}>
+                                                                {images.length <= 0 && (
+                                                                    <span style={isDragging ? { color: "red" } : null} {...dragProps}>
+                                                                        Tải ảnh
+                                                                    </span>
+                                                                )}
+                                                                {imageList.map((image, index) => (
+                                                                    <div key={index} className="upload-img">
+                                                                        <img src={image.data_url} alt="" width="100" />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </ImageUploading>
+                                                    {imageState === "invalid" && (
+                                                        <div className="invalid" style={{ fontSize: "80%", color: "#fb6340", marginTop: "0.25rem" }}>
+                                                            Hình ảnh không được để trống
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div className="col-md-12">
+                                    <form>
+                                        <div className="row">
+                                            <div className="col-md-12">
+                                                <div className="form-group">
+                                                    <label className="form-control-label">Tên danh mục </label>
+                                                    <Input
+                                                        valid={categoryNameState === "valid"}
+                                                        invalid={categoryNameState === "invalid"}
+                                                        className="form-control"
+                                                        type="search"
+                                                        id="example-search-input"
+                                                        value={`${categoryName}`}
+                                                        onChange={(e) => {
+                                                            setcategoryName(e.target.value);
+                                                            if (e.target.value === "") {
+                                                                setcategoryNameState("invalid");
+                                                            } else {
+                                                                setcategoryNameState("valid");
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className="invalid-feedback">Tên danh mục không được để trống</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Col className="mt-3  text-md-right mb-4" lg="12" xs="5">
+                                            <Button
+                                                onClick={() => {
+                                                    history.push("/admin/categories");
+                                                }}
+                                                // className="btn-neutral"
+                                                color="default"
+                                                size="lg"
+                                                style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem", border: "none" }}
+                                            >
+                                                <div className="flex" style={{ alignItems: "center" }}>
+                                                    <i className="fa-solid fa-backward" style={{ fontSize: 18 }}></i>
+                                                    <span>Trở Về</span>
+                                                </div>
+                                            </Button>
+                                            <Button
+                                                onClick={() => {
+                                                    hanldeSubmit();
+                                                }}
+                                                className="btn-neutral"
+                                                color="default"
+                                                size="lg"
+                                                disabled={isLoadingCircle}
+                                                style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 2rem" }}
+                                            >
+                                                <div className="flex" style={{ alignItems: "center", width: 99, justifyContent: "center" }}>
+                                                    {isLoadingCircle ? (
+                                                        <Spinner style={{ color: "#fff", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                    ) : (
+                                                        <>
+                                                            <i className="fa-solid fa-square-plus" style={{ fontSize: 18, color: "#fff" }}></i>
+                                                            <span style={{ color: "#fff" }}>Thêm mới</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </Button>
+                                        </Col>
+                                    </form>
+                                </div>
+                            </Card>
+                        </div>
+                    </Modal>
+                </Col>
+            </Row>
             <Modal
                 className="modal-dialog-centered"
                 size="sm"
@@ -166,11 +349,11 @@ function CategoryManage() {
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 1rem" }}
+                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
-                                                    <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                    <Spinner style={{ color: "rgb(250,250,250)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
                                                 ) : (
                                                     <>
                                                         <span>Chắc chắn</span>
@@ -208,7 +391,8 @@ function CategoryManage() {
                                 <Col className="mt-3 mt-md-0 text-md-right" lg="6" xs="5">
                                     <Button
                                         onClick={() => {
-                                            history.push("/admin/category");
+                                            // history.push("/admin/category");
+                                            setOpenCategoryModal(true);
                                         }}
                                         className="btn-neutral"
                                         color="default"
@@ -235,9 +419,9 @@ function CategoryManage() {
                                             <th className="sort table-title" scope="col">
                                                 Tên danh mục
                                             </th>
-                                            <th className="sort table-title" scope="col">
+                                            {/* <th className="sort table-title" scope="col">
                                                 Mã danh mục
-                                            </th>
+                                            </th> */}
                                             <th className="sort table-title" scope="col">
                                                 Trạng thái
                                             </th>

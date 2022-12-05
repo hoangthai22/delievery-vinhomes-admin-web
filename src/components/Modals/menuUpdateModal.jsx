@@ -13,6 +13,7 @@ export const MenuUpdateModal = ({ handleReload }) => {
     const { openModal, setOpenModal, categoryList, menu, mode } = useContext(AppContext);
     const [menuName, setmenuName] = useState("");
     const [menuNameState, setmenuNameState] = useState("");
+    const [dayFilter, setDayFilter] = useState("");
     const [Mode, setMode] = useState("");
     const [ModeState, setModeState] = useState("");
     const [openTime, setopenTime] = useState("");
@@ -21,6 +22,8 @@ export const MenuUpdateModal = ({ handleReload }) => {
     const [closeTimeState, setCloseTimeState] = useState("");
     const [Category, setCategory] = useState("");
     const [CategoryState, setCategoryState] = useState("");
+    const [priorityState, setPriorityState] = useState("");
+    const [priority, setPriority] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     let history = useHistory();
@@ -36,6 +39,7 @@ export const MenuUpdateModal = ({ handleReload }) => {
                         setopenTime(menu.startHour);
                         setcloseTime(menu.endHour);
                         setmenuName(menu.name);
+                        setDayFilter(menu.dayFilter);
                         setMode({
                             label: getModeName(mode),
                             value: mode,
@@ -75,7 +79,7 @@ export const MenuUpdateModal = ({ handleReload }) => {
             name: menuName,
             startDate: null,
             endDate: null,
-            dayFilter: null,
+            dayFilter: dayFilter,
             hourFilter: null,
             startHour: parseFloat(openTime),
             endHour: parseFloat(closeTime),
@@ -220,7 +224,7 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                                                         )}
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-6">
+                                                                <div className="col-md-4">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">
                                                                             Giờ bắt đầu <span style={{ color: "red" }}>*</span>
@@ -239,7 +243,7 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                                                         <div className="invalid-feedback">Giờ bắt đầu không được để trống</div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-6">
+                                                                <div className="col-md-4">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">
                                                                             Giờ kết thúc <span style={{ color: "red" }}>*</span>
@@ -256,6 +260,25 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                                                             }}
                                                                         />
                                                                         <div className="invalid-feedback">Giờ kết thúc không được để trống</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-md-4">
+                                                                    <div className="form-group">
+                                                                        <label className="form-control-label">
+                                                                            Độ ưu tiên <span style={{ color: "red" }}>*</span>
+                                                                        </label>
+                                                                        <Input
+                                                                            valid={priorityState === "valid"}
+                                                                            invalid={priorityState === "invalid"}
+                                                                            className="form-control"
+                                                                            type="number"
+                                                                            id="example-search-input"
+                                                                            value={`${priority}`}
+                                                                            onChange={(e) => {
+                                                                                setPriority(e.target.value);
+                                                                            }}
+                                                                        />
+                                                                        <div className="invalid-feedback">Độ ưu tiên không được để trống</div>
                                                                     </div>
                                                                 </div>
 

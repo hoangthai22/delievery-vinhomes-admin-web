@@ -17,43 +17,25 @@
 // reactstrap components
 import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardFooter,
-    CardHeader,
-    Col,
-    Container,
-    Form,
-    FormGroup,
-    Input,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    Pagination,
-    PaginationItem,
-    PaginationLink,
-    Row,
-    Spinner,
-    Table,
-} from "reactstrap";
+import { Button, Card, CardBody, CardHeader, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, Row, Spinner, Table } from "reactstrap";
 import { getListShipper } from "../../../apis/shiperApiService";
 
+import Lottie from "react-lottie";
+import animationData from "../../../assets/loading.json";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { ShipperModal } from "../../../components/Modals/shipperModal";
 import { notify } from "../../../components/Toast/ToastCustom";
 import { AppContext } from "../../../context/AppProvider";
 import { DriverItem } from "./DriverItem";
-import Lottie from "react-lottie";
-import animationData from "../../../assets/loading.json";
 // core components
 function DriverManage() {
-    const { openModal, categoryList } = useContext(AppContext);
+    const { openModal, openDeleteModal, storeCategoryModal, setOpenDeleteModal } = useContext(AppContext);
     let history = useHistory();
 
     const [driverList, setDriverList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingCircle, setIsLoadingCircle] = useState(false);
+
     const defaultOptions = {
         loop: true,
         autoplay: true,
@@ -103,11 +85,79 @@ function DriverManage() {
             margin: "5px",
         }),
     };
-
+    const hanldeDeleteStoreCate = () => {};
     return (
         <>
             <ShipperModal openModal={openModal} handleReload={handleReload} />
             <SimpleHeader name="Danh Sách Tài Xế" parentName="Quản Lý" />
+            <Modal
+                className="modal-dialog-centered"
+                size="sm"
+                isOpen={openDeleteModal}
+                toggle={() => {
+                    setOpenDeleteModal(false);
+                }}
+            >
+                <div className="modal-body p-0">
+                    <Card className="bg-secondary border-0 mb-0">
+                        <div className="" style={{ paddingTop: 0 }}>
+                            <Container className="" fluid style={{ padding: "1.5rem 1.5rem 1rem 1.5rem " }}>
+                                <Row>
+                                    <div className="col-lg-12 ">
+                                        <h3>Bạn có chắc</h3>
+                                        <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0px 0px 30px 0px" }} className="">
+                                            <span className="mb-0">
+                                                Tài xế: <span style={{ fontWeight: 700 }}>{storeCategoryModal.fullName}</span> sẽ bị xóa!!!{" "}
+                                            </span>
+                                            <span className="mb-0">Bạn sẽ không thể hoàn nguyên hành động này </span>
+                                        </div>
+                                        <div className="col-md-12"></div>
+                                    </div>
+                                </Row>
+                                <Col className="text-md-right mb-3" lg="12" xs="5">
+                                    <Row style={{ justifyContent: "flex-end" }}>
+                                        {" "}
+                                        <Button
+                                            onClick={() => {
+                                                setOpenDeleteModal(false);
+                                            }}
+                                            // className="btn-neutral"
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem", border: "none" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                <span>Đóng</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                // setIsLoadingCircle(true);
+                                                hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.fullName);
+                                            }}
+                                            className="btn-neutral"
+                                            disabled={isLoadingCircle}
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                {isLoadingCircle ? (
+                                                    <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                ) : (
+                                                    <>
+                                                        <span>Chắc chắn</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </Row>
+                                </Col>
+                            </Container>
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
             <Container className="mt--6" fluid>
                 <Row>
                     <div className="col">

@@ -115,11 +115,11 @@ export const DeleteModal = ({ handleReload }) => {
                                                     disabled={isLoadingCircle}
                                                     color="default"
                                                     size="lg"
-                                                    style={{ background: "var(--primary)", color: "#000", padding: "0.875rem 1rem" }}
+                                                    style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
                                                 >
                                                     <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                         {isLoadingCircle ? (
-                                                            <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                            <Spinner style={{ color: "rgb(250,250,250)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
                                                         ) : (
                                                             <>
                                                                 <span>Chắc chắn</span>

@@ -21,6 +21,8 @@ export const NewMenu = () => {
     const [CategoryState, setCategoryState] = useState("");
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const [storeCategoryState, setStoreCategoryState] = useState("");
+    const [priorityState, setPriorityState] = useState("");
+    const [priority, setPriority] = useState("");
     const [images, setImages] = React.useState([]);
     const [imageState, setImageState] = React.useState("");
     const maxNumber = 69;
@@ -134,6 +136,13 @@ export const NewMenu = () => {
         } else {
             // valid = true;
             setModeState("valid");
+        }
+        if (priority === "") {
+            valid = false;
+            setPriorityState("invalid");
+        } else {
+            // valid = true;
+            setPriorityState("valid");
         }
 
         return valid;
@@ -289,7 +298,7 @@ export const NewMenu = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="col-md-6">
+                                        <div className="col-md-4">
                                             <div className="form-group">
                                                 <label className="form-control-label">
                                                     Giờ bắt đầu <span style={{ color: "red" }}>*</span>
@@ -308,7 +317,7 @@ export const NewMenu = () => {
                                                 <div className="invalid-feedback">Giờ bắt đầu không được để trống</div>
                                             </div>
                                         </div>
-                                        <div className="col-md-6">
+                                        <div className="col-md-4">
                                             <div className="form-group">
                                                 <label className="form-control-label">
                                                     Giờ kết thúc <span style={{ color: "red" }}>*</span>
@@ -325,6 +334,25 @@ export const NewMenu = () => {
                                                     }}
                                                 />
                                                 <div className="invalid-feedback">Giờ kết thúc không được để trống</div>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-4">
+                                            <div className="form-group">
+                                                <label className="form-control-label">
+                                                    Độ ưu tiên <span style={{ color: "red" }}>*</span>
+                                                </label>
+                                                <Input
+                                                    valid={priorityState === "valid"}
+                                                    invalid={priorityState === "invalid"}
+                                                    className="form-control"
+                                                    type="number"
+                                                    id="example-search-input"
+                                                    value={`${priority}`}
+                                                    onChange={(e) => {
+                                                        setPriority(e.target.value);
+                                                    }}
+                                                />
+                                                <div className="invalid-feedback">Độ ưu tiên không được để trống</div>
                                             </div>
                                         </div>
 

@@ -9,7 +9,7 @@ export const StoreCategoryItem = ({ data, index }) => {
             <tr>
                 <td className="budget table-text-product bold">{index + 1}</td>
 
-                <td className="budget table-text-product bold">{data.id}</td>
+                {/* <td className="budget table-text-product bold">{data.id}</td> */}
                 <td className="budget table-text-product bold">{data.name}</td>
 
                 {/* <td>

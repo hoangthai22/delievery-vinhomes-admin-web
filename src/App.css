@@ -199,10 +199,10 @@ body {
     background-color: var(--primary) !important;
 }
 .menu-active span {
-    color: #000 !important;
+    color: #fff !important;
 }
 .menu-active h5 {
-    color: rgba(50, 50, 50, 1) !important;
+    color: rgba(240, 240, 240, 1) !important;
 }
 .menu-icon {
     width: 4.5rem !important;
@@ -236,7 +236,7 @@ body {
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
     background-color: var(--primary) !important;
-    color: #000 !important;
+    color: #fff !important;
     font-size: 1rem;
     font-weight: 700 !important;
 }
@@ -244,7 +244,7 @@ body {
     /* border: 1px solid var(--primary); */
     box-shadow: unset !important;
     font-size: 1rem !important;
-    padding: 0.3rem 1.5rem !important;
+    padding: 0.3rem 1rem 0.3rem 1.5rem !important;
     font-weight: 600 !important;
 }
 .modal-content {
@@ -469,7 +469,7 @@ input[type="checkbox"]:checked ~ .indicator::after {
 .loading-spin-done {
     opacity: 0;
     pointer-events: none;
-    transition: 0.7s all;
+    transition: 0.7s all !important;
     -webkit-transition: 0.7s all;
     -moz-transition: 0.7s all;
     /* width: 0px;

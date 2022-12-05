@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router";
-import { Button, Card, CardBody, CardHeader, Col, Container, Input, Row } from "reactstrap";
+import { Button, Card, CardBody, CardHeader, Col, Container, Input, Row, Spinner } from "reactstrap";
 import { getOrderDetail } from "../../../apis/orderApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { getModeName, getTimeConvert } from "../../../constants";
@@ -382,6 +382,43 @@ const OrderDetail = () => {
                                 </form>
                             </div>
                         </Card>
+                        <Col className="mt-3  text-md-right mb-4" lg="12" xs="5">
+                            <Button
+                                onClick={() => {
+                                    history.push("/admin/orders");
+                                }}
+                                // className="btn-neutral"
+                                color="default"
+                                size="lg"
+                                style={{ background: "#fff", color: "#000", padding: "0.875rem 2rem", border: "none" }}
+                            >
+                                <div className="flex" style={{ alignItems: "center" }}>
+                                    <i className="fa-solid fa-backward" style={{ fontSize: 18 }}></i>
+                                    <span>Trở Về</span>
+                                </div>
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    // handleSubmit();
+                                }}
+                                className="btn-neutral"
+                                color="default"
+                                size="lg"
+                                disabled={isLoadingCircle}
+                                style={{ background: "red", color: "#000", padding: "0.875rem 1rem" }}
+                            >
+                                <div className="flex" style={{ alignItems: "center", width: 130, justifyContent: "center" }}>
+                                    {isLoadingCircle ? (
+                                        <Spinner style={{ color: "#fff", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                    ) : (
+                                        <>
+                                            <i className="fa-regular fa-rectangle-xmark" style={{ fontSize: 18, color: "#fff" }}></i>
+                                            <span style={{ color: "#fff" }}>Hủy đơn hàng</span>
+                                        </>
+                                    )}
+                                </div>
+                            </Button>
+                        </Col>
                     </div>
                 </Row>
             </Container>

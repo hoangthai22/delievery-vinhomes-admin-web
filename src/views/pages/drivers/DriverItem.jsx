@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { AppContext } from "../../../context/AppProvider";
 
 export const DriverItem = ({ data, index }) => {
-    const { setShipperModal, setOpenModal } = useContext(AppContext);
+    const { setShipperModal, setOpenModal, setStoreCategoryModal, setOpenDeleteModal } = useContext(AppContext);
     return (
         <>
             <tr>
@@ -39,7 +39,15 @@ export const DriverItem = ({ data, index }) => {
                             setOpenModal(true);
                         }}
                     ></i>
-                    <i className="fa-regular fa-trash-can mr-3 cusor" style={{ fontSize: 22 }}></i>
+                    <i
+                        className="fa-regular fa-trash-can mr-3 cusor"
+                        onClick={() => {
+                            setStoreCategoryModal(data);
+                            console.log(data);
+                            setOpenDeleteModal(true);
+                        }}
+                        style={{ fontSize: 22, color: "red" }}
+                    ></i>
                 </td>
             </tr>
         </>
