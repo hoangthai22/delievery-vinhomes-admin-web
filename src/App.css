@@ -259,11 +259,20 @@ body {
     color: #000 !important;
     /* */
 }
-.ReactDatetime > input {
+.ReactDatetime-order > input {
     border: 1px solid #9e9e9e !important;
     font-size: 17px !important;
     width: 200px;
     height: calc(1.5em + 1.25rem + 0px) !important;
+}
+.ReactDatetime-order > input::placeholder {
+    color: #525f7f;
+}
+.ReactDatetime > input {
+    border: 1px solid #9e9e9e !important;
+    font-size: 17px !important;
+    width: 180px;
+    height: calc(1.5em + 1.45rem + 0px) !important;
 }
 .ReactDatetime > input::placeholder {
     color: #525f7f;
@@ -465,6 +474,9 @@ input[type="checkbox"]:checked ~ .indicator::after {
     -moz-transition: 0.8s all; */
     opacity: 1;
     z-index: 1;
+}
+.rdtDay {
+    border-radius: 5px !important;
 }
 .loading-spin-done {
     opacity: 0;

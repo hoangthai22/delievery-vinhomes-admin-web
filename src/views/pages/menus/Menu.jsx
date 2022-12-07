@@ -470,7 +470,7 @@ export const Menus = () => {
                                             )}
                                             {isLoading && (
                                                 <CardBody className="loading-wrapper center_flex">
-                                                    <Lottie options={defaultOptions} height={400} width={400} />
+                                                    <Lottie options={defaultOptions} height={350} width={350} />
                                                 </CardBody>
                                             )}
                                         </div>

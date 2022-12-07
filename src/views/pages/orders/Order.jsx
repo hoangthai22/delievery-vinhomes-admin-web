@@ -196,9 +196,11 @@ export const Order = () => {
                                             inputProps={{
                                                 placeholder: "Lọc theo ngày",
                                             }}
-                                            className="ReactDatetime"
+                                            className="ReactDatetime-order"
                                             style={{ border: "none" }}
                                             timeFormat={false}
+                                            locale="vi"
+                                            closeOnSelect={true}
                                             onChange={(e) => {
                                                 let date = new Date(e._d + "");
                                                 moment.locale("en");
@@ -387,7 +389,7 @@ export const Order = () => {
 
                             {isLoading && (
                                 <CardBody className=" center_flex" style={{ zIndex: 1, position: "absolute", top: 0, left: 0, bottom: 0, right: 0, background: "#fff", padding: "330px 0 300px 0" }}>
-                                    <Lottie options={defaultOptions} height={400} width={400} />
+                                    <Lottie options={defaultOptions} height={350} width={350} />
                                 </CardBody>
                             )}
                             {orders.length > 0 && (

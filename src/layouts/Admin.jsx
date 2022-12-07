@@ -86,8 +86,8 @@ function Admin() {
             <div className="main-content" ref={mainContentRef}>
                 <AdminNavbar theme={getNavbarTheme()} toggleSidenav={toggleSidenav} sidenavOpen={sidenavOpen} brandText={getBrandText(location.pathname)} />
                 {isLoadingMain && (
-                    <CardBody className="loading-wrapper center_flex" style={{ position: "absolute", zIndex: 99, background: "rgb(250,250,250)", width: "100%", height: "95%", opacity: 0.8 }}>
-                        <Lottie options={defaultOptions} height={400} width={400} />
+                    <CardBody className="loading-wrapper center_flex" style={{ position: "absolute", zIndex: 99, background: "rgb(250,250,250)", width: "100%", height: "95%", opacity: 1 }}>
+                        <Lottie options={defaultOptions} height={350} width={350} />
                     </CardBody>
                 )}
                 <Switch>

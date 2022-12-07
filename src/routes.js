@@ -22,6 +22,7 @@ import DriverManage from "./views/pages/drivers/DriverManage.jsx";
 import HubManage from "./views/pages/hubs/HubManage.jsx";
 import { Menus } from "./views/pages/menus/Menu.jsx";
 import { Order } from "./views/pages/orders/Order.jsx";
+import StatisticManage from "./views/pages/statistics/StatisticManage.jsx";
 import StoreCategoryManage from "./views/pages/store-category/StoreCategoryManage.jsx";
 import { StoreManage } from "./views/pages/stores/StoreManage.jsx";
 
@@ -61,6 +62,7 @@ const routes = [
         layout: "/admin",
         type: 2,
     },
+
     // {
     //     path: "/orderstest",
     //     name: "Đơn Hàng test",
@@ -75,6 +77,14 @@ const routes = [
         icon: "fa-solid fa-user-tie",
         component: DriverManage,
         layout: "/admin",
+    },
+    {
+        path: "/statistical",
+        name: "Thống kê",
+        icon: "fa-solid fa-calendar-days",
+        component: StatisticManage,
+        layout: "/admin",
+        // type: 2,
     },
     {
         path: "/categories",

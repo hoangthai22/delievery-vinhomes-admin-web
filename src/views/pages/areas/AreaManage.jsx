@@ -563,7 +563,7 @@ function AreaManage() {
                             )}
                             {isLoading && (
                                 <CardBody className=" center_flex">
-                                    <Lottie options={defaultOptions} height={400} width={400} />
+                                    <Lottie options={defaultOptions} height={350} width={350} />
                                 </CardBody>
                             )}
                             {/* {!isLoading && driverList.length > 0 && (
