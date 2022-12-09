@@ -75,29 +75,26 @@ function Dashboard() {
                     setCountOrderPaymentFail(report.totalOrderUnpaidVNpay);
                 }
             })
-            .catch((error) => {
-                console.log(error);
-                notify("Đã xảy ra lỗi gì đó!!", "Error");
-            });
-        getOrderReportPrice(day)
-            .then((res) => {
-                if (res.data) {
-                    let report = res.data;
-
-                    setTimeout(() => {
-                        setTotalOrder(report.totalOrder);
-                        setTotalShipFree(report.totalShipFree);
-                        setTotalPaymentVNPay(report.totalPaymentVNPay);
-                        setTotalPaymentCash(report.totalPaymentCash);
-                        setTotalSurcharge(report.totalSurcharge);
-                        setTotalRevenueOrder(report.totalRevenueOrder);
-                        setTotalProfitOrder(report.totalProfitOrder);
-                        setIsLoadingMain(false);
-                    }, 1000);
-                }
+            .then((e) => {
+                getOrderReportPrice(day).then((res) => {
+                    if (res.data) {
+                        let report = res.data;
+                        setTimeout(() => {
+                            setTotalOrder(report.totalOrder);
+                            setTotalShipFree(report.totalShipFree);
+                            setTotalPaymentVNPay(report.totalPaymentVNPay);
+                            setTotalPaymentCash(report.totalPaymentCash);
+                            setTotalSurcharge(report.totalSurcharge);
+                            setTotalRevenueOrder(report.totalRevenueOrder);
+                            setTotalProfitOrder(report.totalProfitOrder);
+                            setIsLoadingMain(false);
+                        }, 1000);
+                    }
+                });
             })
             .catch((error) => {
                 console.log(error);
+                setIsLoadingMain(false);
                 notify("Đã xảy ra lỗi gì đó!!", "Error");
             });
     };
