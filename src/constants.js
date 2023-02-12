@@ -1,5 +1,7 @@
 import moment from "moment";
-
+export const REFUND_WALLET = 1;
+export const DEBIT_WALLET = 2;
+export const COMMISSION_WALLET = 3;
 export const NOT_FOUND_IMG = "/images/notfound.webp";
 export const getBase64Image = (url, type) => {
     //image/png
@@ -119,14 +121,15 @@ export const statusTypeOptions = [
         value: "Hủy do hết thời gian đợi",
         class: "status-cancel",
     },
+
     {
         id: 11,
-        value: "Tài xế hủy",
+        value: "Cửa hàng hủy",
         class: "status-cancel",
     },
     {
         id: 12,
-        value: "Cửa hàng hủy",
+        value: "Tài xế hủy",
         class: "status-cancel",
     },
     {
@@ -193,12 +196,12 @@ export const statusType = [
     },
     {
         id: 11,
-        value: "Tài xế hủy",
+        value: "Cửa hàng hủy",
         class: "status-cancel",
     },
     {
         id: 12,
-        value: "Cửa hàng hủy",
+        value: "Tài xế hủy",
         class: "status-cancel",
     },
     {
@@ -239,3 +242,23 @@ export const getPaymentStatusName = (payment) => {
             return "---";
     }
 };
+
+export const listCancelOrderMessage = [
+    { id: 1, message: "Người nhận không nghe máy" },
+    { id: 3, message: "Sai số điện thoại" },
+    { id: 4, message: "Người nhận hẹn lại ngày giao" },
+    { id: 5, message: "Người nhận hẹn giao lại trong ngày" },
+    { id: 6, message: "Người nhận đổi địa chỉ giao hàng" },
+    { id: 7, message: "Hàng hóa không như yêu cầu" },
+    { id: 8, message: "Sai tiền thu hộ COD" },
+    { id: 9, message: "Người nhận đổi ý" },
+    { id: 10, message: "Không được kiểm/thử hàng" },
+    { id: 11, message: "Người nhận không đặt hàng, đơn trùng" },
+    { id: 12, message: "Hàng hóa hư hỏng" },
+    { id: 13, message: "Hàng hóa thất lạc" },
+    { id: 14, message: "Người nhận không đủ tiền thanh toán" },
+    { id: 15, message: "Bất đồng ngoại ngữ" },
+    { id: 16, message: "Cửa hàng hết món" },
+    { id: 17, message: "Cửa hàng đã đóng cửa" },
+    { id: 18, message: "Khác" },
+];

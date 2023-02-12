@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { AppContext } from "../../../context/AppProvider";
 
-export const DriverItem = ({ data, index }) => {
+export const DriverItem = ({ data, index, setOpenDisableModal }) => {
     const { setShipperModal, setOpenModal, setStoreCategoryModal, setOpenDeleteModal } = useContext(AppContext);
     return (
         <>
@@ -37,6 +37,14 @@ export const DriverItem = ({ data, index }) => {
                         onClick={() => {
                             setShipperModal(data);
                             setOpenModal(true);
+                        }}
+                    ></i>
+                    <i
+                        className={`fa-solid fa-solid ${data.status ? "fa-ban" : "fa-arrow-rotate-left"} mr-3 cusor`}
+                        style={{ fontSize: 22 }}
+                        onClick={() => {
+                            setStoreCategoryModal(data);
+                            setOpenDisableModal(true);
                         }}
                     ></i>
                     <i

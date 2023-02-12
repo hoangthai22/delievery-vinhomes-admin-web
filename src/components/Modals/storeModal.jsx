@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Select from "react-select";
-import { Button, Card, CardBody, CardHeader, Col, Container, Input, Modal, Row, Spinner } from "reactstrap";
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Input, Modal, Row, Spinner } from "reactstrap";
 import { getListBrands, getStoreDetail, putStore } from "../../apis/storeApiService";
 import { AppContext } from "../../context/AppProvider";
 import ImageUploading from "react-images-uploading";
@@ -16,6 +16,7 @@ export const StoreModal = ({ handleReload }) => {
     const [building, setBuilding] = useState("");
     const [buildingState, setBuildingState] = useState("");
     const [account, setAccount] = useState("");
+    const [creditAccount, setCreditAccount] = useState("");
     const [status, setStatus] = useState(0);
     const [brand, setBrand] = useState("");
     const [openTime, setOpenTime] = useState("");
@@ -28,7 +29,9 @@ export const StoreModal = ({ handleReload }) => {
     const [imgUpdate, setImgUpdate] = useState(false);
     const [description, setDescription] = useState("");
     const [brandState, setBrandState] = useState("");
-    const [userName, setUserName] = useState("");
+    const [commissionRate, setCommissionRate] = useState("");
+    const [commissionRateState, setCommissionRateState] = useState("");
+    const [commission, setCommission] = useState(0);
     const [password, setPassword] = useState("");
     const [storeCategoryState, setStoreCategoryState] = useState("");
     // const [brand, setBrand] = useState("");
@@ -81,6 +84,13 @@ export const StoreModal = ({ handleReload }) => {
             // valid = true;
             setBuildingState("valid");
         }
+        if (commissionRate === "") {
+            valid = false;
+            setCommissionRateState("invalid");
+        } else {
+            // valid = true;
+            setCommissionRateState("valid");
+        }
 
         return valid;
     };
@@ -97,13 +107,16 @@ export const StoreModal = ({ handleReload }) => {
             getStoreDetail(storeModal.id)
                 .then((res) => {
                     if (res.data) {
-                        console.log(res.data);
                         const store = res.data;
+                        console.log(store.creditAccount);
                         setOpenTime(store.openTime);
                         setCloseTime(store.closeTime);
                         setSlogan(store.slogan);
                         setPassword(store.account.password);
                         setImages(store.image);
+                        setCommissionRate(store.commissionRate);
+                        setCreditAccount(store.creditAccount || "");
+                        setCommission(store.amount || 0);
                         setDescription(store.description !== null ? store.description : "");
                         setStatus({ label: store.status ? "Hoạt động" : "Ngừng hoạt động", value: store.status ? true : false });
                         setIsLoading(false);
@@ -137,6 +150,7 @@ export const StoreModal = ({ handleReload }) => {
                 storeCategoryId: storeCategory.value,
                 slogan: slogan,
                 phone: phone,
+                commissionRate: commissionRate,
                 status: status.value,
                 description: description,
                 password: password,
@@ -145,13 +159,17 @@ export const StoreModal = ({ handleReload }) => {
             putStore(store, storeModal.id, imgUpdate)
                 .then((res) => {
                     if (res.data) {
-                        setIsLoadingCircle(false);
-                        handleReload();
-                        notify("Cập nhật thành công", "Success");
-                        setOpenModal(false);
-                        setStoreModal({});
-                        setImages([]);
-                        setImgUpdate(false);
+                        if (res.data.message === "Successful") {
+                            setIsLoadingCircle(false);
+                            handleReload();
+                            notify("Cập nhật thành công", "Success");
+                            setOpenModal(false);
+                            setStoreModal({});
+                            setImages([]);
+                            setImgUpdate(false);
+                        } else {
+                            notify(res.data.message, "Error");
+                        }
                     }
                 })
                 .catch((error) => {
@@ -215,6 +233,12 @@ export const StoreModal = ({ handleReload }) => {
                             setImages([]);
                             setOpenModal(false);
                             setImgUpdate(false);
+                            setimageState("");
+                            setStoreCategoryState("");
+                            setCommissionRateState("");
+                            setBrandState("");
+                            setBuildingState("");
+                            setStoreNameState("");
                         }}
                     >
                         <div className="modal-body p-0">
@@ -272,11 +296,35 @@ export const StoreModal = ({ handleReload }) => {
                                                                                 </div>
                                                                             )}
                                                                         </ImageUploading>
+                                                                        {imageState === "invalid" && (
+                                                                            <div className="invalid" style={{ textAlign: "center", fontSize: "80%", color: "#fb6340", marginTop: "0.25rem" }}>
+                                                                                Hình ảnh không được để trống
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </form>
                                                     </div>
+                                                </Card>
+                                                <Card className="card-stats" style={{ padding: "1.5rem 0.5rem" }}>
+                                                    <CardBody>
+                                                        <Row>
+                                                            <div className="col">
+                                                                <CardTitle tag="h5" className="text-uppercase text-muted mb-0" style={{ fontSize: "0.8rem", paddingBottom: "5px" }}>
+                                                                    Hoa hồng Cần Hoàn Lại ({commissionRate}%)
+                                                                </CardTitle>
+                                                                <span className="h2 font-weight-bold mb-0" style={{ fontSize: "1.5rem" }}>
+                                                                    {commission.toLocaleString()}
+                                                                </span>
+                                                            </div>
+                                                            <Col className="col-auto">
+                                                                <div className="icon icon-shape bg-gradient-orange text-white rounded-circle shadow" style={{ width: 45, height: 45 }}>
+                                                                    <i className="fa-solid fa-wallet" style={{ fontSize: 20 }} />
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
+                                                    </CardBody>
                                                 </Card>
                                             </div>
                                             <div className="col-lg-8 modal-product">
@@ -406,15 +454,29 @@ export const StoreModal = ({ handleReload }) => {
                                                                             className="form-control"
                                                                             type="search"
                                                                             id="example-search-input"
-                                                                            value={`${account}`}
+                                                                            value={`${creditAccount}`}
                                                                             onChange={(e) => {
-                                                                                setAccount(e.target.value);
+                                                                                setCreditAccount(e.target.value);
                                                                             }}
                                                                         />
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-4">
-                                                                    {" "}
+                                                                <div className="col-md-3">
+                                                                    <label className="form-control-label">Tỷ lệ hoa hồng (%)</label>
+                                                                    <Input
+                                                                        valid={commissionRateState === "valid"}
+                                                                        invalid={commissionRateState === "invalid"}
+                                                                        className="form-control"
+                                                                        type="number"
+                                                                        id="example-search-input"
+                                                                        value={`${commissionRate}`}
+                                                                        onChange={(e) => {
+                                                                            setCommissionRate(e.target.value);
+                                                                        }}
+                                                                    />
+                                                                    <div className="invalid-feedback">Tỷ lệ hoa hồng không được để trống</div>
+                                                                </div>
+                                                                <div className="col-md-3">
                                                                     <label className="form-control-label">Giờ mở cửa </label>
                                                                     <Input
                                                                         className="form-control"
@@ -426,7 +488,7 @@ export const StoreModal = ({ handleReload }) => {
                                                                         }}
                                                                     />
                                                                 </div>
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-3">
                                                                     <div className="form-group">
                                                                         <div className="form-group">
                                                                             <label className="form-control-label">Giờ đóng cửa </label>
@@ -442,7 +504,7 @@ export const StoreModal = ({ handleReload }) => {
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-3">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Trạng Thái</label>
                                                                         <Select

@@ -16,19 +16,17 @@
 */
 import React, { useContext, useEffect, useState } from "react";
 // node.js library that concatenates classes (strings)
-// javascipt plugin for creating charts
-import { Chart } from "chart.js";
 // react plugin used to create charts
 // reactstrap components
-import { Card, CardBody, Container, Row, Spinner } from "reactstrap";
+import { Card, Container, Row } from "reactstrap";
 
 // core components
 // import CardsHeader from "../../../components/Headers/CardsHeader.js";
-import Select from "react-select";
-import CardsHeader from "../../../components/Headers/CardsHeader.js";
-import { getOrderReport, getOrderReportPrice } from "../../../apis/orderApiService.js";
-import { notify } from "../../../components/Toast/ToastCustom.js";
 import moment from "moment";
+import Select from "react-select";
+import { getOrderReport, getOrderReportPrice } from "../../../apis/orderApiService.js";
+import CardsHeader from "../../../components/Headers/CardsHeader.js";
+import { notify } from "../../../components/Toast/ToastCustom.js";
 import { AppContext } from "../../../context/AppProvider.jsx";
 
 function Dashboard() {
@@ -52,43 +50,49 @@ function Dashboard() {
     const [totalRevenueOrder, setTotalRevenueOrder] = React.useState(0);
     const [totalProfitOrder, setTotalProfitOrder] = React.useState(0);
     const [Date, setDate] = useState({
-        label: "Tất cả",
-        value: 1,
+        label: "Tháng này",
+        value: 2,
     });
     const toggleNavs = (e, index) => {
         e.preventDefault();
         setActiveNav(index);
         setChartExample1Data(chartExample1Data === "data1" ? "data2" : "data1");
     };
-    const hanldeGetReport = (day) => {
+    const hanldeGetReport = (day, month, year) => {
         setIsLoadingMain(true);
-        getOrderReport(day)
+        getOrderReport(day, month, year)
             .then((res) => {
                 if (res.data) {
                     let report = res.data;
-                    setCountStore(report.totalStore);
-                    setCountOrder(report.totalOrder);
-                    setCountShipper(report.totalShipper);
-                    setCountOrderDone(report.totalOrderCompleted);
-                    setCountOrderFail(report.totalOrderCancel);
-                    setCountOrderNew(report.totalOrderNew);
-                    setCountOrderPaymentFail(report.totalOrderUnpaidVNpay);
+                    setCountStore(report.totalStore || 0);
+                    setCountOrder(report.totalOrder || 0);
+                    setCountShipper(report.totalShipper || 0);
+                    setCountOrderDone(report.totalOrderCompleted || 0);
+                    setCountOrderFail(report.totalOrderCancel || 0);
+                    setCountOrderNew(report.totalOrderNew || 0);
+                    setCountOrderPaymentFail(report.totalOrderUnpaidVNpay || 0);
+                } else {
+                    setIsLoadingMain(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .then((e) => {
-                getOrderReportPrice(day).then((res) => {
+                getOrderReportPrice(day, month, year).then((res) => {
                     if (res.data) {
-                        let report = res.data;
+                        let report = res.data.data;
+                        console.log(report);
                         setTimeout(() => {
-                            setTotalOrder(report.totalOrder);
-                            setTotalShipFree(report.totalShipFree);
-                            setTotalPaymentVNPay(report.totalPaymentVNPay);
-                            setTotalPaymentCash(report.totalPaymentCash);
-                            setTotalSurcharge(report.totalSurcharge);
-                            setTotalRevenueOrder(report.totalRevenueOrder);
-                            setTotalProfitOrder(report.totalProfitOrder);
+                            setTotalOrder(report.totalOrder || 0);
+                            setTotalShipFree(report.totalShipFree || 0);
+                            setTotalPaymentVNPay(report.totalPaymentVNPay || 0);
+                            setTotalPaymentCash(report.totalPaymentCash || 0);
+                            setTotalSurcharge(report.totalSurcharge || 0);
+                            setTotalRevenueOrder(report.totalRevenueOrder || 0);
+                            setTotalProfitOrder(report.totalProfitOrder || 0);
                             setIsLoadingMain(false);
                         }, 1000);
+                    } else {
+                        setIsLoadingMain(false);
                     }
                 });
             })
@@ -99,20 +103,27 @@ function Dashboard() {
             });
     };
     useEffect(() => {
-        hanldeGetReport(dayFilter);
+        moment.locale("en");
+        hanldeGetReport("", moment().format("MM"), moment().format("YYYY"));
 
-        return () => {};
+        return () => {
+            setIsLoadingMain(false);
+        };
     }, []);
 
     const options = () => {
         return [
             {
-                label: "Tất cả",
+                label: "Hôm nay",
                 value: 1,
             },
             {
-                label: "Hôm nay",
+                label: "Tháng này",
                 value: 2,
+            },
+            {
+                label: "Tháng trước",
+                value: 3,
             },
         ];
     };
@@ -147,15 +158,13 @@ function Dashboard() {
                         value={Date}
                         onChange={(e) => {
                             setDate(e);
+                            moment.locale("en");
                             if (e.value === 1) {
-                                hanldeGetReport("");
+                                hanldeGetReport(moment().format("l"), "", "");
+                            } else if (e.value === 2) {
+                                hanldeGetReport("", moment().format("MM"), moment().format("YYYY"));
                             } else {
-                                let date = "";
-                                moment.locale("en");
-                                let dateConvert = moment().format("ll");
-                                date = dateConvert.split(",")[0] + dateConvert.split(",")[1];
-                                console.log(date);
-                                hanldeGetReport(date);
+                                hanldeGetReport("", moment().subtract(1, "month").format("MM"), moment().format("YYYY"));
                             }
                         }}
                     />
@@ -218,11 +227,11 @@ function Dashboard() {
                                             </div>
 
                                             <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 20px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng thu hộ tài khoản (1)</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Phí đơn thanh toán trước (1)</span>
                                                 <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{totalPaymentVNPay.toLocaleString()}</span>
                                             </div>
                                             <div style={{ display: "flex", justifyContent: "space-between", padding: "0px 10px 20px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng thu hộ tiền mặt (2)</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Phí đơn tiền mặt (2)</span>
                                                 <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{totalPaymentCash.toLocaleString()}</span>
                                             </div>
 
@@ -244,7 +253,7 @@ function Dashboard() {
                                                 <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{totalRevenueOrder.toLocaleString()}</span>
                                             </div>
                                             <div style={{ display: "flex", justifyContent: "space-between", padding: "20px 10px 20px 10px" }}>
-                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng thu hộ</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng phí đơn</span>
                                                 <span style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{totalOrder.toLocaleString()}</span>
                                             </div>
                                             <div
@@ -257,7 +266,7 @@ function Dashboard() {
                                                     padding: "5px 10px",
                                                 }}
                                             >
-                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng lợi nhuận</span>
+                                                <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Tổng lợi nhuận (20% Phí ship) + (20% Tổng phí đơn)</span>
                                                 <span style={{ color: "#fff", fontSize: 22, fontWeight: 600 }}>{totalProfitOrder.toLocaleString()}</span>
                                             </div>
                                         </div>

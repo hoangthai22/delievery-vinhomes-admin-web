@@ -11,6 +11,7 @@ import { AppContext } from "../../../context/AppProvider";
 import { StoreItem } from "./StoreItem";
 import Lottie from "react-lottie";
 import animationData from "../../../assets/loading.json";
+import { notify } from "../../../components/Toast/ToastCustom";
 export const StoreManage = () => {
     const { buildingList, storeCategoryList, brandList } = useContext(AppContext);
     const [storeCategory, setStoreCategory] = useState("");
@@ -23,53 +24,97 @@ export const StoreManage = () => {
         buildingFilter: "",
         storeCateFilter: "",
         brandFilter: "",
+        keyFilter: "",
     });
-    function fetchDropdownOptions(key) {
+    function fetchDropdownOptions(key, filterValue) {
         setIsLoading(true);
         setStoreLists([]);
+        let buildingFilter = "";
+        let storeCateFilter = "";
+        let brandFilter = "";
+        buildingFilter = filterValue.buildingFilter;
+        storeCateFilter = filterValue.storeCateFilter;
+        brandFilter = filterValue.brandFilter;
+        setFilter({ ...filterValue, keyFilter: key });
+
         if (key !== "") {
-            getListStoreByKey(key, 1, 100)
+            // getListStoreByKey(key, 1, 100)
+            //     .then((res) => {
+            //         const stores = res.data;
+            //         setTimeout(() => {
+            //             setStoreLists(stores);
+            //             setIsLoading(false);
+            //         }, 1);
+            //     })
+            //     .catch((error) => console.log(error));
+            getListStores(key, buildingFilter === "Tất cả" ? "" : buildingFilter, storeCateFilter === "Tất cả" ? "" : storeCateFilter, brandFilter === "Tất cả" ? "" : brandFilter, 1, 100)
                 .then((res) => {
-                    const stores = res.data;
-                    setTimeout(() => {
-                        setStoreLists(stores);
+                    if (res.data) {
+                        const stores = res.data;
+                        setTimeout(() => {
+                            setStoreLists(stores);
+                            setIsLoading(false);
+                        }, 1);
+                    } else {
                         setIsLoading(false);
-                    }, 1);
+                    }
                 })
-                .catch((error) => console.log(error));
+                .catch((error) => {
+                    console.log(error);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
+                    setStoreLists([]);
+                    setIsLoading(false);
+                });
         } else {
             hanldeGetListStore("", "", "");
         }
     }
     const debounceDropDown = useCallback(
-        debounce((nextValue) => fetchDropdownOptions(nextValue), 1000),
+        debounce((nextValue, filterValue) => fetchDropdownOptions(nextValue, filterValue), 500),
         []
     );
     function handleInputOnchange(e) {
         const { value } = e.target;
         setKeyword(value);
-        debounceDropDown(value);
+        debounceDropDown(value, filter);
     }
     let history = useHistory();
-    const hanldeGetListStore = (building, storeCate, brand) => {
+    const hanldeGetListStore = (key, building, storeCate, brand) => {
         let buildingFilter = "";
         let storeCateFilter = "";
         let brandFilter = "";
+        let keyFilter = "";
         buildingFilter = building;
         storeCateFilter = storeCate;
         brandFilter = brand;
+        keyFilter = key;
         setIsLoading(true);
         setStoreLists([]);
-        getListStores("", buildingFilter === "Tất cả" ? "" : buildingFilter, storeCateFilter === "Tất cả" ? "" : storeCateFilter, brandFilter === "Tất cả" ? "" : brandFilter, 1, 100)
+        getListStores(
+            keyFilter === "" ? "" : keyFilter,
+            buildingFilter === "Tất cả" ? "" : buildingFilter,
+            storeCateFilter === "Tất cả" ? "" : storeCateFilter,
+            brandFilter === "Tất cả" ? "" : brandFilter,
+            1,
+            100
+        )
             .then((res) => {
-                const stores = res.data;
-                console.log(stores);
-                setTimeout(() => {
-                    setStoreLists(stores);
+                if (res.data) {
+                    const stores = res.data;
+                    setTimeout(() => {
+                        setStoreLists(stores);
+                        setIsLoading(false);
+                    }, 1);
+                } else {
                     setIsLoading(false);
-                }, 1);
+                }
             })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                console.log(error);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+                setStoreLists([]);
+                setIsLoading(false);
+            });
     };
     const customStylesPayment = {
         control: (provided, state) => ({
@@ -114,11 +159,11 @@ export const StoreManage = () => {
         }),
     };
     useEffect(() => {
-        hanldeGetListStore("", "", "");
+        hanldeGetListStore("", "", "", "");
     }, []);
 
     const handleReload = () => {
-        hanldeGetListStore("", "", "");
+        hanldeGetListStore("", "", "", "");
     };
     const optionsBuilding = () => {
         let newList;
@@ -174,8 +219,8 @@ export const StoreManage = () => {
             <Container className="mt--6" fluid>
                 <Row>
                     <div className="col">
-                        <Card>
-                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "20px 0px" }} className="align-items-center">
+                        <Card style={{ paddingBottom: 15 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "20px 0px", zIndex: 2 }} className="align-items-center">
                                 <CardHeader className="" style={{ padding: "0 0 0 20px" }}>
                                     <div
                                         className="flex"
@@ -202,7 +247,7 @@ export const StoreManage = () => {
                                             onChange={(e) => {
                                                 setBuilding(e);
                                                 setFilter({ ...filter, buildingFilter: e.label });
-                                                hanldeGetListStore(e.label, filter.storeCateFilter, filter.brandFilter);
+                                                hanldeGetListStore(filter.keyFilter, e.label, filter.storeCateFilter, filter.brandFilter);
                                             }}
                                         />
                                         <Select
@@ -213,7 +258,7 @@ export const StoreManage = () => {
                                             onChange={(e) => {
                                                 setStoreCategory(e);
                                                 setFilter({ ...filter, storeCateFilter: e.label });
-                                                hanldeGetListStore(filter.buildingFilter, e.label, filter.brandFilter);
+                                                hanldeGetListStore(filter.keyFilter, filter.buildingFilter, e.label, filter.brandFilter);
                                             }}
                                         />
                                         <Select
@@ -224,7 +269,7 @@ export const StoreManage = () => {
                                             onChange={(e) => {
                                                 setBrand(e);
                                                 setFilter({ ...filter, brandFilter: e.label });
-                                                hanldeGetListStore(filter.buildingFilter, filter.storeCateFilter, e.label);
+                                                hanldeGetListStore(filter.keyFilter, filter.buildingFilter, filter.storeCateFilter, e.label);
                                             }}
                                         />
                                         {/* <Dropdown isOpen={dropdownOpen} toggle={toggle}>
@@ -264,7 +309,7 @@ export const StoreManage = () => {
                                     </Button>
                                 </Col>
                             </div>
-                            <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                            <Table className="align-items-center table-flush" responsive hover={true}>
                                 <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
                                 <thead className="thead-light">
                                     <tr>
@@ -280,21 +325,24 @@ export const StoreManage = () => {
                                         <th className="sort table-title" scope="col">
                                             Số Điện Thoại
                                         </th>
-                                        <th className="sort table-title" scope="col">
-                                            Số Tài Khoản
-                                        </th>
+
                                         <th className="sort table-title" scope="col">
                                             Building
                                         </th>
                                         <th className="sort table-title" scope="col">
                                             Loại Của Hàng
                                         </th>
-
+                                        <th className="sort table-title" scope="col">
+                                            Tỷ Lệ Hoa Hồng
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hoa hồng
+                                        </th>
                                         <th className="sort table-title" scope="col">
                                             Trạng Thái
                                         </th>
                                         <th className="sort table-title" scope="col">
-                                            Hành động
+                                            {/* Hành động */}
                                         </th>
                                         {/* <th scope="col">Users</th>
                                         <th className="sort" data-sort="completion" scope="col">
@@ -320,7 +368,7 @@ export const StoreManage = () => {
                                 </>
                             )}
                             {isLoading && (
-                                <CardBody className=" center_flex">
+                                <CardBody className=" center_flex" style={{ zIndex: 1, position: "absolute", top: 0, left: 0, bottom: 0, right: 0, background: "#fff", padding: "330px 0 300px 0" }}>
                                     <Lottie options={defaultOptions} height={350} width={350} />
                                 </CardBody>
                             )}

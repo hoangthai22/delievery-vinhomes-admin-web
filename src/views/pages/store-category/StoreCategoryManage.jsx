@@ -45,11 +45,22 @@ function StoreCategoryManage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const hanldeGetListCategorys = () => {
-        getListStoreCategorys(1, 100).then((res) => {
-            const categorys = res.data;
-            setCategoryList(categorys);
-            setIsLoading(false);
-        });
+        getListStoreCategorys(1, 100)
+            .then((res) => {
+                if (res.data) {
+                    const categorys = res.data;
+                    setCategoryList(categorys);
+                    setIsLoading(false);
+                } else {
+                    setIsLoading(false);
+                    setCategoryList([]);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoading(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
     };
     useEffect(() => {
         setIsLoading(true);
@@ -92,6 +103,10 @@ function StoreCategoryManage() {
                     handleReload();
                     setOpenDeleteModal(false);
                     setIsLoadingCircle(false);
+                } else {
+                    setIsLoadingCircle(false);
+                    setIsLoading(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {
@@ -152,11 +167,11 @@ function StoreCategoryManage() {
                                                 // setIsLoadingCircle(true);
                                                 hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.name);
                                             }}
-                                            className="btn-neutral"
+                                            className="btn-cancel"
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
@@ -223,6 +238,9 @@ function StoreCategoryManage() {
                                             Tên loại cửa hàng
                                         </th>
                                         <th className="sort table-title" scope="col">
+                                            Chiết khấu
+                                        </th>
+                                        <th className="sort table-title" scope="col">
                                             Trạng thái
                                         </th>
                                         <th className="sort table-title" scope="col">
@@ -231,9 +249,10 @@ function StoreCategoryManage() {
                                     </tr>
                                 </thead>
                                 <tbody className="list">
-                                    {categoryList.map((item, index) => {
-                                        return <StoreCategoryItem data={item} key={index} index={index} />;
-                                    })}
+                                    {categoryList.length > 0 &&
+                                        categoryList.map((item, index) => {
+                                            return <StoreCategoryItem data={item} key={index} index={index} />;
+                                        })}
                                 </tbody>
                             </Table>
                             {categoryList.length === 0 && !isLoading && (

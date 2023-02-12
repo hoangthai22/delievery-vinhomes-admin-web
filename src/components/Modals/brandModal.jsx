@@ -49,6 +49,10 @@ export const BrandModal = ({ handleReload }) => {
                     handleReload();
                     setOpenModal(false);
                     setIsLoadingCircle(false);
+                } else {
+                    setIsLoading(false);
+                    setIsLoadingCircle(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {

@@ -247,11 +247,11 @@ function BuildingManage() {
                                                 setIsLoadingCircle(true);
                                                 hanldeDeleteBuilding(storeCategoryModal.id);
                                             }}
-                                            className="btn-neutral"
+                                            className="btn-cancel"
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
@@ -491,36 +491,35 @@ function BuildingManage() {
                                     </Button>
                                 </Col>
                             </div>
-                            {!isLoading && (
-                                <Table className="align-items-center table-flush" responsive hover={true}>
-                                    <thead className="thead-light">
-                                        <tr>
-                                            <th className="sort table-title" scope="col">
-                                                STT
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Mã tòa nhà
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Tên tòa nhà
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Trạng thái
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Hành động
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="list" style={{ position: "relative" }}>
-                                        <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
-                                        {buildings.length > 0 &&
-                                            buildings.map((item, index) => {
-                                                return <BuildingItem data={item} key={index} index={index} clusterId={clusterSelected} />;
-                                            })}
-                                    </tbody>
-                                </Table>
-                            )}
+
+                            <Table className="align-items-center table-flush" responsive hover={true}>
+                                <thead className="thead-light">
+                                    <tr>
+                                        <th className="sort table-title" scope="col">
+                                            STT
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Mã tòa nhà
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Tên tòa nhà
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Trạng thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hành động
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="list" style={{ position: "relative" }}>
+                                    <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
+                                    {buildings.length > 0 &&
+                                        buildings.map((item, index) => {
+                                            return <BuildingItem data={item} key={index} index={index} clusterId={clusterSelected} />;
+                                        })}
+                                </tbody>
+                            </Table>
 
                             {buildings.length === 0 && !isLoading && (
                                 <>

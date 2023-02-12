@@ -178,6 +178,8 @@ export const NewDriver = () => {
                                     setIsLoadingCircle(false);
                                     notify("Thêm mới thành công", "Success");
                                     history.push("/admin/drivers");
+                                } else {
+                                    setIsLoadingCircle(false);
                                 }
                             })
                             .catch((error) => {

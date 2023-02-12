@@ -46,10 +46,15 @@ export const DeleteModal = ({ handleReload }) => {
                                     notify("Xóa cửa hàng thành công", "Success");
                                     handleReload();
                                 });
+                            } else {
+                                setIsLoadingCircle(false);
+                                notify("Đã xảy ra lỗi gì đó!!", "Error");
                             }
                         })
                         .catch((error) => {
                             console.log(error);
+                            setIsLoadingCircle(false);
+                            notify("Đã xảy ra lỗi gì đó!!", "Error");
                         });
                 }
             })
@@ -111,11 +116,11 @@ export const DeleteModal = ({ handleReload }) => {
                                                             deleteUser(deleteModal.data.id, password);
                                                         }
                                                     }}
-                                                    className="btn-neutral"
+                                                    className="btn-cancel"
                                                     disabled={isLoadingCircle}
                                                     color="default"
                                                     size="lg"
-                                                    style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
+                                                    style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
                                                 >
                                                     <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                         {isLoadingCircle ? (

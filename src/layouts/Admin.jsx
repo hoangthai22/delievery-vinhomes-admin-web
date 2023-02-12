@@ -17,6 +17,7 @@ import { NewStore } from "../views/pages/stores/NewStore.jsx";
 import routes from "./../routes.js";
 import Lottie from "react-lottie";
 import animationData from "../assets/loading.json";
+import { ViewStore } from "../views/pages/stores/ViewStore.jsx";
 // import logo from "../../public/images/loading.gif";
 function Admin() {
     const { isLoadingMain } = useContext(AppContext);
@@ -92,7 +93,8 @@ function Admin() {
                 )}
                 <Switch>
                     {getRoutes(routes)}
-                    <Route path="/admin/store" render={() => <NewStore />} />
+                    <Route path="/admin/store" exact render={() => <NewStore />} />
+                    <Route path="/admin/store/:id" exact render={() => <ViewStore />} />
                     <Route path="/admin/category" render={() => <NewCategory />} />
                     <Route path="/admin/menu" render={() => <NewMenu />} />
                     <Route path="/admin/driver" render={() => <NewDriver />} />

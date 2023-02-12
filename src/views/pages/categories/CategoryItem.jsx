@@ -9,7 +9,7 @@ export const CategoryItem = ({ data, index }) => {
             <tr>
                 <td className="budget table-text-product bold">{index + 1}</td>
                 <td className="budget table-text-product bold">
-                    <div style={{ width: 50, height: 50, borderRadius: "5%", overflow: "hidden", margin: "20px 0" }}>
+                    <div style={{ width: 40, height: 40, borderRadius: "5%", overflow: "hidden", margin: "15px 0" }}>
                         <img src={data.image || NOT_FOUND_IMG} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                     </div>
                 </td>

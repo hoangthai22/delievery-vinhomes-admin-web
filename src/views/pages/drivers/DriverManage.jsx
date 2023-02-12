@@ -18,7 +18,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { Button, Card, CardBody, CardHeader, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, Row, Spinner, Table } from "reactstrap";
-import { getListShipper } from "../../../apis/shiperApiService";
+import { deleteShipper, disableShipper, getListShipper } from "../../../apis/shiperApiService";
 
 import Lottie from "react-lottie";
 import animationData from "../../../assets/loading.json";
@@ -35,6 +35,7 @@ function DriverManage() {
     const [driverList, setDriverList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
+    const [openDisableModal, setOpenDisableModal] = useState(false);
 
     const defaultOptions = {
         loop: true,
@@ -46,6 +47,7 @@ function DriverManage() {
     };
     const hanldeGetListDriver = () => {
         setIsLoading(true);
+        setDriverList([]);
         getListShipper(1, 100)
             .then((res) => {
                 if (res.data) {
@@ -53,6 +55,9 @@ function DriverManage() {
                         setDriverList(res.data);
                         setIsLoading(false);
                     }, 300);
+                } else {
+                    setIsLoading(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {
@@ -85,7 +90,36 @@ function DriverManage() {
             margin: "5px",
         }),
     };
-    const hanldeDeleteStoreCate = () => {};
+    const hanldeDeleteDriver = (id) => {
+        setIsLoadingCircle(true);
+        deleteShipper(id)
+            .then((res) => {
+                setIsLoadingCircle(false);
+                setOpenDeleteModal(false);
+                handleReload();
+                notify("Xóa tài xế thành công.", "Success");
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingCircle(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+    };
+    const hanldeDisableDriver = (data) => {
+        setIsLoadingCircle(true);
+        disableShipper({ id: data.id, status: !data.status })
+            .then((res) => {
+                setIsLoadingCircle(false);
+                setOpenDisableModal(false);
+                handleReload();
+                notify("Cập nhật tài xế thành công.", "Success");
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingCircle(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+            });
+    };
     return (
         <>
             <ShipperModal openModal={openModal} handleReload={handleReload} />
@@ -116,7 +150,6 @@ function DriverManage() {
                                 </Row>
                                 <Col className="text-md-right mb-3" lg="12" xs="5">
                                     <Row style={{ justifyContent: "flex-end" }}>
-                                        {" "}
                                         <Button
                                             onClick={() => {
                                                 setOpenDeleteModal(false);
@@ -133,13 +166,81 @@ function DriverManage() {
                                         <Button
                                             onClick={() => {
                                                 // setIsLoadingCircle(true);
-                                                hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.fullName);
+                                                hanldeDeleteDriver(storeCategoryModal.id);
                                             }}
-                                            className="btn-neutral"
+                                            className="btn-cancel"
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                {isLoadingCircle ? (
+                                                    <Spinner style={{ color: "rgb(100,100,100)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                ) : (
+                                                    <>
+                                                        <span>Chắc chắn</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </Row>
+                                </Col>
+                            </Container>
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
+            <Modal
+                className="modal-dialog-centered"
+                size="sm"
+                isOpen={openDisableModal}
+                toggle={() => {
+                    setOpenDisableModal(false);
+                }}
+            >
+                <div className="modal-body p-0">
+                    <Card className="bg-secondary border-0 mb-0">
+                        <div className="" style={{ paddingTop: 0 }}>
+                            <Container className="" fluid style={{ padding: "1.5rem 1.5rem 1rem 1.5rem " }}>
+                                <Row>
+                                    <div className="col-lg-12 ">
+                                        <h3>Bạn có chắc</h3>
+                                        <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0px 0px 30px 0px" }} className="">
+                                            <span className="mb-0">
+                                                Tài xế: <span style={{ fontWeight: 700 }}>{storeCategoryModal.fullName}</span> sẽ {storeCategoryModal.status ? "ngừng hoạt động" : "trở lại hoạt động"}!{" "}
+                                            </span>
+                                            <span className="mb-0">Bạn sẽ không thể hoàn nguyên hành động này </span>
+                                        </div>
+                                        <div className="col-md-12"></div>
+                                    </div>
+                                </Row>
+                                <Col className="text-md-right mb-3" lg="12" xs="5">
+                                    <Row style={{ justifyContent: "flex-end" }}>
+                                        {" "}
+                                        <Button
+                                            onClick={() => {
+                                                setOpenDisableModal(false);
+                                            }}
+                                            // className="btn-neutral"
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem", border: "none" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                <span>Đóng</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                // setIsLoadingCircle(true);
+                                                hanldeDisableDriver(storeCategoryModal);
+                                            }}
+                                            className="btn-cancel"
+                                            disabled={isLoadingCircle}
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
@@ -215,44 +316,44 @@ function DriverManage() {
                                 </Col>
                             </div>
 
-                            {!isLoading && (
-                                <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
-                                    <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
-                                    <thead className="thead-light">
-                                        <tr>
-                                            <th className="sort table-title" scope="col">
-                                                STT
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Tên đăng nhập
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Họ & tên
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Số điện thoại
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Đội giao hàng
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Loại phương tiện
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Trạng thái
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Hành động
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="list">
-                                        {driverList.map((item, index) => {
-                                            return <DriverItem data={item} key={index} index={index} />;
+                            <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                                <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
+                                <thead className="thead-light">
+                                    <tr>
+                                        <th className="sort table-title" scope="col">
+                                            STT
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Tên đăng nhập
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Họ & tên
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Số điện thoại
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Đội giao hàng
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Loại phương tiện
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Trạng thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hành động
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="list">
+                                    {driverList.length > 0 &&
+                                        driverList.map((item, index) => {
+                                            return <DriverItem data={item} key={index} index={index} setOpenDisableModal={setOpenDisableModal} />;
                                         })}
-                                    </tbody>
-                                </Table>
-                            )}
+                                </tbody>
+                            </Table>
+
                             {driverList.length === 0 && !isLoading && (
                                 <>
                                     <div className="center_flex" style={{ padding: "50px 0 0 0" }}>

@@ -1,62 +1,88 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import Select from "react-select";
-import { Button, Card, CardBody, CardHeader, Col, Container, Modal, Row, Spinner } from "reactstrap";
-import { putCategory, putStoreCategory } from "../../apis/categoryApiService";
+import { Button, Card, CardBody, CardHeader, Col, Container, Input, Modal, Row, Spinner } from "reactstrap";
+import { putStoreCategory } from "../../apis/categoryApiService";
 import { AppContext } from "../../context/AppProvider";
-import ImageUploading from "react-images-uploading";
 import { notify } from "../Toast/ToastCustom";
-import { getBase64Image } from "../../constants";
 export const StorestoreCategoryModal = ({ handleReload }) => {
     const { openModal, setOpenModal, storeCategoryModal } = useContext(AppContext);
     const [categoryName, setcategoryName] = useState("");
+    const [categoryNameState, setcategoryNameState] = useState("");
+    const [discount, setDiscount] = useState("");
+    const [discountState, setDiscountState] = useState("");
     const [categoryId, setcategoryId] = useState("");
     const [imageState, setimageState] = useState("");
+    const [defaultCommissionRate, setDefaultCommissionRate] = useState("");
+    const [defaultCommissionRateState, setDefaultCommissionRateState] = useState("");
     const [status, setStatus] = useState(0);
     const [images, setImages] = React.useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     let history = useHistory();
-    const maxNumber = 69;
-    const onChange = (imageList, addUpdateIndex) => {
-        // data for submit
-        if (imageList.length > 0) {
-            setimageState("valid");
+
+    const validateCustomStylesForm = () => {
+        let valid = true;
+        if (categoryName === "") {
+            valid = false;
+            setcategoryNameState("invalid");
         } else {
-            setimageState("invalid");
+            // valid = true;
+            setcategoryNameState("valid");
         }
-        console.log(imageList);
-        setImages(imageList);
+        if (categoryName === "") {
+            valid = false;
+            setcategoryNameState("invalid");
+        } else {
+            // valid = true;
+            setcategoryNameState("valid");
+        }
+        if (defaultCommissionRate === "") {
+            valid = false;
+            setDefaultCommissionRateState("invalid");
+        } else {
+            // valid = true;
+            setDefaultCommissionRateState("valid");
+        }
+
+        return valid;
     };
     useEffect(() => {
         console.log(storeCategoryModal);
         setcategoryName(storeCategoryModal.name);
         setcategoryId(storeCategoryModal.id);
+        setDefaultCommissionRate(storeCategoryModal.defaultCommissionRate);
 
         setStatus({ label: "Hoạt động", value: 0 });
     }, [storeCategoryModal]);
 
     const hanldeUpdate = () => {
-        setIsLoadingCircle(true);
-        let categoryUpdate = { id: categoryId, name: categoryName, status: status.label, storeName: "", storeId: "", storeImage: "" };
-        console.log({ categoryUpdate });
-        putStoreCategory(categoryUpdate)
-            .then((res) => {
-                if (res.data) {
+        if (validateCustomStylesForm()) {
+            setIsLoadingCircle(true);
+            let categoryUpdate = { id: categoryId, name: categoryName, status: status.label, storeName: "", storeId: "", storeImage: "", defaultCommissionRate };
+            console.log({ categoryUpdate });
+            putStoreCategory(categoryUpdate)
+                .then((res) => {
+                    if (res.data) {
+                        setIsLoading(false);
+                        notify("Cập nhật thành công", "Success");
+                        history.push("/admin/categorieStore");
+                        handleReload();
+                        setOpenModal(false);
+                        setIsLoadingCircle(false);
+                    } else {
+                        setIsLoading(false);
+                        setIsLoadingCircle(false);
+                        notify("Đã xảy ra lỗi gì đó!!", "Error");
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
                     setIsLoading(false);
-                    notify("Cập nhật thành công", "Success");
-                    history.push("/admin/categorieStore");
-                    handleReload();
-                    setOpenModal(false);
                     setIsLoadingCircle(false);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                setIsLoading(false);
-                setIsLoadingCircle(false);
-                notify("Đã xảy ra lỗi gì đó!!", "Error");
-            });
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
+                });
+        }
     };
     const customStylesPayment = {
         control: (provided, state) => ({
@@ -110,7 +136,7 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                                                     <div className="col-md-12">
                                                         <form>
                                                             <div className="row">
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-6">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Mã loại cửa hàng </label>
                                                                         <input
@@ -123,10 +149,12 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                                                                         />
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-6">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Tên loại cửa hàng </label>
-                                                                        <input
+                                                                        <Input
+                                                                            valid={categoryNameState === "valid"}
+                                                                            invalid={categoryNameState === "invalid"}
                                                                             className="form-control"
                                                                             type="search"
                                                                             id="example-search-input"
@@ -135,10 +163,28 @@ export const StorestoreCategoryModal = ({ handleReload }) => {
                                                                                 setcategoryName(e.target.value);
                                                                             }}
                                                                         />
+                                                                        <div className="invalid-feedback">Tên loại cửa hàng không được để trống</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-md-6">
+                                                                    <div className="form-group">
+                                                                        <label className="form-control-label">Tỷ lệ hoa hồng (%)</label>
+                                                                        <Input
+                                                                            valid={defaultCommissionRateState === "valid"}
+                                                                            invalid={defaultCommissionRateState === "invalid"}
+                                                                            className="form-control"
+                                                                            type="number"
+                                                                            id="example-search-input"
+                                                                            value={`${defaultCommissionRate}`}
+                                                                            onChange={(e) => {
+                                                                                setDefaultCommissionRate(e.target.value);
+                                                                            }}
+                                                                        />
+                                                                        <div className="invalid-feedback">Tỷ lệ hoa hồng không được để trống</div>
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-6">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">Trạng Thái</label>
                                                                         <Select

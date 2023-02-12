@@ -38,6 +38,9 @@ export const ClusterModal = ({ handleReload }) => {
                     handleReload({ value: res.data.id, label: res.data.name });
                     setOpenClusterModal(false);
                     setIsLoadingCircle(false);
+                } else {
+                    setIsLoadingCircle(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {

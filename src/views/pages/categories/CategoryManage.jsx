@@ -96,6 +96,9 @@ function CategoryManage() {
                         setImages([]);
                         setcategoryName("");
                         // history.push("/admin/categories");
+                    } else {
+                        setIsLoadingCircle(false);
+                        notify("Đã xảy ra lỗi gì đó!!", "Error");
                     }
                 })
                 .catch((error) => {
@@ -119,13 +122,15 @@ function CategoryManage() {
                         setIsLoading(false);
                     }, 1);
                 })
-                .catch((error) => console.log(error));
+                .catch((error) => {
+                    setIsLoading(false);
+                });
         } else {
             hanldeGetListCategorys();
         }
     }
     const debounceDropDown = useCallback(
-        debounce((nextValue) => fetchDropdownOptions(nextValue), 1000),
+        debounce((nextValue) => fetchDropdownOptions(nextValue), 500),
         []
     );
     function handleInputOnchange(e) {
@@ -158,6 +163,10 @@ function CategoryManage() {
                     handleReload();
                     setOpenDeleteModal(false);
                     setIsLoadingCircle(false);
+                } else {
+                    setIsLoadingCircle(false);
+                    setIsLoading(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {
@@ -345,11 +354,11 @@ function CategoryManage() {
                                                 hanldeDeleteCategory(storeCategoryModal.id);
                                                 // hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.name);
                                             }}
-                                            className="btn-neutral"
+                                            className="btn-cancel"
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (
@@ -404,39 +413,38 @@ function CategoryManage() {
                                 </Col>
                             </div>
 
-                            {!isLoading && (
-                                <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
-                                    <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
-                                    <thead className="thead-light">
-                                        <tr>
-                                            <th className="sort table-title" scope="col">
-                                                STT
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Hình ảnh
-                                            </th>
+                            <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                                <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
+                                <thead className="thead-light">
+                                    <tr>
+                                        <th className="sort table-title" scope="col">
+                                            STT
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            Hình ảnh
+                                        </th>
 
-                                            <th className="sort table-title" scope="col">
-                                                Tên danh mục
-                                            </th>
-                                            {/* <th className="sort table-title" scope="col">
+                                        <th className="sort table-title" scope="col">
+                                            Tên danh mục
+                                        </th>
+                                        {/* <th className="sort table-title" scope="col">
                                                 Mã danh mục
                                             </th> */}
-                                            <th className="sort table-title" scope="col">
-                                                Trạng thái
-                                            </th>
-                                            <th className="sort table-title" scope="col">
-                                                Hành động
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="list">
-                                        {categoryList.map((item, index) => {
-                                            return <CategoryItem data={item} key={index} index={index} />;
-                                        })}
-                                    </tbody>
-                                </Table>
-                            )}
+                                        <th className="sort table-title" scope="col">
+                                            Trạng thái
+                                        </th>
+                                        <th className="sort table-title" scope="col">
+                                            {/* Hành động */}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="list">
+                                    {categoryList.map((item, index) => {
+                                        return <CategoryItem data={item} key={index} index={index} />;
+                                    })}
+                                </tbody>
+                            </Table>
+
                             {categoryList.length === 0 && !isLoading && (
                                 <>
                                     <div className="center_flex" style={{ padding: "50px 0 0 0" }}>

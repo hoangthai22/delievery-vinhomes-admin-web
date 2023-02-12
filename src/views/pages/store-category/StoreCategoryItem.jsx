@@ -11,6 +11,7 @@ export const StoreCategoryItem = ({ data, index }) => {
 
                 {/* <td className="budget table-text-product bold">{data.id}</td> */}
                 <td className="budget table-text-product bold">{data.name}</td>
+                <td className="budget table-text-product bold">{data.defaultCommissionRate}%</td>
 
                 {/* <td>
         <span className="badge badge-lg badge-primary " style={{ color: "var(--secondary)", fontSize: 11, padding: "1em 1.4em" }}>

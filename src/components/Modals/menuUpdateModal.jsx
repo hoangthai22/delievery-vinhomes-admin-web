@@ -23,7 +23,9 @@ export const MenuUpdateModal = ({ handleReload }) => {
     const [Category, setCategory] = useState("");
     const [CategoryState, setCategoryState] = useState("");
     const [priorityState, setPriorityState] = useState("");
-    const [priority, setPriority] = useState("");
+    const [shipcostState, setShipcostState] = useState("");
+    const [priority, setPriority] = useState(0);
+    const [shipCost, setShipcost] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     let history = useHistory();
@@ -40,8 +42,11 @@ export const MenuUpdateModal = ({ handleReload }) => {
                         setcloseTime(menu.endHour);
                         setmenuName(menu.name);
                         setDayFilter(menu.dayFilter);
+                        setPriority(menu.priority);
+                        setShipcost(menu.shipCost);
+                        console.log(mode);
                         setMode({
-                            label: getModeName(mode),
+                            label: getModeName(mode.toString()),
                             value: mode,
                         });
                         console.log(menu);
@@ -53,6 +58,10 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                 return { value: value.id, label: value.name };
                             });
                         setCategory(list);
+                    } else {
+                        setIsLoading(false);
+                        setIsLoadingCircle(false);
+                        notify("Đã xảy ra lỗi gì đó!!", "Error");
                     }
                 })
                 .catch((error) => {
@@ -70,52 +79,108 @@ export const MenuUpdateModal = ({ handleReload }) => {
     }, [menu, openModal]);
 
     const hanldeUpdate = () => {
-        setIsLoadingCircle(true);
-        let newCate = Category.map((item) => {
-            return item.value;
-        });
-        let menuUpdate = {
-            image: null,
-            name: menuName,
-            startDate: null,
-            endDate: null,
-            dayFilter: dayFilter,
-            hourFilter: null,
-            startHour: parseFloat(openTime),
-            endHour: parseFloat(closeTime),
-            modeId: mode.toString(),
-            listCategory: newCate,
-        };
-        console.log({ menuUpdate });
-        putMenu(menuUpdate, menu)
-            .then((res) => {
-                if (res.data) {
-                    notify("Cập nhật thành công", "Success");
-                    handleReload();
-                    setOpenModal(false);
+        if (validateCustomStylesForm()) {
+            setIsLoadingCircle(true);
+            let newCate = Category.map((item) => {
+                return item.value;
+            });
+            let menuUpdate = {
+                image: null,
+                name: menuName,
+                startDate: null,
+                endDate: null,
+                dayFilter: dayFilter,
+                hourFilter: null,
+                shipCost: shipCost,
+                startHour: parseFloat(openTime),
+                endHour: parseFloat(closeTime),
+                modeId: mode.toString(),
+                priority: parseInt(priority),
+                listCategory: newCate,
+            };
+            console.log({ menuUpdate });
+            putMenu(menuUpdate, menu)
+                .then((res) => {
+                    if (res.data) {
+                        notify("Cập nhật thành công", "Success");
+                        handleReload();
+                        setOpenModal(false);
+                        setIsLoading(false);
+                        setIsLoadingCircle(false);
+                    } else {
+                        setIsLoading(false);
+                        setIsLoadingCircle(false);
+                        notify("Đã xảy ra lỗi gì đó!!", "Error");
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
                     setIsLoading(false);
                     setIsLoadingCircle(false);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                setIsLoading(false);
-                setIsLoadingCircle(false);
-                notify("Đã xảy ra lỗi gì đó!!", "Error");
-            });
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
+                });
+        }
     };
     const getModeName = (mode) => {
         switch (mode) {
             case "1":
-                return "Gọi Món";
+                return "Gọi Đồ Ăn";
             case "2":
                 return "Giao Hàng";
             case "3":
-                return "Đặt Hàng";
+                return "Đặt Hàng";
 
             default:
                 return "Gọi Món";
         }
+    };
+    const validateCustomStylesForm = () => {
+        let valid = true;
+        if (menuName === "") {
+            valid = false;
+            setmenuNameState("invalid");
+        } else {
+            // valid = true;
+            setmenuNameState("valid");
+        }
+
+        if (Category === "") {
+            valid = false;
+            setCategoryState("invalid");
+        } else {
+            // valid = true;
+            setCategoryState("valid");
+        }
+        if (openTime === "" || openTime < 0 || openTime > 24) {
+            valid = false;
+            setOpenTimeState("invalid");
+        } else {
+            // valid = true;
+            setOpenTimeState("valid");
+        }
+        if (closeTime === "" || closeTime < 0 || closeTime > 24) {
+            valid = false;
+            setCloseTimeState("invalid");
+        } else {
+            // valid = true;
+            setCloseTimeState("valid");
+        }
+        if (priority === "") {
+            valid = false;
+            setPriorityState("invalid");
+        } else {
+            // valid = true;
+            setPriorityState("valid");
+        }
+        if (shipCost === "") {
+            valid = false;
+            setShipcostState("invalid");
+        } else {
+            // valid = true;
+            setShipcostState("valid");
+        }
+
+        return valid;
     };
     const customStyles = {
         control: (provided, state) => ({
@@ -161,6 +226,13 @@ export const MenuUpdateModal = ({ handleReload }) => {
                         isOpen={openModal}
                         toggle={() => {
                             setOpenModal(false);
+                            setCategoryState("");
+                            setCloseTimeState("");
+                            setOpenTimeState("");
+                            setmenuNameState("");
+                            setPriorityState("");
+                            setCategoryState("");
+                            setShipcostState("");
                         }}
                     >
                         <div className="modal-body p-0">
@@ -224,7 +296,7 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                                                         )}
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-3">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">
                                                                             Giờ bắt đầu <span style={{ color: "red" }}>*</span>
@@ -240,10 +312,10 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                                                                 setopenTime(e.target.value);
                                                                             }}
                                                                         />
-                                                                        <div className="invalid-feedback">Giờ bắt đầu không được để trống</div>
+                                                                        <div className="invalid-feedback">Giờ bắt đầu không hợp lệ</div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-3">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">
                                                                             Giờ kết thúc <span style={{ color: "red" }}>*</span>
@@ -259,10 +331,10 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                                                                 setcloseTime(e.target.value);
                                                                             }}
                                                                         />
-                                                                        <div className="invalid-feedback">Giờ kết thúc không được để trống</div>
+                                                                        <div className="invalid-feedback">Giờ kết thúc không hợp lệ</div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="col-md-4">
+                                                                <div className="col-md-3">
                                                                     <div className="form-group">
                                                                         <label className="form-control-label">
                                                                             Độ ưu tiên <span style={{ color: "red" }}>*</span>
@@ -279,6 +351,25 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                                                             }}
                                                                         />
                                                                         <div className="invalid-feedback">Độ ưu tiên không được để trống</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-md-3">
+                                                                    <div className="form-group">
+                                                                        <label className="form-control-label">
+                                                                            Phí giao hàng <span style={{ color: "red" }}>*</span>
+                                                                        </label>
+                                                                        <Input
+                                                                            valid={shipcostState === "valid"}
+                                                                            invalid={shipcostState === "invalid"}
+                                                                            className="form-control"
+                                                                            type="number"
+                                                                            id="example-search-input"
+                                                                            value={`${shipCost}`}
+                                                                            onChange={(e) => {
+                                                                                setShipcost(e.target.value);
+                                                                            }}
+                                                                        />
+                                                                        <div className="invalid-feedback">Phí giao hàng không được để trống</div>
                                                                     </div>
                                                                 </div>
 
@@ -318,6 +409,13 @@ export const MenuUpdateModal = ({ handleReload }) => {
                                             <Button
                                                 onClick={() => {
                                                     setOpenModal(false);
+                                                    setCategoryState("");
+                                                    setCloseTimeState("");
+                                                    setOpenTimeState("");
+                                                    setmenuNameState("");
+                                                    setPriorityState("");
+                                                    setCategoryState("");
+                                                    setShipcostState("");
                                                 }}
                                                 // className="btn-neutral"
                                                 color="default"

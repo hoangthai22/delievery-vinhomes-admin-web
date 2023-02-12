@@ -45,6 +45,10 @@ export const BuildingModal = ({ handleReload, listCluster }) => {
                     handleReload();
                     setOpenBuildingModal(false);
                     setIsLoadingCircle(false);
+                } else {
+                    setOpenBuildingModal(false);
+                    setIsLoadingCircle(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {

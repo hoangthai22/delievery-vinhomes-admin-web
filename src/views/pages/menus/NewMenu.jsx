@@ -21,6 +21,8 @@ export const NewMenu = () => {
     const [CategoryState, setCategoryState] = useState("");
     const [isLoadingCircle, setIsLoadingCircle] = useState(false);
     const [storeCategoryState, setStoreCategoryState] = useState("");
+    const [shipcost, setShipcost] = useState("");
+    const [shipcostState, setShipcostState] = useState("");
     const [priorityState, setPriorityState] = useState("");
     const [priority, setPriority] = useState("");
     const [images, setImages] = React.useState([]);
@@ -75,17 +77,15 @@ export const NewMenu = () => {
     const getModeName = (mode) => {
         switch (mode) {
             case "1":
-                return "Gọi Món";
+                return "Gọi Đồ Ăn";
             case "2":
                 return "Giao Hàng";
-            case "3":
-                return "Đặt Hàng";
 
             default:
                 return "Gọi Món";
         }
     };
-    const optionsMode = ["1", "2", "3"].map((item) => {
+    const optionsMode = ["1", "2"].map((item) => {
         return {
             label: getModeName(item),
             value: item,
@@ -101,14 +101,14 @@ export const NewMenu = () => {
             // valid = true;
             setmenuNameState("valid");
         }
-        if (openTime === "") {
+        if (openTime === "" || openTime < 0 || openTime > 24) {
             valid = false;
             setOpenTimeState("invalid");
         } else {
             // valid = true;
             setOpenTimeState("valid");
         }
-        if (closeTime === "") {
+        if (closeTime === "" || closeTime < 0 || closeTime > 24) {
             valid = false;
             setCloseTimeState("invalid");
         } else {
@@ -144,6 +144,13 @@ export const NewMenu = () => {
             // valid = true;
             setPriorityState("valid");
         }
+        if (shipcost === "") {
+            valid = false;
+            setShipcostState("invalid");
+        } else {
+            // valid = true;
+            setShipcostState("valid");
+        }
 
         return valid;
     };
@@ -160,6 +167,8 @@ export const NewMenu = () => {
                 endDate: "",
                 dayFilter: "",
                 hourFilter: "",
+                shipCost: shipcost,
+                priority: priority,
                 startHour: parseFloat(openTime),
                 endHour: parseFloat(closeTime),
                 modeId: Mode.value,
@@ -184,7 +193,7 @@ export const NewMenu = () => {
         <>
             <SimpleHeader name="Thêm Mới Thực Đơn" parentName="Quản Lý" />
             <Container className="mt--6" fluid>
-                <Row>
+                <Row style={{ justifyContent: "center" }}>
                     {/* <div className="col-lg-4">
                         <Card>
                             <CardHeader>
@@ -246,7 +255,7 @@ export const NewMenu = () => {
                             </div>
                         </Card>
                     </div> */}
-                    <div className="col-lg-8">
+                    <div className="col-lg-7">
                         <Card>
                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "10px 0px" }} className="align-items-center">
                                 <CardHeader className="border-0" style={{ padding: "15px" }}>
@@ -272,7 +281,7 @@ export const NewMenu = () => {
                                                         setmenuName(e.target.value);
                                                     }}
                                                 />
-                                                <div className="invalid-feedback">Tên cửa hàng không được để trống</div>
+                                                <div className="invalid-feedback">Tên thực đơn không được để trống</div>
                                             </div>
                                         </div>
                                         <div className="col-md-6">
@@ -298,7 +307,7 @@ export const NewMenu = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-md-3">
                                             <div className="form-group">
                                                 <label className="form-control-label">
                                                     Giờ bắt đầu <span style={{ color: "red" }}>*</span>
@@ -314,10 +323,10 @@ export const NewMenu = () => {
                                                         setopenTime(e.target.value);
                                                     }}
                                                 />
-                                                <div className="invalid-feedback">Giờ bắt đầu không được để trống</div>
+                                                <div className="invalid-feedback">Giờ bắt đầu không hợp lệ</div>
                                             </div>
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-md-3">
                                             <div className="form-group">
                                                 <label className="form-control-label">
                                                     Giờ kết thúc <span style={{ color: "red" }}>*</span>
@@ -333,10 +342,10 @@ export const NewMenu = () => {
                                                         setcloseTime(e.target.value);
                                                     }}
                                                 />
-                                                <div className="invalid-feedback">Giờ kết thúc không được để trống</div>
+                                                <div className="invalid-feedback">Giờ kết thúc không hợp lệ</div>
                                             </div>
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-md-3">
                                             <div className="form-group">
                                                 <label className="form-control-label">
                                                     Độ ưu tiên <span style={{ color: "red" }}>*</span>
@@ -353,6 +362,25 @@ export const NewMenu = () => {
                                                     }}
                                                 />
                                                 <div className="invalid-feedback">Độ ưu tiên không được để trống</div>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3">
+                                            <div className="form-group">
+                                                <label className="form-control-label">
+                                                    Phí giao hàng <span style={{ color: "red" }}>*</span>
+                                                </label>
+                                                <Input
+                                                    valid={shipcostState === "valid"}
+                                                    invalid={shipcostState === "invalid"}
+                                                    className="form-control"
+                                                    type="number"
+                                                    id="example-search-input"
+                                                    value={`${shipcost}`}
+                                                    onChange={(e) => {
+                                                        setShipcost(e.target.value);
+                                                    }}
+                                                />
+                                                <div className="invalid-feedback">Phí giao hàng không được để trống</div>
                                             </div>
                                         </div>
 

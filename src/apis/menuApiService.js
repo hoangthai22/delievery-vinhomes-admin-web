@@ -51,3 +51,17 @@ export const putMenu = (menu, menuId) => {
         "Content-Type": "application/json",
     });
 };
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/menu-management/menus/z
+export const deleteMenu = (menuId) => {
+    return axios.delete(`${BASE_URL}menu-management/${MENU}/${menuId}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};
+//https://deliveryvhgp-webapi.azurewebsites.net/api/v1/menus/1/products?productId=5
+export const deleteProductInMenu = (productId, menuId) => {
+    return axios.delete(`${BASE_URL}${MENU}/${menuId}/products?productId=${productId}`, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    });
+};

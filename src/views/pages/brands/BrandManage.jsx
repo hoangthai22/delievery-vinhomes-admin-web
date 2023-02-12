@@ -94,6 +94,10 @@ function BrandManage() {
                     setBrandList([...newBrand]);
                     setOpenDeleteModal(false);
                     setIsLoadingCircle(false);
+                } else {
+                    setIsLoadingCircle(false);
+                    setIsLoading(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {
@@ -153,11 +157,11 @@ function BrandManage() {
                                                 // setIsLoadingCircle(true);
                                                 hanldeDeleteBrand(storeCategoryModal.id);
                                             }}
-                                            className="btn-neutral"
+                                            className="btn-cancel"
                                             disabled={isLoadingCircle}
                                             color="default"
                                             size="lg"
-                                            style={{ background: "var(--primary)", color: "#fff", padding: "0.875rem 1rem" }}
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
                                         >
                                             <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
                                                 {isLoadingCircle ? (

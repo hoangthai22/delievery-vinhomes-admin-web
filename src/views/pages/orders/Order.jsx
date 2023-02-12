@@ -1,15 +1,34 @@
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactDatetime from "react-datetime";
 import { useHistory } from "react-router";
 import Select from "react-select";
-import { Card, CardBody, CardFooter, CardHeader, Container, Form, Pagination, PaginationItem, PaginationLink, Row, Spinner, Table } from "reactstrap";
+import {
+    Card,
+    CardBody,
+    CardFooter,
+    CardHeader,
+    Container,
+    Form,
+    FormGroup,
+    Input,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupText,
+    Pagination,
+    PaginationItem,
+    PaginationLink,
+    Row,
+    Spinner,
+    Table,
+} from "reactstrap";
 import { getListOrder } from "../../../apis/orderApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { statusTypeOptions } from "../../../constants";
 import { OrderItem } from "./OrderItem";
 import Lottie from "react-lottie";
 import animationData from "../../../assets/loading.json";
+import { debounce } from "lodash";
 // import "moment/locale/en";
 
 export const Order = () => {
@@ -23,7 +42,38 @@ export const Order = () => {
     const [totalPage, setTotalPage] = useState(0);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [keyword, setKeyword] = useState("");
     const [listPage, setListPage] = useState([]);
+    function fetchDropdownOptions(key, filterValue) {
+        setIsLoading(true);
+        setOrders([]);
+        setFilter({ ...filter, key: key });
+        if (key !== "") {
+            handleGetOrder(key, filter.date, filter.payment, filter.status, filter.mode, 1, pageSize);
+        } else {
+            getListOrder("", "", "", "", "", page, pageSize)
+                .then((res) => {
+                    const { data } = res.data;
+                    const orders = data;
+                    const { totalOrder } = res.data;
+                    setTotalPage(totalOrder);
+                    let newList = [];
+                    for (let index = 1; index <= Math.ceil(totalOrder / pageSize); index++) {
+                        newList = [...newList, index];
+                    }
+                    setListPage(newList);
+                    setTimeout(() => {
+                        setOrders(orders);
+                        setIsLoading(false);
+                    }, 100);
+                })
+                .catch((error) => console.log(error));
+        }
+    }
+    const debounceDropDown = useCallback(
+        debounce((nextValue, filterValue) => fetchDropdownOptions(nextValue, filterValue), 500),
+        []
+    );
     const defaultOptions = {
         loop: true,
         autoplay: true,
@@ -37,6 +87,7 @@ export const Order = () => {
         payment: "",
         status: "",
         mode: "",
+        key: "",
     });
     // const [statusFilter, setStatusFilter] = useState("");
     // const [dateFilter, setDateFilter] = useState("");
@@ -62,18 +113,21 @@ export const Order = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return () => {};
     }, []);
-    const handleGetOrder = (date, payment, status, mode, pageIndex, size) => {
+    const handleGetOrder = (key, date, payment, status, mode, pageIndex, size) => {
         let dateFilter = "";
         let paymentFilter = "";
         let statusFilter = "";
         let modeFilter = "";
+        let keyFilter = "";
         dateFilter = date;
         paymentFilter = payment;
         statusFilter = status;
         modeFilter = mode;
+        keyFilter = key;
         setIsLoading(true);
 
         getListOrder(
+            keyFilter === "" ? "" : keyFilter,
             dateFilter === "" ? "" : dateFilter.replace("-", "/").replace("-", "/"),
             paymentFilter === -1 ? "" : paymentFilter,
             statusFilter === -1 ? -1 : statusFilter,
@@ -101,6 +155,11 @@ export const Order = () => {
             })
             .catch((error) => console.log(error));
     };
+    function handleInputOnchange(e) {
+        const { value } = e.target;
+        setKeyword(value);
+        debounceDropDown(value, filter);
+    }
     useEffect(() => {
         // const date = new Date();
         // const futureDate = date.getDate();
@@ -108,7 +167,7 @@ export const Order = () => {
         // const defaultValue = date.toLocaleDateString("en-CA");
         // setDateOrder("");
         // handleGetOrder("");
-        getListOrder("", "", "", "", page, pageSize)
+        getListOrder("", "", "", "", "", page, pageSize)
             .then((res) => {
                 const { data } = res.data;
                 const orders = data;
@@ -137,7 +196,7 @@ export const Order = () => {
             borderColor: "#9e9e9e",
             minHeight: "30px",
             height: "46px",
-            width: "200px",
+            width: "190px",
             boxShadow: state.isFocused ? null : null,
             borderRadius: "0.5rem",
         }),
@@ -154,7 +213,7 @@ export const Order = () => {
             borderColor: "#9e9e9e",
             minHeight: "30px",
             height: "46px",
-            width: "250px",
+            width: "230px",
             boxShadow: state.isFocused ? null : null,
             borderRadius: "0.5rem",
         }),
@@ -177,21 +236,16 @@ export const Order = () => {
                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "20px 0px", zIndex: 2 }} className="align-items-center">
                                 <CardHeader className="" style={{ padding: "0 0 0 20px", border: "none" }}>
                                     <Form className="flex" style={{ alignItems: "center", gap: 20 }}>
-                                        {/* <FormGroup className="mb-0">
-                                            <InputGroup className="input-group-lg input-group-flush" style={{ border: "2px solid #dce0e8" }}>
+                                        <FormGroup className="mb-0">
+                                            <InputGroup className="input-group-lg input-group-flush" style={{ border: "1px solid #9e9e9e" }}>
                                                 <InputGroupAddon addonType="prepend">
                                                     <InputGroupText style={{ padding: "0 15px" }}>
                                                         <span className="fas fa-search" />
                                                     </InputGroupText>
                                                 </InputGroupAddon>
-                                                <Input
-                                                    placeholder="Tìm kiếm bằng tên sản phẩm"
-                                                    type="search"
-                                                    className="btn-lg input-search"
-                                                    style={{ height: 44, width: 250, fontSize: "1.2rem !important" }}
-                                                />
+                                                <Input placeholder="Tìm kiếm bằng số điện thoại" type="search" onChange={handleInputOnchange} className="btn-lg" style={{ height: 46 }} />
                                             </InputGroup>
-                                        </FormGroup> */}
+                                        </FormGroup>
                                         <ReactDatetime
                                             inputProps={{
                                                 placeholder: "Lọc theo ngày",
@@ -207,7 +261,7 @@ export const Order = () => {
                                                 let dateConvert = moment(date).format("ll");
                                                 date = dateConvert.split(",")[0] + dateConvert.split(",")[1];
                                                 setFilter({ ...filter, date: date });
-                                                handleGetOrder(date, filter.payment, filter.status, filter.mode, 1, pageSize);
+                                                handleGetOrder(filter.key, date, filter.payment, filter.status, filter.mode, 1, pageSize);
                                                 setPage(1);
                                             }}
                                         />
@@ -223,7 +277,7 @@ export const Order = () => {
                                                 // setOrders([]);
                                                 setPayment(e);
                                                 setFilter({ ...filter, payment: e.value });
-                                                handleGetOrder(filter.date, e.value, filter.status, filter.mode, 1, pageSize);
+                                                handleGetOrder(filter.key, filter.date, e.value, filter.status, filter.mode, 1, pageSize);
                                                 setPage(1);
                                                 // if (e.value !== -1) {
                                                 //     getListOrderByPayment(e.value, page,pageSize)
@@ -256,7 +310,7 @@ export const Order = () => {
                                                 setStatus(e);
                                                 setFilter({ ...filter, status: e.value });
                                                 // setStatusFilter(e.value);
-                                                handleGetOrder(filter.date, filter.payment, e.value, filter.mode, 1, pageSize);
+                                                handleGetOrder(filter.key, filter.date, filter.payment, e.value, filter.mode, 1, pageSize);
                                                 setPage(1);
                                                 // if (e.value !== "Tất cả") {
                                                 //     getListOrderByStatus(e.value, page,pageSize)
@@ -287,7 +341,7 @@ export const Order = () => {
                                                 setMode(e);
                                                 // setModeFilter(e.value);
                                                 setFilter({ ...filter, mode: e.value });
-                                                handleGetOrder(filter.date, filter.payment, filter.status, e.value, 1, pageSize);
+                                                handleGetOrder(filter.key, filter.date, filter.payment, filter.status, e.value, 1, pageSize);
                                                 setPage(1);
                                                 // setIsLoading(true);
                                                 // setOrders([]);
@@ -402,7 +456,7 @@ export const Order = () => {
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         setPage(page - 1);
-                                                        handleGetOrder("", filter.payment, filter.status, filter.mode, page - 1, pageSize);
+                                                        handleGetOrder(filter.key, filter.date, filter.payment, filter.status, filter.mode, page - 1, pageSize);
                                                     }}
                                                     tabIndex="1"
                                                 >
@@ -418,7 +472,7 @@ export const Order = () => {
                                                             onClick={(e) => {
                                                                 e.preventDefault();
                                                                 setPage(item);
-                                                                handleGetOrder("", filter.payment, filter.status, filter.mode, item, pageSize);
+                                                                handleGetOrder(filter.key, filter.date, filter.payment, filter.status, filter.mode, item, pageSize);
                                                             }}
                                                         >
                                                             {item}
@@ -433,7 +487,7 @@ export const Order = () => {
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         setPage(page + 1);
-                                                        handleGetOrder("", filter.payment, filter.status, filter.mode, page + 1, pageSize);
+                                                        handleGetOrder(filter.key, filter.date, filter.payment, filter.status, filter.mode, page + 1, pageSize);
                                                     }}
                                                 >
                                                     <i className="fas fa-angle-right" />

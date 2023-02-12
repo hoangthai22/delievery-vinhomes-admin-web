@@ -11,6 +11,7 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownToggle,
+    Modal,
     Nav,
     NavItem,
     NavLink,
@@ -21,7 +22,7 @@ import {
     TabPane,
     UncontrolledDropdown,
 } from "reactstrap";
-import { getListMenuByMenuId, getListMenuByMode } from "../../../apis/menuApiService";
+import { deleteMenu, deleteProductInMenu, getListMenuByMenuId, getListMenuByMode } from "../../../apis/menuApiService";
 import SimpleHeader from "../../../components/Headers/SimpleHeader";
 import { MenuUpdateModal } from "../../../components/Modals/menuUpdateModal";
 import { notify } from "../../../components/Toast/ToastCustom";
@@ -34,10 +35,20 @@ export const Menus = () => {
     const [hTabsIcons, setHTabsIcons] = React.useState("");
     const { mode, setMode, menu, setMenu, setOpenModal } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingCircle, setIsLoadingCircle] = useState(false);
+    const [openDeleteMenuModal, setOpenDeleteMenuModal] = useState(false);
+    const [openDeleteProductModal, setOpenDeleteProductModal] = useState(false);
+    const [deleteMenuModal, setDeleteMenuModal] = useState("");
+    const [deleteProductModal, setDeleteProductModal] = useState("");
 
     const [menuList, setMenuList] = useState([]);
     const [menuActive, setMenuActive] = useState("");
     const [productMenuList, setProductMenuList] = useState([]);
+    const [productMenuListTmp, setProductMenuListTmp] = useState([]);
+    const [optionsStores, setOptionsStores] = useState([]);
+    const [optionsCates, setOptionsCates] = useState([]);
+    const [filterStore, setFilterStore] = useState("");
+    const [filterCate, setFilterCate] = useState("");
     let history = useHistory();
     const optionsCategory = menuList.map((item) => {
         return {
@@ -75,7 +86,7 @@ export const Menus = () => {
             });
         return () => {};
     }, []);
-    const customStylesPayment = {
+    const customStylesMenu = {
         control: (provided, state) => ({
             ...provided,
             background: "#fff",
@@ -92,11 +103,157 @@ export const Menus = () => {
             margin: "5px",
         }),
     };
+    const customStylesFilter = {
+        control: (provided, state) => ({
+            ...provided,
+            background: "#fff",
+            borderColor: "#dee2e6",
+            minHeight: "30px",
+            height: "46px",
+            width: "180px",
+            boxShadow: state.isFocused ? null : null,
+            borderRadius: "0.5rem",
+        }),
 
-    const hanldeChangeMode = (mode) => {
-        setMenuList([]);
-        setMode(mode);
-        // setIsLoading(true);
+        input: (provided, state) => ({
+            ...provided,
+            margin: "5px",
+        }),
+    };
+    const hanldeChangeMode = (modeFilter) => {
+        if (modeFilter !== mode) {
+            setMenuList([]);
+            setMode(modeFilter);
+            // setIsLoading(true);
+
+            getListMenuByMode(modeFilter)
+                .then((res) => {
+                    const menus = res.data;
+                    setMenuActive({
+                        label: menus[0].name,
+                        value: menus[0].id,
+                    });
+                    setMenuList(menus);
+                    if (menus && menus.length > 0) {
+                        setHTabsIcons(menus[0].id);
+                        hanldeChangeMenu(menus[0].id);
+                    } else {
+                        setIsLoading(false);
+                        setMenuList([]);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setIsLoading(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
+                    setMenuList([]);
+                });
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 1);
+        }
+    };
+    const hanldeChangeMenu = (menu) => {
+        setMenu(menu);
+        setOptionsStores([]);
+        setFilterStore("");
+        setProductMenuList([]);
+        setIsLoading(true);
+        setHTabsIcons(menu);
+        getListMenuByMenuId(menu, 1, 100)
+            .then((res) => {
+                setTimeout(() => {
+                    let productMenus = res.data;
+                    let listCate = productMenus;
+                    let storeListFilter = [
+                        {
+                            value: "0",
+                            label: "Tất cả",
+                        },
+                    ];
+                    let cateListFilter = [
+                        {
+                            value: "0",
+                            label: "Tất cả",
+                        },
+                    ];
+                    productMenus
+                        .filter((value, index, self) => index === self.findIndex((t) => t.storeId === value.storeId))
+                        .map((e) => {
+                            storeListFilter.push({
+                                value: e.storeId,
+                                label: e.storeName,
+                            });
+                        });
+                    listCate
+                        .filter((value, index, self) => index === self.findIndex((t) => t.categoryId === value.categoryId))
+                        .map((e) => {
+                            cateListFilter.push({
+                                value: e.categoryId,
+                                label: e.productCategory,
+                            });
+                        });
+                    setOptionsStores(storeListFilter);
+                    setOptionsCates(cateListFilter);
+                    setProductMenuList(productMenus);
+                    setProductMenuListTmp(productMenus);
+                    setIsLoading(false);
+                }, 300);
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoading(false);
+                notify("Đã xảy ra lỗi gì đó!!", "Error");
+                setProductMenuList([]);
+            });
+    };
+    const hanldeFilterByStoreId = (storeId) => {
+        setIsLoading(true);
+        setProductMenuList([]);
+        setTimeout(() => {
+            if (storeId !== "0") {
+                let storesFilter = [];
+                for (let index = 0; index < productMenuListTmp.length; index++) {
+                    const element = productMenuListTmp[index];
+                    if (element.storeId === storeId) {
+                        storesFilter.push(element);
+                    }
+                }
+                setProductMenuList(storesFilter);
+            } else {
+                setProductMenuList(productMenuListTmp);
+            }
+            setIsLoading(false);
+        }, 300);
+    };
+    const hanldeFilterByCateId = (categoryId) => {
+        setIsLoading(true);
+        setProductMenuList([]);
+        setTimeout(() => {
+            if (categoryId !== "0") {
+                let storesFilter = [];
+                for (let index = 0; index < productMenuListTmp.length; index++) {
+                    const element = productMenuListTmp[index];
+                    if (element.categoryId === categoryId) {
+                        storesFilter.push(element);
+                    }
+                }
+                setProductMenuList(storesFilter);
+            } else {
+                setProductMenuList(productMenuListTmp);
+            }
+            setIsLoading(false);
+        }, 300);
+    };
+    const handleUpdateProduct = (data) => {
+        setDeleteProductModal(data);
+        setOpenDeleteProductModal(true);
+        // hanldeChangeMenu(menu);
+    };
+    const handleReload = () => {
+        hanldeChangeMenu(menu);
+    };
+    const handleReloadMenu = () => {
         getListMenuByMode(mode)
             .then((res) => {
                 const menus = res.data;
@@ -106,8 +263,8 @@ export const Menus = () => {
                 });
                 setMenuList(menus);
                 if (menus && menus.length > 0) {
-                    setHTabsIcons(menus[0].id);
-                    hanldeChangeMenu(menus[0].id);
+                    setHTabsIcons(menu);
+                    hanldeChangeMenu(menu);
                 } else {
                     setIsLoading(false);
                     setMenuList([]);
@@ -119,42 +276,197 @@ export const Menus = () => {
                 notify("Đã xảy ra lỗi gì đó!!", "Error");
                 setMenuList([]);
             });
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 1);
-    };
-    const hanldeChangeMenu = (menu) => {
-        setMenu(menu);
-        setProductMenuList([]);
-        setIsLoading(true);
-        setHTabsIcons(menu);
-        getListMenuByMenuId(menu, 1, 100)
-            .then((res) => {
-                setTimeout(() => {
-                    let productMenus = res.data;
-                    console.log({ productMenus });
-
-                    setProductMenuList(productMenus);
-                    setIsLoading(false);
-                }, 300);
-            })
-            .catch((error) => {
-                console.log(error);
-                setIsLoading(false);
-                notify("Đã xảy ra lỗi gì đó!!", "Error");
-                setProductMenuList([]);
-            });
-    };
-    const handleReload = () => {
-        hanldeChangeMenu(menu);
     };
     const convertTime = (time) => {
         return time.toFixed(2).toString().replace(".", ":");
     };
     return (
         <>
-            <MenuUpdateModal handleReload={handleReload} />
+            <MenuUpdateModal handleReload={handleReloadMenu} />
             <SimpleHeader name="Danh Sách Thực Đơn" parentName="Quản Lý" />
+            <Modal
+                className="modal-dialog-centered"
+                size="sm"
+                isOpen={openDeleteProductModal}
+                toggle={() => {
+                    setOpenDeleteProductModal(false);
+                }}
+            >
+                <div className="modal-body p-0">
+                    <Card className="bg-secondary border-0 mb-0">
+                        <div className="" style={{ paddingTop: 0 }}>
+                            <Container className="" fluid style={{ padding: "1.5rem 1.5rem 1rem 1.5rem " }}>
+                                <Row>
+                                    <div className="col-lg-12 ">
+                                        <h3>Bạn có chắc</h3>
+                                        <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0px 0px 30px 0px" }} className="">
+                                            <span className="mb-0">
+                                                Sản phẩm: <span style={{ fontWeight: 700 }}>{deleteProductModal.name}</span> sẽ bị xóa!!!{" "}
+                                            </span>
+                                            <span className="mb-0">Bạn sẽ không thể hoàn nguyên hành động này </span>
+                                        </div>
+                                        <div className="col-md-12"></div>
+                                    </div>
+                                </Row>
+                                <Col className="text-md-right mb-3" lg="12" xs="5">
+                                    <Row style={{ justifyContent: "flex-end" }}>
+                                        <Button
+                                            onClick={() => {
+                                                setOpenDeleteProductModal(false);
+                                            }}
+                                            // className="btn-neutral"
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem", border: "none" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                <span>Đóng</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                setIsLoadingCircle(true);
+                                                deleteProductInMenu(deleteProductModal.id, menu)
+                                                    .then((res) => {
+                                                        setOpenDeleteProductModal(false);
+                                                        setIsLoadingCircle(false);
+                                                        hanldeChangeMenu(menu);
+                                                        notify("Xóa sản phẩm thành công.", "Success");
+                                                    })
+                                                    .catch((error) => {
+                                                        console.log(error);
+                                                        setIsLoadingCircle(false);
+                                                        notify("Đã xảy ra lỗi gì đó!!", "Error");
+                                                    });
+                                                setTimeout(() => {
+                                                    setIsLoadingCircle(false);
+                                                }, 2000);
+                                                // hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.name);
+                                            }}
+                                            className="btn-cancel"
+                                            disabled={isLoadingCircle}
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                {isLoadingCircle ? (
+                                                    <Spinner style={{ color: "rgb(250,250,250)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                ) : (
+                                                    <>
+                                                        <span>Chắc chắn</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </Row>
+                                </Col>
+                            </Container>
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
+            <Modal
+                className="modal-dialog-centered"
+                size="sm"
+                isOpen={openDeleteMenuModal}
+                toggle={() => {
+                    setOpenDeleteMenuModal(false);
+                }}
+            >
+                <div className="modal-body p-0">
+                    <Card className="bg-secondary border-0 mb-0">
+                        <div className="" style={{ paddingTop: 0 }}>
+                            <Container className="" fluid style={{ padding: "1.5rem 1.5rem 1rem 1.5rem " }}>
+                                <Row>
+                                    <div className="col-lg-12 ">
+                                        <h3>Bạn có chắc</h3>
+                                        <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0px 0px 30px 0px" }} className="">
+                                            <span className="mb-0">
+                                                Thực đơn: <span style={{ fontWeight: 700 }}>{deleteMenuModal.name}</span> sẽ bị xóa!!!{" "}
+                                            </span>
+                                            <span className="mb-0">Bạn sẽ không thể hoàn nguyên hành động này </span>
+                                        </div>
+                                        <div className="col-md-12"></div>
+                                    </div>
+                                </Row>
+                                <Col className="text-md-right mb-3" lg="12" xs="5">
+                                    <Row style={{ justifyContent: "flex-end" }}>
+                                        <Button
+                                            onClick={() => {
+                                                setOpenDeleteMenuModal(false);
+                                            }}
+                                            // className="btn-neutral"
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "#fff", color: "#000", padding: "0.875rem 1rem", border: "none" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                <span>Đóng</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                setIsLoadingCircle(true);
+                                                // setIsLoadingCircle(true);
+                                                deleteMenu(deleteMenuModal.id)
+                                                    .then((res) => {
+                                                        setOpenDeleteMenuModal(false);
+                                                        setIsLoadingCircle(false);
+                                                        getListMenuByMode(mode)
+                                                            .then((res) => {
+                                                                const menus = res.data;
+                                                                setMenuActive({
+                                                                    label: menus[0].name,
+                                                                    value: menus[0].id,
+                                                                });
+                                                                setMenuList(menus);
+                                                                if (menus && menus.length > 0) {
+                                                                    setHTabsIcons(menus[0].id);
+                                                                    hanldeChangeMenu(menus[0].id);
+                                                                } else {
+                                                                    setIsLoading(false);
+                                                                    setMenuList([]);
+                                                                }
+                                                            })
+                                                            .catch((error) => {
+                                                                console.log(error);
+                                                                setIsLoading(false);
+                                                                notify("Đã xảy ra lỗi gì đó!!", "Error");
+                                                                setMenuList([]);
+                                                            });
+                                                        notify("Xóa thực đơn thành công.", "Success");
+                                                    })
+                                                    .catch((error) => {
+                                                        console.log(error);
+                                                        setIsLoadingCircle(false);
+                                                        notify("Đã xảy ra lỗi gì đó!!", "Error");
+                                                    });
+                                                // hanldeDeleteStoreCate(storeCategoryModal.id, storeCategoryModal.name);
+                                            }}
+                                            className="btn-cancel"
+                                            disabled={isLoadingCircle}
+                                            color="default"
+                                            size="lg"
+                                            style={{ background: "red", color: "#fff", padding: "0.875rem 1rem" }}
+                                        >
+                                            <div className="flex" style={{ alignItems: "center", width: 80, justifyContent: "center" }}>
+                                                {isLoadingCircle ? (
+                                                    <Spinner style={{ color: "rgb(250,250,250)", width: "1.31rem", height: "1.31rem" }}>Loading...</Spinner>
+                                                ) : (
+                                                    <>
+                                                        <span>Chắc chắn</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </Row>
+                                </Col>
+                            </Container>
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
             <Container className="mt--6" fluid>
                 <Row>
                     <Col md="6" xl="4">
@@ -165,7 +477,7 @@ export const Menus = () => {
                                         <CardTitle tag="h5" className="text-uppercase text-muted mb-0">
                                             15 - 30 phút
                                         </CardTitle>
-                                        <span className="h2 font-weight-bold mb-0">Đặt Món</span>
+                                        <span className="h2 font-weight-bold mb-0">Gọi Đồ Ăn</span>
                                     </div>
                                     <Col className="col-auto">
                                         <div className="  text-white rounded-circle center_flex" style={{ width: 70, height: 70, border: "5px solid #fff" }}>
@@ -189,7 +501,7 @@ export const Menus = () => {
                                         <CardTitle tag="h5" className="text-uppercase text-muted mb-0">
                                             Giao hàng trong ngày
                                         </CardTitle>
-                                        <span className="h2 font-weight-bold mb-0">Đi Chợ</span>
+                                        <span className="h2 font-weight-bold mb-0">Giao Hàng</span>
                                     </div>
                                     <Col className="col-auto">
                                         <div className="  text-white rounded-circle center_flex" style={{ width: 70, height: 70, border: "5px solid #fff" }}>
@@ -236,7 +548,7 @@ export const Menus = () => {
                             <CardBody style={{}}>
                                 <div className="nav-wrapper" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     {mode !== 3 ? (
-                                        <Nav className="nav-fill flex-column flex-md-row" pills role="tablist" style={{ flex: 1, gap: 15 }}>
+                                        <Nav className="nav-fill flex-column flex-md-row" pills role="tablist" style={{ flex: 1, gap: 15, zIndex: 2 }}>
                                             {menuList.length > 0 &&
                                                 menuList.map((item) => (
                                                     <NavItem style={{ flex: "none", padding: 0 }} key={item.id}>
@@ -270,6 +582,7 @@ export const Menus = () => {
                                                                             href="#pablo"
                                                                             onClick={(e) => {
                                                                                 e.preventDefault();
+                                                                                setOpenModal(true);
                                                                                 // setAreaModal(areaSelected);
                                                                                 // console.log(areaSelected);
                                                                                 // setStoreCategoryModal(item);
@@ -281,6 +594,8 @@ export const Menus = () => {
                                                                             href="#pablo"
                                                                             onClick={(e) => {
                                                                                 e.preventDefault();
+                                                                                setOpenDeleteMenuModal(true);
+                                                                                setDeleteMenuModal(item);
                                                                                 // setStoreCategoryModal(item);
                                                                             }}
                                                                         >
@@ -297,7 +612,7 @@ export const Menus = () => {
                                         <Select
                                             options={optionsCategory}
                                             placeholder="Ngày"
-                                            styles={customStylesPayment}
+                                            styles={customStylesMenu}
                                             value={menuActive}
                                             onChange={(e) => {
                                                 setMenuActive(e);
@@ -305,8 +620,38 @@ export const Menus = () => {
                                             }}
                                         />
                                     )}
-
-                                    <div>
+                                    {/* <div style={{ marginRight: 15 }}>
+                                        
+                                    </div> */}
+                                    <div style={{ display: "flex", alignItems: "center", zIndex: 2 }}>
+                                        <div style={{ marginRight: 15 }}>
+                                            <Select
+                                                options={optionsCates}
+                                                placeholder="Danh mục"
+                                                styles={customStylesFilter}
+                                                value={filterCate}
+                                                onChange={(e) => {
+                                                    setFilterCate(e);
+                                                    hanldeFilterByCateId(e.value);
+                                                    // setMenuActive(e);
+                                                    // hanldeChangeMenu(e.value);
+                                                }}
+                                            />
+                                        </div>
+                                        <div style={{ marginRight: 15 }}>
+                                            <Select
+                                                options={optionsStores}
+                                                placeholder="Cửa hàng"
+                                                styles={customStylesFilter}
+                                                value={filterStore}
+                                                onChange={(e) => {
+                                                    setFilterStore(e);
+                                                    hanldeFilterByStoreId(e.value);
+                                                    // setMenuActive(e);
+                                                    // hanldeChangeMenu(e.value);
+                                                }}
+                                            />
+                                        </div>
                                         <Button
                                             onClick={() => {
                                                 // setOpenModal(true);
@@ -323,26 +668,30 @@ export const Menus = () => {
                                                 background: "#fff",
                                                 color: "var(--primary)",
                                                 fontWeight: 700,
-                                                width: 200,
+                                                width: 170,
                                                 fontSize: 16,
                                                 height: 49,
                                             }}
                                         >
                                             <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa
                                         </Button>
-                                        <Button
-                                            onClick={() => {
-                                                // setOpenModal(true);
-                                                // setModeModal(mode);
-                                                history.push("/admin/menu");
-                                            }}
-                                            className="btn-neutral"
-                                            color="default"
-                                            size="lg"
-                                            style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, width: 200, fontSize: 16, height: 49 }}
-                                        >
-                                            + Thêm thực đơn
-                                        </Button>
+                                        {mode !== 3 && (
+                                            <>
+                                                <Button
+                                                    onClick={() => {
+                                                        // setOpenModal(true);
+                                                        // setModeModal(mode);
+                                                        history.push("/admin/menu");
+                                                    }}
+                                                    className="btn-neutral"
+                                                    color="default"
+                                                    size="lg"
+                                                    style={{ background: "var(--primary)", color: "#fff", fontWeight: 700, width: 180, fontSize: 16, height: 49 }}
+                                                >
+                                                    + Thêm thực đơn
+                                                </Button>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                                 {/* <div style={{ display: "flex", margin: "15px 0" }}>
@@ -413,7 +762,7 @@ export const Menus = () => {
                                                     }
                                                 })} */}
 
-                                            <Table className="align-items-center table-flush" responsive hover={true} style={{ position: "relative" }}>
+                                            <Table className="align-items-center table-flush" responsive hover={true} style={{}}>
                                                 <div className={`loading-spin ${!isLoading && "loading-spin-done"}`}></div>
                                                 <thead className="thead-light">
                                                     <tr>
@@ -430,9 +779,7 @@ export const Menus = () => {
                                                         <th className="sort table-title" scope="col">
                                                             Giá
                                                         </th>
-                                                        <th className="sort table-title" scope="col">
-                                                            Mã sản phẩm
-                                                        </th>
+
                                                         <th className="sort table-title" scope="col">
                                                             Danh mục
                                                         </th>
@@ -443,14 +790,14 @@ export const Menus = () => {
                                                             Trạng thái
                                                         </th>
                                                         <th className="sort table-title" scope="col">
-                                                            Hành động
+                                                            {/* Hành động */}
                                                         </th>
                                                     </tr>
                                                 </thead>
-                                                {!isLoading && productMenuList.length > 0 && (
+                                                {productMenuList.length > 0 && (
                                                     <tbody className="list">
                                                         {productMenuList.map((item, index) => {
-                                                            return <MenuItem data={item} key={index} index={index} />;
+                                                            return <MenuItem data={item} key={index} index={index} handleUpdate={handleUpdateProduct} />;
                                                         })}
                                                     </tbody>
                                                 )}
@@ -469,7 +816,10 @@ export const Menus = () => {
                                                 ""
                                             )}
                                             {isLoading && (
-                                                <CardBody className="loading-wrapper center_flex">
+                                                <CardBody
+                                                    className=" center_flex"
+                                                    style={{ zIndex: 1, position: "absolute", top: 0, left: 0, bottom: 0, right: 0, background: "#fff", padding: "330px 0 210px 0" }}
+                                                >
                                                     <Lottie options={defaultOptions} height={350} width={350} />
                                                 </CardBody>
                                             )}

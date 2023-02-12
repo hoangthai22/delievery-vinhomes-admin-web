@@ -169,6 +169,9 @@ export const ShipperModal = ({ handleReload }) => {
                         setOpenModal(false);
                         setShipperModal({});
                         setImages([]);
+                    } else {
+                        setIsLoadingCircle(false);
+                        notify("Đã xảy ra lỗi gì đó!!", "Error");
                     }
                 })
                 .catch((error) => {

@@ -56,6 +56,9 @@ export const CategoryModal = ({ handleReload }) => {
                     setOpenModal(false);
                     setImgUpdate(false);
                     setIsLoadingCircle(false);
+                } else {
+                    setIsLoading(false);
+                    notify("Đã xảy ra lỗi gì đó!!", "Error");
                 }
             })
             .catch((error) => {
