@@ -22,6 +22,6 @@ Management website of the CONGDONGCHUNGCU system.
 Explore our demo.
 
 <p align="center">
-<img alt="congdongchungcu" width="950" src="/public/demo.png"/>
+<img alt="congdongchungcu" width="950" src="/public/images/demo.png"/>
 </p>
 
