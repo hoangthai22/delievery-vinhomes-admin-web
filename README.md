@@ -17,7 +17,7 @@ Management website of the CONGDONGCHUNGCU system.
 - Statistics: Orders, shippers, revenue, and stores.
 - CRUD: Store, product, category, menu, shipper, and area.
 
-## Demo: 
+## Demo: https://www.youtube.com/watch?v=JNp31l5UEIc
 
 Explore our demo.
 
